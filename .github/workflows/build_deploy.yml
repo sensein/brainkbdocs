@@ -27,6 +27,14 @@ jobs:
 
       - name: Build Jupyter Book
         run: jupyter-book build docs/
+        
+      - name: Debugging Step
+        run: |
+          echo "Listing current directory"
+          ls -alh
+          echo "Listing _build directory"
+          ls -alh _build
+
 
       - name: Deploy to GitHub Pages
         if: github.ref == 'refs/heads/main'
