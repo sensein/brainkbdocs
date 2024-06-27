@@ -1,0 +1,607 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>3. Audience and Use Case Overview &#8212; BrainKB</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="_static/sphinx-thebe.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'audience_usecases';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="4. Architecture of BrainKB" href="brainkb_architecture.html" />
+    <link rel="prev" title="2. What is BrainKB?" href="brainkb_intro.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.png" class="logo__image only-light" alt="BrainKB - Home"/>
+    <script>document.write(`<img src="_static/logo.png" class="logo__image only-dark" alt="BrainKB - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="index.html">
+                    Welcome to BrainKB
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Before you Begin</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">1. Getting Started</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">BrainKB Overview</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="brainkb_intro.html">2. What is BrainKB?</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">3. Audience and Use Case Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="brainkb_architecture.html">4. Architecture of BrainKB</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">BrainKB Microservices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="ingestion_service.html">5. Ingestion service</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">BrainKB User Interface</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="brainkbui.html">6. User Interface Overview</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Deployment</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="deployment_userinterface.html">7. Deployment of User Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deployment_braikbservices.html">8. Deployment of BrainKB Services</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Miscellaneous</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="markdown-notebooks.html">9. List of Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks.html">10. Content with notebooks</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/sensein/brainkbdocs" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/sensein/brainkbdocs/issues/new?title=Issue%20on%20page%20%2Faudience_usecases.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/audience_usecases.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Audience and Use Case Overview</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#target-audience">3.1. Target Audience</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#use-cases">3.2. Use cases</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage-scenario">3.3. Usage Scenario</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="audience-and-use-case-overview">
+<h1><span class="section-number">3. </span>Audience and Use Case Overview<a class="headerlink" href="#audience-and-use-case-overview" title="Permalink to this heading">#</a></h1>
+<p>This section provides overview into who can benefit from BrainKB and the various scenarios it can apply. You will learn how BrainKB can support your work, enhance your projects, and facilitate collaboration, regardless of whether you are a researcher, educator, developer, or enthusiast.</p>
+<section id="target-audience">
+<h2><span class="section-number">3.1. </span>Target Audience<a class="headerlink" href="#target-audience" title="Permalink to this heading">#</a></h2>
+<p>The following is the target audience of BrainKB.</p>
+<ul class="simple">
+<li><p><strong>Neuroscience researchers:</strong> BrainKB’s primary audience is neuroscience researchers, who can use the platform to integrate, visualize, and analyze neuroscience data. They can also capitalize on the platform’s ability to synthesize their data (or knowledge) into KGs.</p></li>
+<li><p><strong>Research Labs and Academic Institutions:</strong> BrainKB will be an invaluable resource for teaching and research in academic contexts specializing in neuroscience research. It offers convenient access to integrated neuroscience data for faculty and students.</p></li>
+<li><p><strong>Policy Makers and Healthcare Professionals:</strong> Neurology policymakers can use BrainKB, aka the neuroscience knowledge that BrainKB hosts, to make policy decisions. Furthermore, healthcare professionals in neurology (or clinical neuroscience) may also use BrainKB knowledge to understand and improve neurological disease outcomes.</p></li>
+<li><p><strong>Neuroscience-related Companies:</strong> Companies specializing in developing drugs for neurological diseases can use the platform’s KGs to gain insights into neurological conditions and treatments.</p></li>
+</ul>
+</section>
+<section id="use-cases">
+<h2><span class="section-number">3.2. </span>Use cases<a class="headerlink" href="#use-cases" title="Permalink to this heading">#</a></h2>
+<p>Below, we highlight some of the key use cases for BrainKB.</p>
+<ul>
+<li><p><strong>Extraction/Integration/Refinement:</strong> BrainKB will provide features to extract knowledge from diverse sources, such as raw text and scientific publications, and integrate it with the knowledge represented via KGs. Additionally, BrainKB will also provides features to refine the extracted knowledge, e.g., through humans in the loop.</p></li>
+<li><p><strong>Cards:</strong> The BrainKB web application allows easy visualization of the knowledge of interest to scientists/researchers stored in KGs and their corresponding interconnected knowledge. <a class="reference internal" href="#entity-card-figure"><span class="std std-numref">Fig. 3.1</span></a> shows a snippet of the entity card from the BrainKB web application, which can be accessed at <a class="reference external" href="http://beta.brainkb.org">http://beta.brainkb.org</a>.</p>
+<figure class="align-default" id="entity-card-figure">
+<img alt="_images/entity-card.png" src="_images/entity-card.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 3.1 </span><span class="caption-text">Snippet of Entity card from BrainKB web application.</span><a class="headerlink" href="#entity-card-figure" title="Permalink to this image">#</a></p>
+</figcaption>
+</figure>
+</li>
+<li><p><strong>Casual Inference:</strong> Casual inference helps distinguish causation from correlation, particularly important the domains like neuroscience <span id="id1">[<a class="reference internal" href="#id9" title="David Danks and Isaac Davis. Causal inference in cognitive neuroscience. WIREs Cognitive Science, 14(5):e1650, 2023. URL: https://wires.onlinelibrary.wiley.com/doi/abs/10.1002/wcs.1650, arXiv:https://wires.onlinelibrary.wiley.com/doi/pdf/10.1002/wcs.1650, doi:https://doi.org/10.1002/wcs.1650.">Danks and Davis, 2023</a>, <a class="reference internal" href="#id10" title="Hao Huang and Maria-Esther Vidal. Causekg: a framework enhancing causal inference with implicit knowledge deduced from knowledge graphs. IEEE Access, 12():61810-61827, 2024. doi:10.1109/ACCESS.2024.3395134.">Huang and Vidal, 2024</a>]</span>. BrainKB, which stores the knowledge represented via KGs, thus supports causal inference. The reason is that the KGs can encode the (casual) relationships between entities and enable (casual) reasoning <span id="id2">[<a class="reference internal" href="#id10" title="Hao Huang and Maria-Esther Vidal. Causekg: a framework enhancing causal inference with implicit knowledge deduced from knowledge graphs. IEEE Access, 12():61810-61827, 2024. doi:10.1109/ACCESS.2024.3395134.">Huang and Vidal, 2024</a>]</span>.</p></li>
+<li><p><strong>Human in the loop:</strong>
+BrainKB allows the creation of KGs constructed from heterogeneous sources, e.g., text and CSV files, in a (semi-) automated fashion (e.g., using NLP) and through community contribution. BrainKB includes human-in-the-loop features, which ensure quality control of the KGs. The human in the loop is also a step in the maturity model for operations in neuroscience <span id="id3">[<a class="reference internal" href="#id8" title="Erik C. Johnson, Thinh T. Nguyen, Benjamin K. Dichter, Frank Zappulla, Montgomery Kosma, Kabilar Gunalan, Yaroslav O. Halchenko, Shay Q. Neufeld, Michael Schirner, Petra Ritter, Maryann E. Martone, Brock Wester, Franco Pestilli, and Dimitri Yatsenko. A maturity model for operations in neuroscience research. 2023. URL: https://arxiv.org/abs/2401.00077, arXiv:2401.00077.">Johnson <em>et al.</em>, 2023</a>]</span>, helping to optimize KGs (knowledge graphs) curation.</p>
+<ul class="simple">
+<li><p><strong>Example:</strong></p>
+<ul>
+<li><p>When new evidence is submitted, it is placed in a queued (or hold) stage and progressed upon the moderators’ review. Changes might be required based on the review before it appears in the evidence entity card.</p></li>
+<li><p>If the KGs are manually or automatically created, the moderators will review the concepts’ alignment and determine whether the resolution (e.g., entity resolution) has been performed correctly.</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>Compare Atlases:</strong> BrainKB also integrates knowledge from diverse knowledge platform services if available for integration, providing the feature to compare knowledge from across different atlases (e.g., Allen Brain Atlases).</p></li>
+<li><p><strong>Find/correct Errors:</strong> BrainKB will provide a feature to search existing knowledge and correct errors if any.</p></li>
+<li><p><strong>Add information/API:</strong> BrainKB offers an API endpoint that enables seamless integration with its platform. These endpoints facilitate data ingestion from various sources, such as CSV files or raw text, for constructing KGs, performing search operations, and conducting analyses on the stored KGs.</p></li>
+<li><p><strong>Doing meta-analysis:</strong> Meta-analysis is a knowledge-intensive task that requires significant time and effort to find related studies, identify evidence items, annotate the contents, and aggregate the results <span id="id4">[<a class="reference internal" href="#id7" title="Ilaria Tiddi, Daniel Balliet, and Annette ten Teije. Fostering scientific meta-analyses with knowledge graphs: a case-study. In Andreas Harth, Sabrina Kirrane, Axel-Cyrille Ngonga Ngomo, Heiko Paulheim, Anisa Rula, Anna Lisa Gentile, Peter Haase, and Michael Cochez, editors, The Semantic Web, 287–303. Cham, 2020. Springer International Publishing.">Tiddi <em>et al.</em>, 2020</a>]</span>. BrainKB, which stores knowledge from diverse data sources, including scientific publications, facilitates the meta-analysis.</p></li>
+</ul>
+</section>
+<section id="usage-scenario">
+<h2><span class="section-number">3.3. </span>Usage Scenario<a class="headerlink" href="#usage-scenario" title="Permalink to this heading">#</a></h2>
+<p><strong>Actor:</strong> Alice (Neuroscientists)</p>
+<p><strong>Task:</strong> Alice wants to know if he can gain new insights from their newly collected neuroscience data.</p>
+<p><strong>Precondition:</strong> The newly collected neuroscience dataset, which includes demographics, gene expression maps, and structural and functional MRI scans, is usable and uncorrupted.</p>
+<p><strong>Flow:</strong></p>
+<ol class="arabic simple">
+<li><p>Alice uploads the data into the BrainKB platform through the BrainKB UI (User Interface).</p></li>
+<li><p>BrainKB, the system, then analyzes data. If any error, e.g., unsupported file format, it will return the error; otherwise, the system will proceed to the next step of knowledge extraction.</p></li>
+<li><p>The system will perform the knowledge extraction, validation, and alignment operation. If the validation or the alignment issue cannot be resolved automatically, the extracted knowledge represented via KG is flagged for expert review. Upon the successful review, the KGs are integrated (or stored) in the BrainKB storage and is available for visualization and analysis.</p></li>
+</ol>
+<p><strong>Postcondition:</strong> Alice discovers new insights through the integration of diverse knowledge sources represented in BrainKB’s KGs.</p>
+<p><strong>References:</strong></p>
+<div class="docutils container" id="id5">
+<div class="citation" id="id9" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>David Danks and Isaac Davis. Causal inference in cognitive neuroscience. <em>WIREs Cognitive Science</em>, 14(5):e1650, 2023. URL: <a class="reference external" href="https://wires.onlinelibrary.wiley.com/doi/abs/10.1002/wcs.1650">https://wires.onlinelibrary.wiley.com/doi/abs/10.1002/wcs.1650</a>, <a class="reference external" href="https://arxiv.org/abs/https://wires.onlinelibrary.wiley.com/doi/pdf/10.1002/wcs.1650">arXiv:https://wires.onlinelibrary.wiley.com/doi/pdf/10.1002/wcs.1650</a>, <a class="reference external" href="https://doi.org/https://doi.org/10.1002/wcs.1650">doi:https://doi.org/10.1002/wcs.1650</a>.</p>
+</div>
+<div class="citation" id="id10" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id2">2</a>)</span>
+<p>Hao Huang and Maria-Esther Vidal. Causekg: a framework enhancing causal inference with implicit knowledge deduced from knowledge graphs. <em>IEEE Access</em>, 12():61810–61827, 2024. <a class="reference external" href="https://doi.org/10.1109/ACCESS.2024.3395134">doi:10.1109/ACCESS.2024.3395134</a>.</p>
+</div>
+<div class="citation" id="id8" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<p>Erik C. Johnson, Thinh T. Nguyen, Benjamin K. Dichter, Frank Zappulla, Montgomery Kosma, Kabilar Gunalan, Yaroslav O. Halchenko, Shay Q. Neufeld, Michael Schirner, Petra Ritter, Maryann E. Martone, Brock Wester, Franco Pestilli, and Dimitri Yatsenko. A maturity model for operations in neuroscience research. 2023. URL: <a class="reference external" href="https://arxiv.org/abs/2401.00077">https://arxiv.org/abs/2401.00077</a>, <a class="reference external" href="https://arxiv.org/abs/2401.00077">arXiv:2401.00077</a>.</p>
+</div>
+<div class="citation" id="id7" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
+<p>Ilaria Tiddi, Daniel Balliet, and Annette ten Teije. Fostering scientific meta-analyses with knowledge graphs: a case-study. In Andreas Harth, Sabrina Kirrane, Axel-Cyrille Ngonga Ngomo, Heiko Paulheim, Anisa Rula, Anna Lisa Gentile, Peter Haase, and Michael Cochez, editors, <em>The Semantic Web</em>, 287–303. Cham, 2020. Springer International Publishing.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="brainkb_intro.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><span class="section-number">2. </span>What is BrainKB?</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="brainkb_architecture.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><span class="section-number">4. </span>Architecture of BrainKB</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#target-audience">3.1. Target Audience</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#use-cases">3.2. Use cases</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage-scenario">3.3. Usage Scenario</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Tek Raj Chhetri (tekraj@mit.edu)
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
