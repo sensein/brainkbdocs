@@ -1,0 +1,36 @@
+# Table of contents
+# Learn more at https://jupyterbook.org/customize/toc.html
+
+format: jb-book
+root: index
+parts:
+  - caption: Before you Begin 
+    numbered: True 
+    chapters:
+    - file: getting_started
+  - caption: BrainKB Overview 
+    numbered: True 
+    chapters:
+    - file: brainkb_intro
+    - file: audience_usecases
+    - file: brainkb_architecture
+  - caption: BrainKB Microservices
+    numbered: True 
+    chapters:
+    - file: ingestion_service
+  - caption: BrainKB User Interface
+    numbered: True 
+    chapters:
+    - file: brainkbui
+  - caption: Deployment
+    numbered: True 
+    chapters:
+    - file: deployment_userinterface
+    - file: deployment_braikbservices
+  - caption: Miscellaneous
+    numbered: True 
+    chapters:
+    - file: markdown-notebooks
+    - file: notebooks
+
+ 
