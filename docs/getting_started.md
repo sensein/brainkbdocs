@@ -21,6 +21,8 @@
   - Open-World Assumptions
 * - CSA
   - Closed-World Assumptions
+* - JWT
+  - JSON Web Tokens
 ```
 
 ## Definitions

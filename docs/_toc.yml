@@ -30,7 +30,6 @@ parts:
   - caption: Miscellaneous
     numbered: True 
     chapters:
-    - file: markdown-notebooks
-    - file: notebooks
-
+    - file: list_of_libaries
+  
  
