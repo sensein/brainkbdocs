@@ -33,7 +33,7 @@ jobs:
           echo "Listing current directory"
           ls -alh
           echo "Listing _build directory"
-          ls -alh _build
+          ls -alh docs/_build
 
 
       - name: Deploy to GitHub Pages
