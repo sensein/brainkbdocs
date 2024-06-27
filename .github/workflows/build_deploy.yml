@@ -26,7 +26,7 @@ jobs:
           pip install jupyter-book
 
       - name: Build Jupyter Book
-        run: jupyter-book build .
+        run: jupyter-book build ./docs/
 
       - name: Deploy to GitHub Pages
         if: github.ref == 'refs/heads/main'
