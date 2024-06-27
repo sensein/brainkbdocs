@@ -5,7 +5,7 @@ in regular markdown files (`.md`), you'll write in the same flavor of markdown
 called **MyST Markdown**.
 This is a simple file to help you get started and show off some syntax.
 
-```{figure} brainkb-arch.png
+	```{figure} brainkb-arch.png
 	:name: brainkb_architecture_figure
 	Architecture of BrainKB.
 	```
