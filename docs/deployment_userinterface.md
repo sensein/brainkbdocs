@@ -49,7 +49,7 @@ To run in a production mode first you need to build the application and start. R
 
 ## Known Issues
 
-Especially with the Google based authentication, even after successful setup, you might get error regarding mismatch redirect URI, as shown in {numref}`google_oauth_error`, thereby preventing you to log in.
+Especially with the Google based authentication, even after successful setup, you might get error regarding mismatch redirect URI, as shown in {numref}`google_oauth_error`, thereby preventing you to log in. This is because unlike GitHub-based OAuth, where you can redirect to the pages that one desire, e.g., home page, the redirect URI in case of Google needs to be specific.
 
 ```{figure} error_oauth_google.png
 :name: google_oauth_error
