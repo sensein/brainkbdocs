@@ -76,13 +76,9 @@ GraphDB Screen.
 :name: setaccesscontrol
 Enabling Access Control.
 ``` 
+### Common configuration details
 
-### Query Service
-The query service provides the endpoints and the functionalities necessary for querying (and updating) the knowledge graphs from the graph database.
-
-- Navigate to `query_service` directory.
-- Run either `docker-compose-dev.yml` or `docker-compose-prod.yml` depending on your environment, issuing `docker compose up` command.
-	- **Important:** You need to create an environment file `.env.development` to hold the following information.
+- The following are the common configuration parameters used in most of the microservices.
 	- ENV_STATE: The state, either, environment and production. Use `prod` for production.
 	- DATABASE_URL: Use `sqlite:///data.db`.
 	- LOGTAIL_API_KEY: [Log Tail](https://betterstack.com) API key. {numref}`logtaildemo` shows the logging of the information. 
@@ -96,6 +92,14 @@ The query service provides the endpoints and the functionalities necessary for q
 	- JWT_POSTGRES_TABLE_USER_SCOPE_REL: Name of the table to store the relationship information between scope (or permissions) and user. The default is `Web_jwtuser_scopes`.
 	- JWT_ALGORITHM: Algorithm to be used in JWT. The default is `HS256`.
 	- JWT_SECRET_KEY: Secret key to be used in JWT.
+
+### Query Service
+The query service provides the endpoints and the functionalities necessary for querying (and updating) the knowledge graphs from the graph database.
+
+- Navigate to `query_service` directory.
+- Run either `docker-compose-dev.yml` or `docker-compose-prod.yml` depending on your environment, issuing `docker compose up` command.
+	- **Important:** You need to create an environment file (e.g., `.env.development`) and update it with the following information.
+	- Update the common configuration details.
 	- GRAPHDATABASE_USERNAME: Username for the graph database, i.e., `GraphDB` in our case.
 	- GRAPHDATABASE_PASSWORD: GraphDB password. 
 	- GRAPHDATABASE_HOSTNAME: Hostname for the graph database. Default is `http://localhost`.
@@ -107,6 +111,16 @@ The query service provides the endpoints and the functionalities necessary for q
 :name: logtaildemo
 [Snapshots of the BrainKB logs from Log Tail](https://betterstack.com).
 ``` 
-
-<b style="color:red;">Note:</b>
+### Ingestion Service
+Ingestion service implements the functionalities to interact with the messaging broker, i.e., RabbitMQ in our case to publish the incoming request/data.
+- Navigate to `ingestion_service` directory. You need to deploy the producer and consumer separately and has been organized accordingly in the `producer` and `consumer` inside `ingestion_service` directory.  
+- Run either `docker-compose-dev.yml` or `docker-compose-prod.yml` depending on your environment, issuing `docker compose up` command.
+	- **Important:** You need to create an environment file and update it with the following information.
+	- Update the common configuration details.
+	- RABBITMQ_USERNAME: Username for RabbitMQ connection.
+	- RABBITMQ_PASSWORD: Password for RabbitMQ connection.
+	- RABBITMQ_URL: URL to connect to the RabbitMQ.
+	- RABBITMQ_PORT: Port number for RabbitMQ. Default is `5672`.
+	- RABBITMQ_VHOST: [Vhosts for RabbitMQ](https://www.rabbitmq.com/docs/vhosts). Default is `/`.
+	
 
