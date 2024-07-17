@@ -44,8 +44,21 @@ JWT User & Scope Manager landing page.
 JWT User & Scope Manager - Updating user information.
 ```
 
-### GraphDatabase
+### RabbitMQ
+RabbitMQ is an open-source messaging broker software that is used in the ingestion process. Other microservices, i.e., workers, then consume the data that RabbitMQ holds in the messaging queue. 
 
+**Installation:**
+- Navigate to rabbit-mq directory.
+- Run the `docker-compose.yml` issuing `docker compose up`
+	- **Important:** You need to create an `.env` file and provide the following information.
+	- RABBITMQ_DEFAULT_USER: Username for the RabbitMQ that will be use to login.
+	- RABBITMQ_DEFAULT_PASS: Password for the RabbitMQ.
+- After successful deployment, you should be able to see the screen shown in {numref}`rabbitmqlogin`. Use the username and password specified earlier to login. 
+```{figure} rabbitmqlogin.png
+:name: rabbitmqlogin
+RabbitMQ after successful deployment.
+``` 
+### GraphDB
 <b style="color:red;">Note:</b>
  
 
