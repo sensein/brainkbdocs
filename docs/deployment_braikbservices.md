@@ -2,7 +2,8 @@
 
 BrainKB consists of multiple service components, as highlighted in the {ref}`brainkb_architecture_figure` All of the service components can be deployed independently. However, there are a few dependencies, such as setting up the PostgreSQL database that is used by JWT Users and Scope Manager, that need to be setup first. 
 
-<!-- <p style="color:red;">To ease the deployment process, all of the service components have been containerized and can be installed with minimal configuration by using Docker Compose.</p> -->
+<b style="color:red;">Note:</b> The installation of Docker is necessary due to its use in deployment.
+
 
 ## Dependencies 
 
@@ -49,7 +50,7 @@ RabbitMQ is an open-source messaging broker software that is used in the ingesti
 
 **Installation:**
 - Navigate to rabbit-mq directory.
-- Run the `docker-compose.yml` issuing `docker compose up`
+- Run the `docker-compose.yml`, issuing `docker compose up` command.
 	- **Important:** You need to create an `.env` file and provide the following information.
 	- RABBITMQ_DEFAULT_USER: Username for the RabbitMQ that will be use to login.
 	- RABBITMQ_DEFAULT_PASS: Password for the RabbitMQ.
@@ -59,6 +60,26 @@ RabbitMQ is an open-source messaging broker software that is used in the ingesti
 RabbitMQ after successful deployment.
 ``` 
 ### GraphDB
+We use GraphDB to store our KGs. 
+
+**Installation:**
+- Navigate to graphdb directory.
+- Run the `docker-compose.yml`, issuing `docker compose up` command. After successful deployment, you should be able to see the following screen (see {numref}`graphdbwelcome`). 
+
+```{figure} graphdb.png
+:name: graphdbwelcome
+GraphDB Screen.
+``` 
+- Access to the GraphDB is available to all users by default. To enable password based access, navigate to setup → users and access and enable security (see {numref}`setaccesscontrol`).
+
+```{figure} setaccesscontrol.png
+:name: setaccesscontrol
+Enabling Access Control.
+``` 
+
+
+
+
 <b style="color:red;">Note:</b>
  
 
