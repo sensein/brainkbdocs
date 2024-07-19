@@ -78,7 +78,7 @@ Enabling Access Control.
 ``` 
 ### Common configuration details
 
-- The following are the common configuration parameters used in most of the microservices.
+- The following are the common configuration parameters used in most of the microservices. 
 	- ENV_STATE: The state, either, environment and production. Use `prod` for production.
 	- DATABASE_URL: Use `sqlite:///data.db`.
 	- LOGTAIL_API_KEY: [Log Tail](https://betterstack.com) API key. {numref}`logtaildemo` shows the logging of the information. 
@@ -99,7 +99,7 @@ The query service provides the endpoints and the functionalities necessary for q
 - Navigate to `query_service` directory.
 - Run either `docker-compose-dev.yml` or `docker-compose-prod.yml` depending on your environment, issuing `docker compose up` command.
 	- **Important:** You need to create an environment file (e.g., `.env.development`) and update it with the following information.
-	- Update the common configuration details.
+	- Update the common configuration details (or see {ref}`content:references:sampleenvlabelsqueryservice`).
 	- GRAPHDATABASE_USERNAME: Username for the graph database, i.e., `GraphDB` in our case.
 	- GRAPHDATABASE_PASSWORD: GraphDB password. 
 	- GRAPHDATABASE_HOSTNAME: Hostname for the graph database. Default is `http://localhost`.
@@ -116,11 +116,73 @@ Ingestion service implements the functionalities to interact with the messaging 
 - Navigate to `ingestion_service` directory. You need to deploy the producer and consumer separately and has been organized accordingly in the `producer` and `consumer` inside `ingestion_service` directory.  
 - Run either `docker-compose-dev.yml` or `docker-compose-prod.yml` depending on your environment, issuing `docker compose up` command.
 	- **Important:** You need to create an environment file and update it with the following information.
-	- Update the common configuration details.
+	- Update the common configuration details (see {ref}`content:references:sampleingestproducer` and {ref}`content:references:sampleingestworker`).
 	- RABBITMQ_USERNAME: Username for RabbitMQ connection.
 	- RABBITMQ_PASSWORD: Password for RabbitMQ connection.
 	- RABBITMQ_URL: URL to connect to the RabbitMQ.
 	- RABBITMQ_PORT: Port number for RabbitMQ. Default is `5672`.
 	- RABBITMQ_VHOST: [Vhosts for RabbitMQ](https://www.rabbitmq.com/docs/vhosts). Default is `/`.
+	- For the worker, you would also need to update additional environment variable INGEST_URL.
 	
 
+### Environment Files
+Sample environment files for different service components are shown below. The environment files should be present inside `core` directory.
+(content:references:sampleenvlabelsqueryservice)=
+#### Query Service Sample Environment File 
+
+```
+ENV_STATE=prod
+DATABASE_URL=sqlite:///data.db
+DB_FORCE_ROLL_BACK=False
+LOGTAIL_API_KEY=<YOUR API KEY>
+JWT_POSTGRES_DATABASE_PORT=<PORT NUMBER>
+JWT_POSTGRES_DATABASE_USER=<USER NAME>
+JWT_POSTGRES_DATABASE_PASSWORD=<PASSWORD>
+JWT_POSTGRES_DATABASE_NAME=<POSTGRES JWT DATABASE NAME>
+JWT_POSTGRES_TABLE_USER_SCOPE_REL=<POSTGRES JWT SCOPE USER RELATION TABLE NAME>
+JWT_POSTGRES_TABLE=<POSTGRES TABLE NAME>
+JWT_POSTGRES_DATABASE_HOST_URL=<HOST URL>
+JWT_POSTGRES_TABLE_USER=<POSTGRES JWT USER TABLE NAME>
+JWT_POSTGRES_TABLE_SCOPE=<POSTGRES JWT SCOPE TABLE NAME>
+JWT_ALGORITHM=<JWT ALGORITHM>
+JWT_SECRET_KEY=<JWT SECRET KEY>
+GRAPHDATABASE_USERNAME=<GRAPHDATABASE USERNAME>
+GRAPHDATABASE_PASSWORD=<GRAPHDATABASE PASSWORD>
+GRAPHDATABASE_REPOSITORY=<GRAPHDATABASE REPOSITORY NAME>
+GRAPHDATABASE_HOSTNAME=<GRAPHDATABASE HOSTNAME>
+```
+(content:references:sampleingestproducer)=
+#### Ingest Service Sample Environment File for Producer
+```
+ENV_STATE=prod
+DATABASE_URL=sqlite:///test.db
+JWT_POSTGRES_DATABASE_HOST_URL=<HOST URL>
+JWT_POSTGRES_DATABASE_PORT=<PORT NUMBER>
+JWT_POSTGRES_DATABASE_USER=<USER NAME>
+JWT_POSTGRES_DATABASE_PASSWORD=<PASSWORD>
+JWT_POSTGRES_DATABASE_NAME=<POSTGRES JWT DATABASE NAME>
+JWT_SECRET_KEY=<JWT SECRET KEY>
+JWT_POSTGRES_TABLE_SCOPE=<POSTGRES JWT SCOPE TABLE NAME>
+RABBITMQ_USERNAME=<RABBITMQ USER NAME>
+RABBITMQ_PASSWORD=<RABBITMQ PASSWORD>
+RABBITMQ_URL=<RABBITMQ HOST URL> 
+```
+
+(content:references:sampleingestworker)=
+#### Ingest Service Sample Environment File for Worker
+```
+ENV_STATE=prod
+DATABASE_URL=sqlite:///test.db
+JWT_POSTGRES_DATABASE_HOST_URL=<HOST URL>
+JWT_POSTGRES_DATABASE_PORT=<PORT NUMBER>
+JWT_POSTGRES_DATABASE_USER=<USER NAME>
+JWT_POSTGRES_DATABASE_PASSWORD=<PASSWORD>
+JWT_POSTGRES_DATABASE_NAME=<POSTGRES JWT DATABASE NAME>
+JWT_SECRET_KEY=<JWT SECRET KEY>
+JWT_POSTGRES_TABLE_SCOPE=<POSTGRES JWT SCOPE TABLE NAME>
+RABBITMQ_USERNAME=<RABBITMQ USER NAME>
+RABBITMQ_PASSWORD=<RABBITMQ PASSWORD>
+RABBITMQ_URL=<RABBITMQ HOST URL> 
+INGEST_URL=<INGEST URL>     
+```
+INGEST_URL = `http://host.docker.internal:<PORT>` if producer and worker are deployed in the same instance.
