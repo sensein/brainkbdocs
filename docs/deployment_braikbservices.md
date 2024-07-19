@@ -22,11 +22,11 @@ The JWT User & Scope Manager helps to simplify the management of permissions and
 		- POSTGRES_DB: Database name.
 		- PGADMIN_DEFAULT_EMAIL: Email address for [pgAdmin](https://www.pgadmin.org).  
 		- PGADMIN_DEFAULT_PASSWORD: Password for pgAdmin user.
-	- Additionally, set the following environment variables in `.env` files for Django that are required to create Django superuser.
+	- Additionally, set the following environment variables in `.env` files for Django that are required to create Django superuser (see {ref}`content:references:sampleenvfilejwtuserscopemanagerapp`).
 		- DJANGO_SUPERUSER_USERNAME: Username that you will use to login to JWT User & Scope Manager.
 		- DJANGO_SUPERUSER_EMAIL: Email address of the user.
 		- DJANGO_SUPERUSER_PASSWORD: Password of the Django superuser.
-- Assign the environment variables specified below and deploy the application by executing the Docker Compose file, selecting either development (`docker-compose-dev.yml`) or production (`docker-compose-prod.yml`) depending on your environemnt.
+- Assign the environment variables specified below and deploy the application by executing the Docker Compose file, selecting either development (`docker-compose-dev.yml`) or production (`docker-compose-prod.yml`) depending on your environemnt (see {ref}`content:references:sampleenvfilejwtuserscopemanagerapp`).
 	- DB_NAME: Name of the database.
 	- DB_USER: User name.
 	- DB_PASSWORD: Password.
@@ -126,9 +126,24 @@ Ingestion service implements the functionalities to interact with the messaging 
 	
 
 ### Environment Files
+(content:references:sampleenvfilejwtuserscopemanagerapp)=
+#### JWT User & Scope Manager Sample Environment File
+
+```
+BRAINYPEDIA_APITOKEN_MANAGER_SECRET_KEY=<DJANGO SECRET KEY>
+DB_NAME=<DATABASE NAME>
+DB_USER=<DATABASE USER NAME>
+DB_PASSWORD=<DATABASE PASSWORD>
+DB_PORT=<DATABASE PORT>
+DB_HOST=<DATABASE HOST>
+DJANGO_SUPERUSER_USERNAME=<DJANGO SUPERUSER NAME>
+DJANGO_SUPERUSER_EMAIL=<DJANGO SUPERUSER EMAIL>
+DJANGO_SUPERUSER_PASSWORD=t<DJANGO SUPERUSER PASSWORD>
+```
+#### Microservices
 Sample environment files for different service components are shown below. The environment files should be present inside `core` directory.
 (content:references:sampleenvlabelsqueryservice)=
-#### Query Service Sample Environment File 
+##### Query Service Sample Environment File 
 
 ```
 ENV_STATE=prod
@@ -152,7 +167,7 @@ GRAPHDATABASE_REPOSITORY=<GRAPHDATABASE REPOSITORY NAME>
 GRAPHDATABASE_HOSTNAME=<GRAPHDATABASE HOSTNAME>
 ```
 (content:references:sampleingestproducer)=
-#### Ingest Service Sample Environment File for Producer
+##### Ingest Service Sample Environment File for Producer
 ```
 ENV_STATE=prod
 DATABASE_URL=sqlite:///test.db
@@ -169,7 +184,7 @@ RABBITMQ_URL=<RABBITMQ HOST URL>
 ```
 
 (content:references:sampleingestworker)=
-#### Ingest Service Sample Environment File for Worker
+##### Ingest Service Sample Environment File for Worker
 ```
 ENV_STATE=prod
 DATABASE_URL=sqlite:///test.db
