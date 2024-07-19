@@ -138,7 +138,7 @@ DB_PORT=<DATABASE PORT>
 DB_HOST=<DATABASE HOST>
 DJANGO_SUPERUSER_USERNAME=<DJANGO SUPERUSER NAME>
 DJANGO_SUPERUSER_EMAIL=<DJANGO SUPERUSER EMAIL>
-DJANGO_SUPERUSER_PASSWORD=t<DJANGO SUPERUSER PASSWORD>
+DJANGO_SUPERUSER_PASSWORD=<DJANGO SUPERUSER PASSWORD>
 ```
 #### Microservices
 Sample environment files for different service components are shown below. The environment files should be present inside `core` directory.
