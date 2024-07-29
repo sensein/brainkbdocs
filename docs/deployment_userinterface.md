@@ -5,8 +5,15 @@ This section provides information regarding the deployment of the BrainKB UI, bo
 - The BrainKB UI is based on NextJS; we need to install the Node.js. When writing this document, the minimum version is **Node.js 18.17 or later**. For more (or latest) information, please check NextJS website.
 
 	- [https://nextjs.org/docs/getting-started/installation](https://nextjs.org/docs/getting-started/installation)
+	- **<span style="color: red;">Note:</span>** Manual installation of latest version of NextJS.
+	
+		```
+		npm install next@latest react@latest react-dom@latest
+		```
+		If you get issue with depenency, add `--legacy-peer-deps` options.
+	- Installation of the dependencies
 
-- Once all the NextJS requirements has been met or covered, next step is to configure the OAuth. In our case we use Google and GitHub. Therefore, you would need to obtain the OAuth client ID and secret and update the ```.env``` file (shown below). Additionally, you also need to provide the secret for [NextAuth](https://next-auth.js.org/), a library that we use authentication. The ```NEXTAUTH_URL``` for development is ```http://localhost:3000```. Similarly, the GitHub secret and client ID can be obtained from GitHub at [https://github.com/settings/tokens](https://github.com/settings/tokens) and Google at [https://console.cloud.google.com/](https://console.cloud.google.com/).
+- Once all the NextJS requirements has been met or covered, next step is to configure the OAuth. In our case we use Google and GitHub. Therefore, you would need to obtain the OAuth client ID and secret and update the ```.env.local``` file (shown below). Additionally, you also need to provide the secret for [NextAuth](https://next-auth.js.org/), a library that we use authentication. The ```NEXTAUTH_URL``` for development is ```http://localhost:3000```. Similarly, the GitHub secret and client ID can be obtained from GitHub at [https://github.com/settings/tokens](https://github.com/settings/tokens) and Google at [https://console.cloud.google.com/](https://console.cloud.google.com/).
 
 	```
 	#OAuth credentials
@@ -20,7 +27,7 @@ This section provides information regarding the deployment of the BrainKB UI, bo
 	NEXTAUTH_SECRET= 
 	NEXTAUTH_URL=
 	````
-	
+
 	**<span style="color: red;">Note:</span>** For Google OAuth, unless the ```Publishing status``` is ```published```, it will be ```Testing``` as shown in {numref}`google_oauth_setup`. Since this is in a testing mode, only the testing users can log in via Google OAuth. 
 
 	If the ```User type``` is ```Internal```, only the organizational members can log in (e.g., *.mit.edu).
@@ -29,6 +36,23 @@ This section provides information regarding the deployment of the BrainKB UI, bo
 	:name: google_oauth_setup
 	Google OAuth setup.
 	```
+- The next step is to configure the `config-home.yaml` and `config-knowledgebases.yaml` inside `components` directory. {ref}`content:references:configurationfilesui` section provides the `config-home.yaml` and `config-knowledgebases.yaml` configuration file for the BrainKB UI. The `config-home.yaml` is use to configure the home (or landing) page and `config-knowledgebases.yaml` is use to configure the `knowledge base` page. {numref}`brainkbdocs-headerconfig` and {numref}`brainkbdocs-statistics_structured_box` 
+
+```{figure} brainkbdocs-headerconfig.png
+:name: brainkbdocs-headerconfig
+Landing page header configuration using `config-home.yaml`.
+```
+
+```{figure} brainkbdocs-statistics_structured_box.png
+:name: brainkbdocs-statistics_structured_box
+Landing page configuration of structured models and statics cards using `config-home.yaml`.
+```
+
+```{figure} brainkbdocs-knowledgebasepage.png
+:name: brainkbdocs-knowledgebasepage
+Configuration of the knowledge base page using `config-knowledgebases.yaml`.
+```
+
 
 ## Running in Non-Containerized Development Mode
 You can run the application either using ```npm``` or ```next``` command as follows.
@@ -64,4 +88,155 @@ More information regarding these callbacks can be obtained from NextJS website a
 [https://next-auth.js.org/providers](https://next-auth.js.org/providers).
 
 
-	
+
+(content:references:configurationfilesui)=
+## Configuration Files
+### config-home.yaml
+```
+headersboxpage:
+  - name: "brainkb main page"
+    slug: "brainkbmainpge"
+    title: "BrainKB: A Large Scale Neuroscience Knowledge Graph"
+    subtitle: "Facilitating Evidence-Based Decision Making to Unlock the Mysteries of the Mind"
+
+  - name: "statistics boxheader"
+    slug: "statisticsboxheader"
+    title: "Knolwedge Base Statistics"
+    subtitle: "Number of unique samples from different models."
+
+  - name: "structured models boxheader"
+    slug: "structuredmodelsheader"
+    title: "Structured Models"
+    subtitle: "Structured models used in BrainKB. <a href='https://sensein.group/brainkbdocs/' target='_blank'>Click here</a> to view all models."
+
+
+structuredmodelsbox:
+  - name: "evidence assertion ontology"
+    slug: "evidenceassertionontology"
+    title: "Evidence Assertion Ontology"
+    description: "A data model designed to represent types and relationships of evidence and assertions."
+    links: "#"
+  - name: "GARS model"
+    slug: "garsmodel"
+    title: "Annotation Registry Service (GARS)"
+    description: "A data model designed to represent types and relationships of an organism&apos;s annotated genome."
+    links: "https://brain-bican.github.io/models/index_genome_annotation"
+  - name: "ansrs model"
+    slug: "ansrsmodel"
+    title: "Anatomical Structure Reference Service (AnSRS)"
+    description: "A data model designed to represent types and relationships of anatomical brain structures."
+    links: "https://brain-bican.github.io/models/index_anatomical_structure"
+  - name: "library model"
+    slug: "librarygenerationschema"
+    title: "Library Generation Schema"
+    description: "A schema that is designed to represent types and relationships of samples and digital data assets generated during processes that generate multimodal genomic data."
+    links: "https://brain-bican.github.io/models/index_library_generation/"
+
+boxiconsstatisticscount:
+  - name: "Species"
+    slug: "species"
+    short_description: ""
+    sparql_query: |-
+      PREFIX biolink: <https://w3id.org/biolink/vocab/> 
+      select DISTINCT (COUNT(?s) as ?count) where {
+        ?s biolink:iri ?o.
+      }
+  - name: "Donor"
+    slug: "donor"
+    slugcategory: "counts"
+    short_description: "A person or organism that is the source of a biological sample for scientific study. Many biological samples are generated from a single donor."
+    sparql_query: |-
+      PREFIX bican: <https://identifiers.org/brain-bican/vocab/> 
+      PREFIX biolink: <https://w3id.org/biolink/vocab/>   
+      SELECT DISTINCT (COUNT(?id) as ?count )
+      WHERE {
+        ?id biolink:category bican:Donor; 
+      }
+  - name: "Structure"
+    slug: "structure"
+    slugcategory: "counts"
+    short_description: ""
+    sparql_query: |-
+      PREFIX bican: <https://identifiers.org/brain-bican/vocab/>  
+      SELECT DISTINCT (COUNT (?id) as ?count)
+      WHERE {
+        ?id bican:structure ?o; 
+      }
+  - name: "Library Aliquot"
+    slug: "libraryaliquot"
+    slugcategory: "counts"
+    short_description: "One library in the library pool."
+    sparql_query: |-
+      PREFIX bican: <https://identifiers.org/brain-bican/vocab/> 
+      PREFIX biolink: <https://w3id.org/biolink/vocab/>   
+      SELECT DISTINCT (COUNT(?id) as ?count )
+      WHERE {
+        ?id biolink:category bican:LibraryAliquot; 
+      }
+```
+### config-knowledgebases.yaml
+```
+pages:
+  - page: "Barcoded Cell Sample" #default one
+    title: "It will be shown when the knowledge base page is clicked"
+    slug: "default"
+    description: "A collection of molecularly barcoded cells. Input will be either dissociated cell sample or enriched cell sample. Cell barcodes are only guaranteed to be unique within this one collection. One dissociated cell sample or enriched cell sample can lead to multiple barcoded cell samples.  The sequences of the molecular barcodes are revealed during alignment of the resulting fastq files for the barcoded cell sample. The barcoded cell sample name and the cell level molecular barcode together uniquely identify a single cell. A collection of molecularly barcoded cells. Input will be either dissociated cell sample or enriched cell sample. Cell barcodes are only guaranteed to be unique within this one collection. One dissociated cell sample or enriched cell sample can lead to multiple barcoded cell samples.  The sequences of the molecular barcodes are revealed during alignment of the resulting fastq files for the barcoded cell sample. The barcoded cell sample name and the cell level molecular barcode together uniquely identify a single cell."
+    sparql_query: |-
+      PREFIX bican: <https://identifiers.org/brain-bican/vocab/>
+      PREFIX NIMP: <http://example.org/NIMP/>
+      PREFIX biolink: <https://w3id.org/biolink/vocab/>
+      PREFIX prov: <http://www.w3.org/ns/prov#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+      SELECT DISTINCT ?id ?label ?category
+      WHERE {
+        ?id biolink:category bican:BarcodedCellSample;
+            rdfs:label ?label;
+          biolink:category ?category;
+      }
+  - page: "Barcoded Cell Sample"
+    title: "Barcoded Cell Sample"
+    slug: "barcodedcellsample"
+    description: "A collection of molecularly barcoded cells. Input will be either dissociated cell sample or enriched cell sample. Cell barcodes are only guaranteed to be unique within this one collection. One dissociated cell sample or enriched cell sample can lead to multiple barcoded cell samples.  The sequences of the molecular barcodes are revealed during alignment of the resulting fastq files for the barcoded cell sample. The barcoded cell sample name and the cell level molecular barcode together uniquely identify a single cell. A collection of molecularly barcoded cells. Input will be either dissociated cell sample or enriched cell sample. Cell barcodes are only guaranteed to be unique within this one collection. One dissociated cell sample or enriched cell sample can lead to multiple barcoded cell samples.  The sequences of the molecular barcodes are revealed during alignment of the resulting fastq files for the barcoded cell sample. The barcoded cell sample name and the cell level molecular barcode together uniquely identify a single cell."
+    sparql_query: |-
+      PREFIX bican: <https://identifiers.org/brain-bican/vocab/>
+      PREFIX NIMP: <http://example.org/NIMP/>
+      PREFIX biolink: <https://w3id.org/biolink/vocab/>
+      PREFIX prov: <http://www.w3.org/ns/prov#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+      SELECT DISTINCT ?id ?label ?category
+      WHERE {
+        ?id biolink:category bican:BarcodedCellSample;
+            rdfs:label ?label;
+          biolink:category ?category;
+      }
+
+    display_column_first: "id"
+    display_column_second: "label"
+
+  - page: "Library Aliquot"
+    title: "Library Aliquot"
+    description: "One library in the library pool. Each library aliquot in a library pool will have a unique R1/R2 index to allow for sequencing together then separating the sequencing output by originating library aliquot through the process of demultiplexing. The resulting demultiplexed fastq files will include the library aliquot name.  A given library may produce multiple library aliquots, which is done in the case of resequencing.  Each library aliquot will produce a set of fastq files."
+    slug: "library-aliquot"
+    sparql_query: |-
+      PREFIX bican: <https://identifiers.org/brain-bican/vocab/>
+      PREFIX NIMP: <http://example.org/NIMP/>
+      PREFIX biolink: <https://w3id.org/biolink/vocab/>
+      PREFIX prov: <http://www.w3.org/ns/prov#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+      SELECT DISTINCT ?id ?label ?category
+      WHERE {
+        ?id biolink:category bican:LibraryAliquot;
+            rdfs:label ?label;
+            biolink:category ?category;
+      }
+    default_kb: false
+    display_column_first: "id"
+    display_column_second: "label"
+    display_column_third: "category"
+```
