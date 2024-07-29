@@ -187,6 +187,26 @@ boxiconsstatisticscount:
       }
 ```
 ### config-knowledgebases.yaml
+
+The `config-knowledgebases.yaml` file is used to configure the `knowledge base`, aka the landing page. The configuration file shown below is the default one that is being used in the current implementation.
+
+The following is a description of the various components of the configuration files.
+
+- **pages**: The configuration information for various knowledge base pages.
+	- `page`: The text that will appear on the top of the page.
+	- `title`: The text that will appear on the left side menu, except the one with the `default` slug.
+	- `slug`: A unique component is used to identify the particular page. <span style="color:red">Note:</span> The slug `default` is a special one. The page marked with `default` slug will be displayed as a default knowledge base page upon clicking the `knowledge base` menu.
+	- `description`: The description that you wish to appear on the page.
+	- `sparql_query`: The SPARQL query that is to be executed to get the statistics.
+
+	{numref}`knowledgebasepage_mapping` shows the mapping of the page configurations.
+
+	```{figure} knowledgebasepage_mapping.png
+	:name: knowledgebasepage_mapping
+	Mapping of different configuration components into a knowledge base page UI.
+	```
+ 
+
 ```
 pages:
   - page: "Barcoded Cell Sample" #default one
