@@ -90,6 +90,10 @@ Todo
 ## Configuration Files
 BrainKB is designed to be configurable so that it can be easily reusable in other use cases. To make the BrainKB UI reusable, we have adopted a configure file approach using YAML-based configuration files (or LinkML schemas (or ontologies) expressed in YAML).  In the subsections below, we describe different configuration files and schemas that are used in BrainKB UI.
 
+```{note}
+Some of the parameters (or variables) in the configuration files are not used as of now (there's a plan to use) and therefore, descriptions are not available. The descriptions will be updated as they are used or will be removed in case they are not used.
+```
+
 ### config-home.yaml
 The `config-home.yaml` file is used to configure the home page, aka the landing page. The configuration file shown below is the default one that is being used in the current implementation.
 
