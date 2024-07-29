@@ -29,6 +29,11 @@ This section provides information regarding the deployment of the BrainKB UI, bo
 	#Auth Config
 	NEXTAUTH_SECRET= 
 	NEXTAUTH_URL=
+
+	# Query service API configuration 
+	NEXT_PUBLIC_API_ADMIN_HOST=  
+	#endpoint, e.g., query that will be invoked when running SPARQL query
+	NEXT_PUBLIC_API_QUERY_ENDPOINT= 
 	````
 
 	**<span style="color: red;">Note:</span>** For Google OAuth, unless the ```Publishing status``` is ```published```, it will be ```Testing``` as shown in {numref}`google_oauth_setup`. Since this is in a testing mode, only the testing users can log in via Google OAuth. 
