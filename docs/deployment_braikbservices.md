@@ -2,9 +2,10 @@
 
 BrainKB consists of multiple service components, as highlighted in the {ref}`brainkb_architecture_figure` All of the service components can be deployed independently. However, there are a few dependencies, such as setting up the PostgreSQL database that is used by JWT Users and Scope Manager, that need to be setup first. 
 
-<b style="color:red;">Note:</b> The installation of Docker is necessary due to its use in deployment.
-
-
+```{note}
+ The installation of Docker is necessary due to its use in deployment.
+```
+  
 ## Dependencies 
 
 The following are the core dependencies: software and service components that need to be installed in the order specified below.
