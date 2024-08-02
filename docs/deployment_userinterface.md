@@ -5,7 +5,7 @@ This section provides information regarding the deployment of the BrainKB UI, bo
 - The BrainKB UI is based on [Node.js](https://nodejs.org/en)(open-source, cross-platform JavaScript runtime environment) , and [NextJS](https://nextjs.org/)(a [react](https://react.dev/) framework for creating web applications).
 
 	- Installing `Node.js`: check the current requirements on the [https://nextjs.org/docs/getting-started/installation](https://nextjs.org/docs/getting-started/installation)
-	- **<span style="color: red;">Note:</span>** Manual installation of latest version of NextJS.
+	- Installing additional NextJS packages and creating a new app using the `Node.js` package manager `npm` (this will create a new app structure and add new file, so you might want to do it in a new empty directory):
 	
 		```
 		npm install next@latest react@latest react-dom@latest
