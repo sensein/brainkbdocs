@@ -8,10 +8,10 @@ Navigate to the `nextjsUIapp` directory, and perform the tasks described below. 
 ```
 
 ## System Requirements
-- The BrainKB UI is based on NextJS; we need to install the Node.js. When writing this document, the minimum version is **Node.js 18.17 or later**. For more (or latest) information, please check NextJS website.
+- The BrainKB UI is based on [Node.js](https://nodejs.org/en)(open-source, cross-platform JavaScript runtime environment) , and [NextJS](https://nextjs.org/)(a [react](https://react.dev/) framework for creating web applications).
 
-	- NextJS: [https://nextjs.org/docs/getting-started/installation](https://nextjs.org/docs/getting-started/installation)
-	- **<span style="color: red;">Note:</span>** Manual installation of latest version of NextJS.
+	- Installing `Node.js`: check the current requirements on the [https://nextjs.org/docs/getting-started/installation](https://nextjs.org/docs/getting-started/installation)
+	- Installing additional NextJS packages and creating a new app using the `Node.js` package manager `npm` (this will create a new app structure and add new file, so you might want to do it in a new empty directory):
 	
 		```
 		npm install next@latest react@latest react-dom@latest
