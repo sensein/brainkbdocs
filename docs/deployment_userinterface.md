@@ -1,6 +1,12 @@
 # Deployment of User Interface
 This section provides information regarding the deployment of the BrainKB UI, both in the development and the production mode.
 
+```{note}
+Before proceeding with the following steps, ensure you have downloaded the BrainKB UI source code from the [BrainKB UI GitHub](https://github.com/sensein/brainkb-ui).
+
+Navigate to the `nextjsUIapp` directory, and perform the tasks described below. Currently, the latest development branch is `admin-ui`.
+```
+
 ## System Requirements
 - The BrainKB UI is based on NextJS; we need to install the Node.js. When writing this document, the minimum version is **Node.js 18.17 or later**. For more (or latest) information, please check NextJS website.
 
