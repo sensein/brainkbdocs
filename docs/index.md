@@ -9,6 +9,9 @@ This document is currently under development. The content is expected to undergo
 ```{important}
 This book is also expected to replace the [BrainKB design document](https://github.com/sensein/brainkb-design-document/tree/design-doc).
 ```
+
+**Last Updated:** `September 30, 2024`
+
 ## Purpose of the book
 - **Comprehensive Resource on BrainKB:** To provide detailed information about BrainKB, including its guiding principles, architecture, and service components.
 - **Technical Documentation:** To serve as a technical manual with instructions for deploying BrainKB services and user interface (UI) components.

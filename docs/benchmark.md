@@ -1,0 +1,2 @@
+# Benchmarking
+This section provides benchmarking data for various resources, such as graph databases, used in the BrainKB project. The results are shared to benefit other researchers by offering insights into factors, such as performance and cost.

@@ -27,6 +27,10 @@ parts:
     chapters:
     - file: deployment_userinterface
     - file: deployment_braikbservices
+  - caption: Benchmarking
+    numbered: True 
+    chapters:
+    - file: benchmark 
   - caption: Miscellaneous
     numbered: True 
     chapters:

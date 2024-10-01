@@ -90,7 +90,36 @@ To run in a production mode first you need to build the application and start. R
 
 
 ## Running in Containerized Mode
-Todo
+You can run the BrainKB UI in the containerized mode. In order to be able to run in the containerized mode, you need to install the requisite prerequisites listed below.
+  - [Docker](https://docs.docker.com/engine/install/) installed on your machine.
+  - [Docker Compose](https://docs.docker.com/compose/install/) installed on your machine to use the docker-compose.yml file.
+After installing the necessary prerequisites, navigate to `nextjsUIapp` directory and run ```docker compose up``` command.
+
+Upon successful run, you should see following (see {numref}`docker-compose-run-ui`), and you would be able to browse the deployed UI at http://localhost:3000. 
+  ```{figure} docker-compose-run-ui.png
+  :name: docker-compose-run-ui
+  Running in Containerized mode.
+  ```
+However, if port 3000 is already in use on your host machine, you can change the port mapping in the `docker-compose.yml` file as shown in the docker compose file below. For example, you can modify the file to use a different host port, such as `4000`. Please note that inside the Docker container, the application will continue to run on port 3000, but it will be accessible on the new port you specified on the host machine. This way, you can browse the UI on the updated port without conflicts.
+
+
+```
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+      - '4000:3000'
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+```
+
+To run in the development mode, change the value of `NODE_ENV=development`.
+
 
 (content:references:configurationfilesui)=
 ## Configuration Files
