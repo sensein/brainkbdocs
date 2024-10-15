@@ -19,7 +19,7 @@ Below, we highlight some of the key use cases for BrainKB.
 
 - **Cards:** The BrainKB web application allows easy visualization of the knowledge of interest to scientists/researchers stored in KGs and their corresponding interconnected knowledge. {numref}`entity_card_figure` shows a snippet of the entity card from the BrainKB web application, which can be accessed at [http://beta.brainkb.org](http://beta.brainkb.org).
 
-	```{figure} entity-card.png
+	```{figure} images/entity-card.png
 	:name: entity_card_figure
 	Snippet of Entity card from BrainKB web application.
 	```

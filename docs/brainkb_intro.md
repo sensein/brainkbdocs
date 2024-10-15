@@ -61,7 +61,7 @@ BrainKB will allow the community-driven curation of the KGs as well as (semi-) a
 BrainKB shall ensure the accuracy of the knowledge for which multi-step (semi-) automated validations will be performed. Additionally, checks will also be performed to ensure that the KG triples are complete, i.e., the mandatory information is present. Further to accuracy and completeness, BrainKB shall ensure that adding the new facts (or KG triples) will not lead to inconsistency (see {numref}`acc_figure`) with existing knowledge due to factual errors, data inconsistencies, and incompleteness.
 
 	 
-	```{figure} acc.png
+	```{figure} images/acc.png
 	:name: acc_figure
 	KGs. The image on the left shows the original knowledge graph, while the image on the right demonstrates the updated knowledge graph. The green highlighted box indicates new knowledge that has been added, while the **red highlighted box** indicates any inconsistencies caused by factual changes, i.e., **incorrect date of birth**.
 	```
@@ -77,7 +77,7 @@ To enable trust, the provenance, such as the source of the information and the c
 BrainKB shall support the KGs' querying and reasoning. It shall also support other downstream analytics tasks, such as link predictions (see {numref}`link_prediction_figure`) using machine learning techniques.
 
 	
-	```{figure} link_prediction.png
+	```{figure} images/link_prediction.png
 	:name: link_prediction_figure
 	KGs. Link prediction. The figure on the left indicates a KG with a missing link (or relation) indicated by dotted lines and the figure on the right displays the KG after the link prediction.
 	```
@@ -89,7 +89,7 @@ To ensure interoperability and ease of integration, BrainKB will focus on using 
 - **Minimize Cognitive Burden and Data Fatigue:**
 As BrainKB will also provide features to perform the analytics operation in addition to querying the information (or knowledge), a special emphasis shall be placed on ensuring that the information presented to the user does not cause a cognitive burden and data fatigue. A cognitive burden occurs when the brain must exert more effort to understand information, typically resulting from an overload of visual content. For example, the {numref}`cognitive_burden` (left) places more cognitive burden than on the right.
 
-	```{figure} cognitive_burden.png
+	```{figure} images/cognitive_burden.png
 	:name: cognitive_burden
 	Cognitive burden due to information overload.
 	```

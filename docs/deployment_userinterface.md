@@ -46,7 +46,7 @@ Navigate to the `nextjsUIapp` directory, and perform the tasks described below. 
 
 	If the ```User type``` is ```Internal```, only the organizational members can log in (e.g., *.mit.edu).
 
-	```{figure} oauth_setup_google.png
+	```{figure} images/oauth_setup_google.png
 	:name: google_oauth_setup
 	Google OAuth setup.
 	```
@@ -58,17 +58,17 @@ Navigate to the `nextjsUIapp` directory, and perform the tasks described below. 
 	 In order to apply the BrainKB UI to your specific use cases, you will need to modify the configuration files (refer to Section {ref}`content:references:configurationfilesui`) as per your requirements.
 	```
 
-	```{figure} brainkbdocs-headerconfig.png
+	```{figure} images/brainkbdocs-headerconfig.png
 	:name: brainkbdocs-headerconfig
 	Landing page header configuration using `config-home.yaml`.
 	```
 
-	```{figure} brainkbdocs-statistics_structured_box.png
+	```{figure} images/brainkbdocs-statistics_structured_box.png
 	:name: brainkbdocs-statistics_structured_box
 	Landing page configuration of structured models and statics cards using `config-home.yaml`.
 	```
 
-	```{figure} brainkbdocs-knowledgebasepage.png
+	```{figure} images/brainkbdocs-knowledgebasepage.png
 	:name: brainkbdocs-knowledgebasepage
 	Configuration of the knowledge base page using `config-knowledgebases.yaml`.
 	```
@@ -96,7 +96,7 @@ You can run the BrainKB UI in the containerized mode. In order to be able to run
 After installing the necessary prerequisites, navigate to `nextjsUIapp` directory and run ```docker compose up``` command.
 
 Upon successful run, you should see following (see {numref}`docker-compose-run-ui`), and you would be able to browse the deployed UI at http://localhost:3000. 
-  ```{figure} docker-compose-run-ui.png
+  ```{figure} images/docker-compose-run-ui.png
   :name: docker-compose-run-ui
   Running in Containerized mode.
   ```
@@ -245,7 +245,7 @@ The following is a description of the various components of the configuration fi
 
 	{numref}`knowledgebasepage_mapping` shows the mapping of the page configurations.
 
-	```{figure} knowledgebasepage_mapping.png
+	```{figure} images/knowledgebasepage_mapping.png
 	:name: knowledgebasepage_mapping
 	Mapping of different configuration components into a knowledge base page UI.
 	```
@@ -321,7 +321,7 @@ pages:
 
 - **OAuth:** Especially with the Google based authentication, even after successful setup, you might get error regarding mismatch redirect URI, as shown in {numref}`google_oauth_error`, thereby preventing you to log in. This is because unlike GitHub-based OAuth, where you can redirect to the pages that one desire, e.g., home page, the redirect URI in case of Google needs to be specific.
 
-	```{figure} error_oauth_google.png
+	```{figure} images/error_oauth_google.png
 	:name: google_oauth_error
 	Unable to login with Google.
 	```

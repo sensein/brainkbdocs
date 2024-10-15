@@ -36,12 +36,12 @@ The JWT User & Scope Manager helps to simplify the management of permissions and
 
 Upon successful deployment, you should following home screen as shown in {numref}`jwtuserhome` and manage users and permissions (see {numref}`jwtuserupdateinfo`).
 
-```{figure} jwtuserhome.png
+```{figure} images/jwtuserhome.png
 :name: jwtuserhome
 JWT User & Scope Manager landing page.
 ```
 
-```{figure} jwtuserupdateinfo.png
+```{figure} images/jwtuserupdateinfo.png
 :name: jwtuserupdateinfo
 JWT User & Scope Manager - Updating user information.
 ```
@@ -56,7 +56,7 @@ RabbitMQ is an open-source messaging broker software that is used in the ingesti
 	- RABBITMQ_DEFAULT_USER: Username for the RabbitMQ that will be use to login.
 	- RABBITMQ_DEFAULT_PASS: Password for the RabbitMQ.
 - After successful deployment, you should be able to see the screen shown in {numref}`rabbitmqlogin`. Use the username and password specified earlier to login. 
-```{figure} rabbitmqlogin.png
+```{figure} images/rabbitmqlogin.png
 :name: rabbitmqlogin
 RabbitMQ after successful deployment.
 ``` 
@@ -67,13 +67,13 @@ We use GraphDB to store our KGs.
 - Navigate to `graphdb` directory.
 - Run the `docker-compose.yml`, issuing `docker compose up` command. After successful deployment, you should be able to see the following screen (see {numref}`graphdbwelcome`). 
 
-```{figure} graphdb.png
+```{figure} images/graphdb.png
 :name: graphdbwelcome
 GraphDB Screen.
 ``` 
 - Access to the GraphDB is available to all users by default. To enable password based access, navigate to setup `→` users and access and enable security (see {numref}`setaccesscontrol`).
 
-```{figure} setaccesscontrol.png
+```{figure} images/setaccesscontrol.png
 :name: setaccesscontrol
 Enabling Access Control.
 ``` 
@@ -108,7 +108,7 @@ The query service provides the endpoints and the functionalities necessary for q
 	- GRAPHDATABASE_TYPE: Graph database type. Default is `GRAPHDB`, representing `GraphDB`. 
 	- GRAPHDATABASE_REPOSITORY: The name of the repository (same as table in relational database). This may not be use in all graphdatabase but for GraphDB, which we use, it is a must.
 
-```{figure} logtaildemo.png
+```{figure} images/logtaildemo.png
 :name: logtaildemo
 [Snapshots of the BrainKB logs from Log Tail](https://betterstack.com).
 ``` 
