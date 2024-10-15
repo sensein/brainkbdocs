@@ -1,0 +1,88 @@
+# Jupyter Book build directories
+_build/
+_site/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+env/
+venv/
+.venv/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Jupyter Notebook metadata
+**/.ipynb_checkpoints
+*.nbconvert.ipynb
+
+# Ignore specific output files
+output/
+
+# macOS specific files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon\r\r
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+
+# PyCharm specific files
+.idea/
+*.iml
+*.iws
+
+# Ignore all files in the .idea directory except the ones listed
+.idea/*
+!.idea/description.xml
+!.idea/modules.xml
+!.idea/workspace.xml
+!.idea/tasks.xml
+!.idea/vcs.xml
+!.idea/.name
+!.idea/.gitignore
+
+# Uncomment if using .editorconfig
+# .editorconfig
+
+# User-specific PyCharm files
+.idea/*.*workspace
+.idea/*.*scope
+
+# File-based project format
+*.iws
+
+# IntelliJ
+out/
+gen/
+
+# User-specific files
+*.sublime-workspace
+*.sublime-project
+
+# JetBrains specific files
+*.iml
+*.ipr
+
+# Python related files
+*.pyc
+*.pyo
+*.pyd
+*.swp
+
