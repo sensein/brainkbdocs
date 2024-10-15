@@ -1,5 +1,5 @@
 #https://jupyterbook.org/en/stable/publish/gh-pages.html
-name: Deploy Jupyeter Book
+name: Deploy Jupyter Book
 
 # Run this when the master or main branch changes
 on:
