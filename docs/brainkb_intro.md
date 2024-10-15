@@ -12,7 +12,13 @@ The main objective of BrainKB is to represent neuroscience knowledge as a knowle
 - (Semi-)Automated validation of the BrainKGs to ensure the high quality of the content. 
 - Provides the ability to ingest data in batch or streaming mode for the automated extraction of KGs.
 
+{numref}`brainkb_ecosystem` shows the overview of the BrainKB ecosystem and its components, such as features and principles, which will be discussed in detail in subsequent sections or chapters.
 
+	
+```{figure} images/ecosystem.png
+:name: brainkb_ecosystem
+Overview of the BrainKB ecosystem.
+```
 
 ## Why BrainKB?
 
