@@ -32,4 +32,3 @@ sphinx-autobuild . _build/html --open-browser --port 8009
 
 **Note:** You need to be inside the jupyterbook directory and run the command, otherwise, replace **"."** with appropriate path.
 
-
