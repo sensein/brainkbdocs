@@ -16,7 +16,7 @@ Navigate to the `nextjsUIapp` directory, and perform the tasks described below. 
 		```
 		npm install next@latest react@latest react-dom@latest
 		```
-		If you get issue with depenency, add `--legacy-peer-deps` options.
+		If you get issue with dependency, add `--legacy-peer-deps` options.
 	- Installation of the dependencies.
 		```
 		npm install 
@@ -65,7 +65,7 @@ Navigate to the `nextjsUIapp` directory, and perform the tasks described below. 
 
 	```{figure} images/brainkbdocs-statistics_structured_box.png
 	:name: brainkbdocs-statistics_structured_box
-	Landing page configuration of structured models and statics cards using `config-home.yaml`.
+	Landing page configuration of structured models and statistics cards using `config-home.yaml`.
 	```
 
 	```{figure} images/brainkbdocs-knowledgebasepage.png

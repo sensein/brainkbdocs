@@ -15,7 +15,7 @@ The JWT User & Scope Manager helps to simplify the management of permissions and
 
 **Installation:**
 - Navigate to `APItokenmanager` directory.
-- Install PostgreSQL databse by running the Docker Compose file present inside _docker-postgresql_ folder.
+- Install PostgreSQL database by running the Docker Compose file present inside _docker-postgresql_ folder.
 	- **Important:** You need to create an `.env` file to hold the following information.
 
 		- POSTGRES_USER: PostgreSQL database user name.
@@ -27,7 +27,7 @@ The JWT User & Scope Manager helps to simplify the management of permissions and
 		- DJANGO_SUPERUSER_USERNAME: Username that you will use to login to JWT User & Scope Manager.
 		- DJANGO_SUPERUSER_EMAIL: Email address of the user.
 		- DJANGO_SUPERUSER_PASSWORD: Password of the Django superuser.
-- Assign the environment variables specified below and deploy the application by executing the Docker Compose file, selecting either development (`docker-compose-dev.yml`) or production (`docker-compose-prod.yml`) depending on your environemnt (see {ref}`content:references:sampleenvfilejwtuserscopemanagerapp`).
+- Assign the environment variables specified below and deploy the application by executing the Docker Compose file, selecting either development (`docker-compose-dev.yml`) or production (`docker-compose-prod.yml`) depending on your environment (see {ref}`content:references:sampleenvfilejwtuserscopemanagerapp`).
 	- DB_NAME: Name of the database.
 	- DB_USER: User name.
 	- DB_PASSWORD: Password.
