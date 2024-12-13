@@ -25,3 +25,5 @@ jobs:
 
       - name: Run Codespell
         uses: codespell-project/actions-codespell@v2
+        with:
+          skip: '*.pyc,*.git,*.svg,references.bib' 
