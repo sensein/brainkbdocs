@@ -9,9 +9,12 @@
 * - Title
   - Link
   - Description
-* - Ingest service
-  - [https://github.com/sensein/BrainKB/tree/ingestion-fapi-skeleton/ingestion_service](https://github.com/sensein/BrainKB/tree/ingestion-fapi-skeleton/ingestion_service)
-  - 
+* - BrainKB
+  - [https://github.com/sensein/BrainKB](https://github.com/sensein/BrainKB)
+  - Source code for different microservice components of BrainKB.
+* - BrainKB UI
+  - [https://github.com/sensein/brainkb-ui](https://github.com/sensein/brainkb-ui)
+  - Source code for the BrainKB user interface ([https://beta.brainkb.org](https://beta.brainkb.org)).
 ```
 
 

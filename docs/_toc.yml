@@ -35,5 +35,7 @@ parts:
     numbered: True 
     chapters:
     - file: list_of_libaries
+    - file: publications
+
   
  
