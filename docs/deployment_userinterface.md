@@ -174,7 +174,7 @@ structuredmodelsbox:
     slug: "evidenceassertionontology"
     title: "Evidence Assertion Ontology"
     description: "A data model designed to represent types and relationships of evidence and assertions."
-    links: "#"
+    links: "https://brain-bican.github.io/models/index_assertion_evidence"
   - name: "GARS model"
     slug: "garsmodel"
     title: "Annotation Registry Service (GARS)"
@@ -332,6 +332,10 @@ pages:
 
 	More information regarding these callbacks can be obtained from NextJS website at 
 	[https://next-auth.js.org/providers](https://next-auth.js.org/providers).
+
+  ```{important}
+  We have replaced Google-based authentication with ORCID-based authentication. This note has been retained for reference purposes, as future activation of Google-based authentication might encounter similar issues.
+  ```
 
 - 
 
