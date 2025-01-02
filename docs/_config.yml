@@ -10,10 +10,10 @@ logo: logo.png
 execute:
   execute_notebooks: force
 
-# Define the name of the LaTeX output file for PDF builds
+# Define the name of the LaTeX output file for PDF builds 
 latex:
   latex_documents:
-    - targetname: book.tex
+    targetname: book.tex
 
 # Add a BibTeX file so that we can create citations
 bibtex_bibfiles:
