@@ -33,6 +33,8 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -r docs/requirements.txt
+#        for mermaid diagram, added to requirement.txt but didn't work
+        pip install sphinxcontrib-mermaid
 
     # (optional) Cache your executed notebooks between runs
     # if you have config:
