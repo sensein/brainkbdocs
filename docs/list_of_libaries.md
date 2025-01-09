@@ -31,4 +31,9 @@
 * - JWT User & Scope Manager
   - [https://github.com/sensein/BrainKB/tree/ingestion-fapi-skeleton/APItokenmanager](https://github.com/sensein/BrainKB/tree/ingestion-fapi-skeleton/APItokenmanager)
   - Web-based tool for simplified user and permission management using JWT tokens, optimized for FastAPI but versatile for any framework.
+* - GrobidArticleExtractor
+  - [https://github.com/sensein/GrobidArticleExtractor](https://github.com/sensein/GrobidArticleExtractor
+)
+  - This Python tool extracts content from PDF files using GROBID and organizes it by sections.
 ```
+
