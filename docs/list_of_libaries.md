@@ -25,10 +25,22 @@
 * - SchemaExtractor
   - [sensein/SchemaExtractor](https://github.com/sensein/SchemaExtractor/tree/dev)
   - A Python library for extracting and analyzing schemas from knowledge graphs, leveraging llm-based multi-agent autonomous systems for efficient processing and analysis.
-
-
 ```
 
+## Ontologies/Schemas
+```{list-table} Ontologies/Schemas Developed as Part of BrainKB
+:header-rows: 1
+:name: table_modelsontologies
+
+* - Title
+  - Link
+  - Description
+* - Assertion Evidence Schema
+  - [models/index_assertion_evidence](https://brain-bican.github.io/models/index_assertion_evidence/)
+  - A schema designed to capture assertions, supporting evidence, and provenance information from scientific publications.
+```
+
+## Supporting Software and Libraries
 
 ```{list-table} Additional Software and Libraries Developed for BrainKB
 :header-rows: 1
@@ -43,9 +55,5 @@
 * - JWT User & Scope Manager
   - [https://github.com/sensein/BrainKB/tree/ingestion-fapi-skeleton/APItokenmanager](https://github.com/sensein/BrainKB/tree/ingestion-fapi-skeleton/APItokenmanager)
   - Web-based tool for simplified user and permission management using JWT tokens, optimized for FastAPI but versatile for any framework.
-* - GrobidArticleExtractor
-  - [https://github.com/sensein/GrobidArticleExtractor](https://github.com/sensein/GrobidArticleExtractor
-)
-  - This Python tool extracts content from PDF files using GROBID and organizes it by sections.
 ```
 

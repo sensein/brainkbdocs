@@ -31,7 +31,7 @@ parts:
     numbered: True 
     chapters:
     - file: benchmark 
-  - caption: Miscellaneous
+  - caption: Research Outputs and Software Tools
     numbered: True 
     chapters:
     - file: list_of_libaries
