@@ -10,20 +10,20 @@
   - Link
   - Description
 * - BrainKB
-  - [https://github.com/sensein/BrainKB](https://github.com/sensein/BrainKB)
+  - [sensein/BrainKB](https://github.com/sensein/BrainKB)
   - Source code for different microservice components of BrainKB.
 * - BrainKB UI
-  - [https://github.com/sensein/brainkb-ui](https://github.com/sensein/brainkb-ui)
+  - [sensein/brainkb-ui](https://github.com/sensein/brainkb-ui)
   - Source code for the BrainKB user interface ([https://beta.brainkb.org](https://beta.brainkb.org)).
 * - ProvSense
-  - [https://pypi.org/project/ProvSense](https://pypi.org/project/ProvSense)
+  - [pypi.org/project/ProvSense](https://pypi.org/project/ProvSense)
   - A Python library for comparing changes in KGs.
 * - GrobidArticleExtractor
-  - [https://pypi.org/project/GrobidArticleExtractor](https://pypi.org/project/GrobidArticleExtractor)
+  - [pypi.org/project/GrobidArticleExtractor](https://pypi.org/project/GrobidArticleExtractor)
   - A Python library designed to extract and organize content from scientific papers in PDF format.
 
 * - SchemaExtractor
-  - [https://github.com/sensein/SchemaExtractor](https://github.com/sensein/SchemaExtractor/tree/dev)
+  - [sensein/SchemaExtractor](https://github.com/sensein/SchemaExtractor/tree/dev)
   - A Python library for extracting and analyzing schemas from knowledge graphs, leveraging llm-based multi-agent autonomous systems for efficient processing and analysis.
 
 
