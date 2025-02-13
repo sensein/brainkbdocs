@@ -21,7 +21,9 @@
 * - GrobidArticleExtractor
   - [pypi.org/project/GrobidArticleExtractor](https://pypi.org/project/GrobidArticleExtractor)
   - A Python library designed to extract and organize content from scientific papers in PDF format.
-
+* - EviSense
+  - [pypi.org/project/EviSense](https://pypi.org/project/EviSense)
+  - A Python  to extract evidence and rationales for specific terms within documents, including scientific publications.
 * - SchemaExtractor
   - [sensein/SchemaExtractor](https://github.com/sensein/SchemaExtractor/tree/dev)
   - A Python library for extracting and analyzing schemas from knowledge graphs, leveraging llm-based multi-agent autonomous systems for efficient processing and analysis.
