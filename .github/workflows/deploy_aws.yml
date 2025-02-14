@@ -37,7 +37,7 @@ jobs:
       run: |
         echo "EC2_HOST is set to: ${{ secrets.EC2_HOST }}"
         mkdir -p ~/.ssh
-        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+        echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -v -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts || echo "ssh-keyscan failed, continuing..."
 
