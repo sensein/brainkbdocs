@@ -36,9 +36,7 @@ jobs:
     - name: Configure SSH
       run: |
         mkdir -p ~/.ssh
-
         echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
-
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -v -H ${{ vars.EC2_HOST }} >> ~/.ssh/known_hosts || echo "ssh-keyscan failed, continuing..."
 
@@ -89,15 +87,24 @@ jobs:
           exit 1
         fi
         
-        # Configure and restart Apache
-        echo "Configuring and restarting Apache..."
-        if ssh -o StrictHostKeyChecking=no "${EC2_USER}@${EC2_HOST}" "sudo sed -i 's/Listen 80/Listen 8040/' /etc/apache2/ports.conf && sudo systemctl restart apache2"; then
+        # Configure Apache
+        echo "Configuring Apache..."
+        VHOST_CONF='<VirtualHost *:8040>
+            ServerAdmin webmaster@localhost
+            DocumentRoot /var/www/html/jupyterbook_8040
+            ErrorLog ${APACHE_LOG_DIR}/error.log
+            CustomLog ${APACHE_LOG_DIR}/access.log combined
+        </VirtualHost>'
+        
+        if ssh -o StrictHostKeyChecking=no "${EC2_USER}@${EC2_HOST}" "sudo sed -i 's/Listen 80/Listen 8040/' /etc/apache2/ports.conf && echo '$VHOST_CONF' | sudo tee /etc/apache2/sites-available/jupyterbook.conf && sudo a2ensite jupyterbook.conf && sudo systemctl restart apache2"; then
           echo "✓ Apache configuration and restart successful"
         else
           echo "× Apache configuration failed"
           exit 1
         fi
 
+        echo "✓ Site should be accessible at http://${EC2_HOST}:8040"
+        echo "Note: Make sure port 8040 is allowed in your EC2 security group"
         echo "✓ Deployment completed successfully!"
 
     - name: Cleanup SSH key
