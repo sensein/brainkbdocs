@@ -40,24 +40,20 @@ jobs:
         echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
 
         chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -v -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts || echo "ssh-keyscan failed, continuing..."
+        ssh-keyscan -v -H ${{ vars.EC2_HOST }} >> ~/.ssh/known_hosts || echo "ssh-keyscan failed, continuing..."
 
-    - name: Debug SSH Info
+    - name: Debug Secrets and SSH
       run: |
-        echo "Checking SSH configuration..."
-        echo "EC2_HOST value length: ${#EC2_HOST}"
-        echo "EC2_USER value length: ${#EC2_USER}"
+        echo "Checking configuration..."
         echo "SSH key exists: $(test -f ~/.ssh/id_rsa && echo 'Yes' || echo 'No')"
         echo "SSH key permissions: $(ls -l ~/.ssh/id_rsa)"
-        echo "Known hosts file: $(cat ~/.ssh/known_hosts)"
-      env:
-        EC2_HOST: "${{ secrets.EC2_HOST }}"
-        EC2_USER: "${{ secrets.EC2_USER }}"
+        echo "Known hosts file content:"
+        cat ~/.ssh/known_hosts || echo "No known_hosts file"
 
     - name: Deploy to AWS EC2
       env:
-        EC2_USER: "${{ secrets.EC2_USER }}"
-        EC2_HOST: "${{ secrets.EC2_HOST }}"
+        EC2_USER: ${{ vars.EC2_USER }}
+        EC2_HOST: ${{ vars.EC2_HOST }}
       run: |
         if [ -z "$EC2_USER" ] || [ -z "$EC2_HOST" ]; then
           echo "Error: EC2_USER or EC2_HOST is empty"
