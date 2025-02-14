@@ -23,7 +23,7 @@
   - A Python library designed to extract and organize content from scientific papers in PDF format.
 * - EviSense
   - [pypi.org/project/EviSense](https://pypi.org/project/EviSense)
-  - A Python library to extract evidence and rationales for specific terms within documents, including scientific publications.
+  - A Python library to extract evidence and rationales for specific terms within documents, including scientific publications. It supports multiple LLM providers (e.g., Ollama and OpenRouter) and allows the use of multiple models for greater flexibility. See the [example](https://github.com/sensein/EviSense/tree/experiment/example) for a demonstration of how to use it.  
 * - SchemaExtractor
   - [sensein/SchemaExtractor](https://github.com/sensein/SchemaExtractor/tree/dev)
   - A Python library for extracting and analyzing schemas from knowledge graphs, leveraging llm-based multi-agent autonomous systems for efficient processing and analysis.
