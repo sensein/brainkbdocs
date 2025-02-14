@@ -15,7 +15,7 @@ This beta release, currently in the development stage, highlights the evolving c
 The sequence diagram below illustrates the steps involved in the rapid release process. Currently, the workflow is semi-automated, particularly in the stages of fetching data from the graph database (Oxigraph) and uploading it to an AWS S3 bucket.
 The data from AWS S3 is automatically retrieved, processed, and displayed in the UI, allowing users to download it seamlessly. {numref}`brainkb_data_release` presents the visualization of the data retrieved from the AWS S3 bucket and displayed in the UI.
 
-It is important to highlight that the data in AWS is organized hierarchically by release, adhering to a structured directory pattern that must be followed when uploading data. {numref}`brainkb_data_release_aws_s3_directory_structure` illustrates the organizational conventions used in AWS S3, with folders systematically arranged to represent releases and their subcategories. Similarly, {numref}`brainkb_data_release_aws_s3_ui_mapping` demonstrates how this AWS directory structure is mapped to the user interface, ensuring efficient data retrieval and seamless display for users.
+Data in AWS is organized hierarchically by release, adhering to a structured directory pattern that must be followed when uploading data ({numref}`brainkb_data_release_aws_s3_directory_structure`). {numref}`brainkb_data_release_aws_s3_ui_mapping` demonstrates how this AWS directory structure is mapped to the user interface.
 
 ```{mermaid} 
 sequenceDiagram
