@@ -42,14 +42,30 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -v -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts || echo "ssh-keyscan failed, continuing..."
 
+    - name: Debug SSH Info
+      run: |
+        echo "EC2_HOST value length: ${#EC2_HOST}"
+        echo "EC2_USER value length: ${#EC2_USER}"
+      env:
+        EC2_HOST: "${{ secrets.EC2_HOST }}"
+        EC2_USER: "${{ secrets.EC2_USER }}"
+
     - name: Deploy to AWS EC2
       env:
-        EC2_USER: ${{ secrets.EC2_USER }}
-        EC2_HOST: ${{ secrets.EC2_HOST }}
+        EC2_USER: "${{ secrets.EC2_USER }}"
+        EC2_HOST: "${{ secrets.EC2_HOST }}"
       run: |
-        ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} "sudo mkdir -p /var/www/html/jupyterbook_8040/ && sudo chown -R ${EC2_USER}:${EC2_USER} /var/www/html/jupyterbook_8040/"
-        scp -r -o StrictHostKeyChecking=no docs/_build/html/* ${EC2_USER}@${EC2_HOST}:/var/www/html/jupyterbook_8040/
-        ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} "sudo systemctl restart apache2 || sudo systemctl restart nginx && sudo sed -i 's/Listen 80/Listen 8040/' /etc/apache2/ports.conf && sudo systemctl restart apache2"
+        # Install and configure Apache
+        ssh -o StrictHostKeyChecking=no "${EC2_USER}@${EC2_HOST}" "sudo apt-get update && sudo apt-get install -y apache2"
+        
+        # Create directory and set permissions
+        ssh -o StrictHostKeyChecking=no "${EC2_USER}@${EC2_HOST}" "sudo mkdir -p /var/www/html/jupyterbook_8040/ && sudo chown -R ${EC2_USER}:${EC2_USER} /var/www/html/jupyterbook_8040/"
+        
+        # Copy files
+        scp -r -o StrictHostKeyChecking=no docs/_build/html/* "${EC2_USER}@${EC2_HOST}:/var/www/html/jupyterbook_8040/"
+        
+        # Configure and restart Apache
+        ssh -o StrictHostKeyChecking=no "${EC2_USER}@${EC2_HOST}" "sudo sed -i 's/Listen 80/Listen 8040/' /etc/apache2/ports.conf && sudo systemctl restart apache2"
 
     - name: Cleanup SSH key
       run: rm -f ~/.ssh/id_rsa
