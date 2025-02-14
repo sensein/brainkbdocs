@@ -35,15 +35,14 @@ jobs:
 
     - name: Configure SSH
       run: |
-        echo "EC2_HOST is set to: ${{ secrets.EC2_HOST }}"
         mkdir -p ~/.ssh
-        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+        echo "${{ secrets.EC2_SSH_KEY }}" | base64 --decode > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -v -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts || echo "ssh-keyscan failed, continuing..."
 
     - name: Deploy to AWS EC2
       run: |
-        ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "mkdir -p /var/www/html/jupyterbook_8040/"
+        ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "sudo mkdir -p /var/www/html/jupyterbook_8040/ && sudo chown -R ${{ secrets.EC2_USER }} /var/www/html/jupyterbook_8040/"
         scp -r docs/_build/html/* ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/html/jupyterbook_8040/
         ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "sudo systemctl restart apache2 || sudo systemctl restart nginx && sudo sed -i 's/Listen 80/Listen 8040/' /etc/apache2/ports.conf && sudo systemctl restart apache2"
 
