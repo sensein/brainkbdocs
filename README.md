@@ -5,7 +5,7 @@ This repository contains the Jupyter Book documentation for BrainKB.
 ## Requirements
 
 ```
-pip install -U jupyter-book sphinx-autobuild
+pip install -r docs/requirements.txt
 pip install sphinxcontrib-mermaid
 ```
 
