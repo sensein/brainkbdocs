@@ -1,0 +1,49 @@
+name: Deploy Jupyter Book to AWS EC2
+
+on:
+  push:
+    branches:
+      - master
+      - docs
+
+jobs:
+  deploy-book:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+
+    - name: Install dependencies
+      run: |
+        pip install -r docs/requirements.txt   
+
+    - name: Cache executed notebooks
+      uses: actions/cache@v4
+      with:
+        path: docs/_build/.jupyter_cache
+        key: jupyter-book-cache-${{ hashFiles('docs/requirements.txt') }}
+
+    - name: Build the book
+      run: |
+        jupyter-book build docs/
+
+    - name: Configure SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+    - name: Deploy to AWS EC2
+      run: |
+        scp -r docs/_build/html/* ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/html/jupyterbook_8040/
+        ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "sudo systemctl restart apache2 || sudo systemctl restart nginx && sudo sed -i 's/Listen 80/Listen 8040/' /etc/apache2/ports.conf && sudo systemctl restart apache2"
+
+    - name: Cleanup SSH key
+      run: rm -f ~/.ssh/id_rsa
