@@ -6,7 +6,6 @@ This repository contains the Jupyter Book documentation for BrainKB.
 
 ```
 pip install -r docs/requirements.txt
-pip install sphinxcontrib-mermaid
 ```
 
 ## Running
