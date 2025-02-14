@@ -92,11 +92,32 @@ jobs:
         VHOST_CONF='<VirtualHost *:8040>
             ServerAdmin webmaster@localhost
             DocumentRoot /var/www/html/jupyterbook_8040
-            ErrorLog ${APACHE_LOG_DIR}/error.log
-            CustomLog ${APACHE_LOG_DIR}/access.log combined
+            <Directory /var/www/html/jupyterbook_8040>
+                Options Indexes FollowSymLinks
+                AllowOverride All
+                Require all granted
+            </Directory>
+            ErrorLog /var/log/apache2/error.log
+            CustomLog /var/log/apache2/access.log combined
         </VirtualHost>'
         
-        if ssh -o StrictHostKeyChecking=no "${EC2_USER}@${EC2_HOST}" "sudo sed -i 's/Listen 80/Listen 8040/' /etc/apache2/ports.conf && echo '$VHOST_CONF' | sudo tee /etc/apache2/sites-available/jupyterbook.conf && sudo a2ensite jupyterbook.conf && sudo systemctl restart apache2"; then
+        if ssh -o StrictHostKeyChecking=no "${EC2_USER}@${EC2_HOST}" "
+          # Update ports.conf
+          sudo sed -i 's/Listen 80/Listen 8040/' /etc/apache2/ports.conf
+          
+          # Disable default site
+          sudo a2dissite 000-default.conf
+          
+          # Configure jupyterbook site
+          echo '$VHOST_CONF' | sudo tee /etc/apache2/sites-available/jupyterbook.conf
+          
+          # Enable site and restart Apache
+          sudo a2ensite jupyterbook.conf
+          sudo systemctl restart apache2
+          
+          # Check Apache status
+          sudo systemctl status apache2
+        "; then
           echo "✓ Apache configuration and restart successful"
         else
           echo "× Apache configuration failed"
