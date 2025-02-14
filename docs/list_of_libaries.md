@@ -30,7 +30,7 @@
 ```
 
 ## Ontologies/Schemas
-```{list-table} Ontologies/Schemas Developed as Part of BrainKB
+```{list-table}
 :header-rows: 1
 :name: table_modelsontologies
 
