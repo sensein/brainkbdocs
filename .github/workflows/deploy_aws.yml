@@ -44,8 +44,12 @@ jobs:
 
     - name: Debug SSH Info
       run: |
+        echo "Checking SSH configuration..."
         echo "EC2_HOST value length: ${#EC2_HOST}"
         echo "EC2_USER value length: ${#EC2_USER}"
+        echo "SSH key exists: $(test -f ~/.ssh/id_rsa && echo 'Yes' || echo 'No')"
+        echo "SSH key permissions: $(ls -l ~/.ssh/id_rsa)"
+        echo "Known hosts file: $(cat ~/.ssh/known_hosts)"
       env:
         EC2_HOST: "${{ secrets.EC2_HOST }}"
         EC2_USER: "${{ secrets.EC2_USER }}"
@@ -55,17 +59,50 @@ jobs:
         EC2_USER: "${{ secrets.EC2_USER }}"
         EC2_HOST: "${{ secrets.EC2_HOST }}"
       run: |
+        if [ -z "$EC2_USER" ] || [ -z "$EC2_HOST" ]; then
+          echo "Error: EC2_USER or EC2_HOST is empty"
+          exit 1
+        fi
+
+        echo "Starting deployment to ${EC2_HOST}..."
+        
         # Install and configure Apache
-        ssh -o StrictHostKeyChecking=no "${EC2_USER}@${EC2_HOST}" "sudo apt-get update && sudo apt-get install -y apache2"
+        echo "Installing Apache..."
+        if ssh -o StrictHostKeyChecking=no "${EC2_USER}@${EC2_HOST}" "sudo apt-get update && sudo apt-get install -y apache2"; then
+          echo "✓ Apache installation successful"
+        else
+          echo "× Apache installation failed"
+          exit 1
+        fi
         
         # Create directory and set permissions
-        ssh -o StrictHostKeyChecking=no "${EC2_USER}@${EC2_HOST}" "sudo mkdir -p /var/www/html/jupyterbook_8040/ && sudo chown -R ${EC2_USER}:${EC2_USER} /var/www/html/jupyterbook_8040/"
+        echo "Creating directory and setting permissions..."
+        if ssh -o StrictHostKeyChecking=no "${EC2_USER}@${EC2_HOST}" "sudo mkdir -p /var/www/html/jupyterbook_8040/ && sudo chown -R ${EC2_USER}:${EC2_USER} /var/www/html/jupyterbook_8040/"; then
+          echo "✓ Directory setup successful"
+        else
+          echo "× Directory setup failed"
+          exit 1
+        fi
         
         # Copy files
-        scp -r -o StrictHostKeyChecking=no docs/_build/html/* "${EC2_USER}@${EC2_HOST}:/var/www/html/jupyterbook_8040/"
+        echo "Copying files..."
+        if scp -r -o StrictHostKeyChecking=no docs/_build/html/* "${EC2_USER}@${EC2_HOST}:/var/www/html/jupyterbook_8040/"; then
+          echo "✓ File copy successful"
+        else
+          echo "× File copy failed"
+          exit 1
+        fi
         
         # Configure and restart Apache
-        ssh -o StrictHostKeyChecking=no "${EC2_USER}@${EC2_HOST}" "sudo sed -i 's/Listen 80/Listen 8040/' /etc/apache2/ports.conf && sudo systemctl restart apache2"
+        echo "Configuring and restarting Apache..."
+        if ssh -o StrictHostKeyChecking=no "${EC2_USER}@${EC2_HOST}" "sudo sed -i 's/Listen 80/Listen 8040/' /etc/apache2/ports.conf && sudo systemctl restart apache2"; then
+          echo "✓ Apache configuration and restart successful"
+        else
+          echo "× Apache configuration failed"
+          exit 1
+        fi
+
+        echo "✓ Deployment completed successfully!"
 
     - name: Cleanup SSH key
       run: rm -f ~/.ssh/id_rsa
