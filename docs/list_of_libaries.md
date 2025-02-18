@@ -44,7 +44,7 @@
 
 ## Supporting Software and Libraries
 
-```{list-table} Additional Software and Libraries Developed for BrainKB
+```{list-table}
 :header-rows: 1
 :name: table_additionalsourcecodes
 
