@@ -1,3 +1,5 @@
 jupyter-book
+sphinx-autobuild
+sphinxcontrib-mermaid
 matplotlib
 numpy

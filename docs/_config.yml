@@ -3,21 +3,29 @@
 
 title: BrainKB
 author: Tek Raj Chhetri (tekraj@mit.edu)
-logo: logo.png
+logo: images/logo.png
 
-# Force re-execution of notebooks on each build.
+# Force re-execution of notebooks on each build
 # See https://jupyterbook.org/content/execute.html
 execute:
   execute_notebooks: force
 
-# Define the name of the latex output file for PDF builds
+# Define the name of the LaTeX output file for PDF builds 
 latex:
   latex_documents:
     targetname: book.tex
 
-# Add a bibtex file so that we can create citations
+# Add a BibTeX file so that we can create citations
 bibtex_bibfiles:
   - references.bib
+
+# Enable Mermaid in JupyterBook
+#https://opencomputinglab.github.io/SubjectMatterNotebooks/diagram/sphinx-diagrammers.html
+sphinx:
+  extra_extensions:
+    - sphinxcontrib.mermaid
+  config:
+    bibtex_reference_style: author_year
 
 # Information about where the book exists on the web
 repository:
@@ -30,7 +38,3 @@ repository:
 html:
   use_issues_button: true
   use_repository_button: true
-
-sphinx:
-  config:
-    bibtex_reference_style: author_year 

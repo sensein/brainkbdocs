@@ -16,7 +16,7 @@ Navigate to the `nextjsUIapp` directory, and perform the tasks described below. 
 		```
 		npm install next@latest react@latest react-dom@latest
 		```
-		If you get issue with depenency, add `--legacy-peer-deps` options.
+		If you get issue with dependency, add `--legacy-peer-deps` options.
 	- Installation of the dependencies.
 		```
 		npm install 
@@ -65,7 +65,7 @@ Navigate to the `nextjsUIapp` directory, and perform the tasks described below. 
 
 	```{figure} images/brainkbdocs-statistics_structured_box.png
 	:name: brainkbdocs-statistics_structured_box
-	Landing page configuration of structured models and statics cards using `config-home.yaml`.
+	Landing page configuration of structured models and statistics cards using `config-home.yaml`.
 	```
 
 	```{figure} images/brainkbdocs-knowledgebasepage.png
@@ -174,7 +174,7 @@ structuredmodelsbox:
     slug: "evidenceassertionontology"
     title: "Evidence Assertion Ontology"
     description: "A data model designed to represent types and relationships of evidence and assertions."
-    links: "#"
+    links: "https://brain-bican.github.io/models/index_assertion_evidence"
   - name: "GARS model"
     slug: "garsmodel"
     title: "Annotation Registry Service (GARS)"
@@ -332,6 +332,10 @@ pages:
 
 	More information regarding these callbacks can be obtained from NextJS website at 
 	[https://next-auth.js.org/providers](https://next-auth.js.org/providers).
+
+  ```{important}
+  We have replaced Google-based authentication with ORCID-based authentication. This note has been retained for reference purposes, as future activation of Google-based authentication might encounter similar issues.
+  ```
 
 - 
 
