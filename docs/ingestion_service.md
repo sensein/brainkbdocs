@@ -1,6 +1,24 @@
 # Ingestion service
 
- # Ingestion Service Flow Diagram
+{numref}`brainkb_intestion_architecture_figure`  illustrates the architecture of the ingestion service, which follows the producer-consumer pattern and leverages RabbitMQ for scalable data ingestion. The service is composed of two main components: (i) the producer and (ii) the consumer.
+The producer component exposes API endpoints (see {numref}`brainkb_ingestion_service_api_endpoints`) that allow clients or users to ingest data. Currently, it supports the ingestion of KGs represented in JSON-LD and Turtle formats. Users can ingest raw JSON-LD data as well as upload files, either individually or in batches. At present, the ingestion of other file types, such as PDF, text, and JSON, has been disabled due to the incomplete implementation of the required functionalities.
+
+
+
+```{figure} images/ingest.png
+:name: brainkb_intestion_architecture_figure
+Architecture of Ingestion Service.
+```
+
+```{figure} images/api_endpoints_ingestion_service.png
+:name: brainkb_ingestion_service_api_endpoints
+Currently Enabled API Endpoints.
+```
+
+
+
+
+## Sequence Diagram
  
 ```{mermaid}
 sequenceDiagram
