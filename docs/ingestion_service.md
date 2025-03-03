@@ -210,7 +210,7 @@ sequenceDiagram
         biolink:xref NCBIGene:106504536 .
      
     
-        #added new provenance information regarding the ingestion activity. Might have to update  <https://identifiers.org/brain-bican/vocab/ingestionActivity/e4db1e0b-98ff-497c-88b1-afb4a6d7ee14 patten, to be discussed and done later
+        #added new provenance information regarding the ingestion activity. 
         <https://identifiers.org/brain-bican/vocab/ingestionActivity/e4db1e0b-98ff-497c-88b1-afb4a6d7ee14> a prov:Activity,
         bican:IngestionActivity ;
         prov:generatedAtTime "2025-01-31T16:52:22.061674+00:00"^^xsd:dateTime ;
