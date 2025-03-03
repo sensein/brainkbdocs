@@ -2,7 +2,7 @@
 
  # Ingestion Service Flow Diagram
 
-```mermaid
+```{mermaid} 
 sequenceDiagram
     participant Client as Client/User
     participant API as Producer API
