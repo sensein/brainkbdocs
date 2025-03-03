@@ -1,18 +1,37 @@
 # Ingestion service
 
  # Ingestion Service Flow Diagram
+ 
 
 ```{mermaid} 
 sequenceDiagram
-    participant Client as Client/User
-    participant API as Producer API
-    participant Validator as Producer Shared.py
-    participant Publisher as RabbitMQ Publisher
-    participant RabbitMQ as RabbitMQ Queue
-    participant Consumer as Worker Consumer/Listener
-    participant Processor as Worker Shared.py
-    participant QueryService as Query Service
-    participant GraphDB as Graph Database
+    %% Client/User on the left
+    box MistyRose Client
+        participant Client as Client/User
+    end
+
+    box Thistle Producer
+        participant API as Producer API
+        participant Validator as Producer Validator
+        participant Publisher as Producer RabbitMQ Publisher
+    end
+
+    box LightGoldenRodYellow RabbitMQ Queue
+        participant RabbitMQ as RabbitMQ Queue
+    end
+
+    box HoneyDew Consumer
+        participant Consumer as Worker Consumer/Listener
+        participant Processor as Worker Processor
+    end
+
+    box AliceBlue Query Service
+        participant QueryService as Query Service
+    end
+
+    box Wheat Graph Database
+        participant GraphDB as Graph Database
+    end
 
     %% Client submits data
     Client->>API: 1. POST data (JSON-LD, TTL, etc.)
@@ -27,7 +46,7 @@ sequenceDiagram
     alt is valid data
         API->>Publisher: 3. Format data for publishing
         activate Publisher
-        Publisher->>RabbitMQ: 4. Publish message to exchange
+        Publisher->>RabbitMQ: 4. Publish message to queue
         Publisher-->>API: Publish confirmation
         deactivate Publisher
         API-->>Client: 200 OK Response
@@ -45,8 +64,8 @@ sequenceDiagram
     %% Processing steps
     Processor->>Processor: 7. Add provenance metadata
     
-      %% Acknowledge message
-    Processor-->>Consumer: Processing complete, i.e., attached provenance
+    %% Acknowledge message
+    Processor-->>Consumer: Processing complete, provenance attached
 
     %% Send to query service
     Consumer->>QueryService: 8. Send processed data
@@ -65,5 +84,5 @@ sequenceDiagram
     Processor-->>Consumer: Processing complete
     deactivate Processor
     Consumer->>RabbitMQ: 10. Acknowledge message
-    deactivate Consumer
+    deactivate Consumer 
 ```
