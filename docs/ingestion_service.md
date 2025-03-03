@@ -2,8 +2,7 @@
 
  # Ingestion Service Flow Diagram
  
-
-```{mermaid} 
+```{mermaid}
 sequenceDiagram
     %% Client/User on the left
     box MistyRose Client
@@ -12,25 +11,12 @@ sequenceDiagram
 
     box Thistle Producer
         participant API as Producer API
-        participant Validator as Producer Validator
-        participant Publisher as Producer RabbitMQ Publisher
+        participant Validator as  Shared.py
+        participant Publisher as RabbitMQ Publisher
     end
 
-    box LightGoldenRodYellow RabbitMQ Queue
+    box LightGoldenRodYellow RabbitMQ 
         participant RabbitMQ as RabbitMQ Queue
-    end
-
-    box HoneyDew Consumer
-        participant Consumer as Worker Consumer/Listener
-        participant Processor as Worker Processor
-    end
-
-    box AliceBlue Query Service
-        participant QueryService as Query Service
-    end
-
-    box Wheat Graph Database
-        participant GraphDB as Graph Database
     end
 
     %% Client submits data
@@ -54,25 +40,49 @@ sequenceDiagram
         API-->>Client: 400 Bad Request
     end
     deactivate API
+```
+
+```{mermaid} 
+sequenceDiagram
+    %% Client/User on the left
+    
+    box LightGoldenRodYellow RabbitMQ 
+        participant RabbitMQ as RabbitMQ Queue
+    end
+
+    box HoneyDew Consumer
+        participant Consumer as Listener
+        participant Processor as  Shared.py
+    end
+
+    box AliceBlue Query Service
+        participant QueryService as Query Service
+    end
+
+    box Wheat Graph Database
+        participant GraphDB as Graph Database
+    end
+ 
+      
     
     %% Worker service processes the message
-    RabbitMQ->>Consumer: 5. Consume message
+    RabbitMQ->>Consumer: 1. Consume message
     activate Consumer
-    Consumer->>Processor: 6. Process data
+    Consumer->>Processor: 2. Process data
     activate Processor
     
     %% Processing steps
-    Processor->>Processor: 7. Add provenance metadata
+    Processor->>Processor: 3. Add provenance metadata
     
     %% Acknowledge message
     Processor-->>Consumer: Processing complete, provenance attached
 
     %% Send to query service
-    Consumer->>QueryService: 8. Send processed data
+    Consumer->>QueryService: 4. Send processed data
     activate QueryService
     
     %% Store in database
-    QueryService->>GraphDB: 9. Store in graph database
+    QueryService->>GraphDB: 5. Store in graph database
     activate GraphDB
     GraphDB-->>QueryService: Storage confirmation
     deactivate GraphDB
@@ -83,6 +93,6 @@ sequenceDiagram
     %% Acknowledge message
     Processor-->>Consumer: Processing complete
     deactivate Processor
-    Consumer->>RabbitMQ: 10. Acknowledge message
+    Consumer-->>RabbitMQ: 6. Acknowledge message
     deactivate Consumer 
 ```
