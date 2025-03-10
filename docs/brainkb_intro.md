@@ -34,16 +34,16 @@ The following are the guiding principles based on which the BrainKB is being dev
  All information stored in the KG has associated data models or can be extracted to models. The information will be linked to formal ontologies and linked across datasets. All data models will have well defined schemas and descriptors for human and programmatic consumption.
 
 - **Extensible (Read/Write):**
-The KG will allow for both information retrieval and upload. This involves a set of services and an API layer that allows for curation of information. The curation of information will reflect the data models. In addition, the KG will link, ingest, or cache other authoritative sources of information.
+The BrainKB will allow for both information retrieval and upload. This involves a set of services and an API layer that allows for curation of information. The curation of information will reflect the data models. In addition, the KG will link, ingest, or cache other authoritative sources of information.
 
 - **Curated (Expertise):**
-To support being an authoritative source, information entering the KG will indicate levels of curation. Such curation may take the form of expertise that is embedded into algorithms (e.g., quality metrics, alignment, mapping), is incorporated into data models (e.g., genes, anatomy), and is derived from computational and human analysis (e.g., atlases as outputs of working groups).
+To support being an authoritative source, information (e.g., KG) entering the BrainKB will indicate levels of curation. Such curation may take the form of expertise that is embedded into algorithms (e.g., quality metrics, alignment, mapping), is incorporated into data models (e.g., genes, anatomy), and is derived from computational and human analysis (e.g., atlases as outputs of working groups).
 - **Usable (Utilitarian):**
-The architecture of the KG will be usable by humans and computational entities. The application interfaces will provide user interactivity and programmatic access. The KG will support competencies needed by the community. 
-- **Transparent (Basis):**
-To increase trust, the provenance of all information in the KG shall be maintained, including absence of provenance and available through the KG interfaces.
+BrainKB's architecture will support both human and computational use, offering interactive interfaces and programmatic access via API.
+- **Transparent:**
+To ensure transparency and trust, BrainKB shall record provenance details, including ingestion timestamps and modifications, accessible through both its user interface and API.
 - **Programmable (Computable):**
-The information stored will lend itself to compute through appropriate APIs, data formats, and services. The KG shall connect to computational services to generate and provide inferred or derived information relevant to scientists. 
+The stored information will be computationally accessible through well-defined APIs, standardized data formats, and dedicated services. The KG shall connect to computational services to generate and provide inferred or derived information relevant to scientists. 
 
 
 ## Features
