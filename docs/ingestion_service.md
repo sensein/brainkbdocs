@@ -8,7 +8,7 @@ The consumer retrieves ingested data from RabbitMQ, processes it, and forwards i
 
 ```{figure} images/ingest_service.png
 :name: brainkb_intestion_architecture_figure
-Architecture of Ingestion Service.
+Architecture of the Ingestion Service.
 ```
 
 ```{figure} images/api_endpoints_ingestion_service.png
