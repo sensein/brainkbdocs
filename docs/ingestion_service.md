@@ -38,7 +38,7 @@ sequenceDiagram
     end
 
     box LightGoldenRodYellow RabbitMQ 
-        participant RabbitMQ as Oxigraph
+        participant RabbitMQ as RabbitMQ
     end
 
     %% Client submits data

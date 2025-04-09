@@ -22,6 +22,10 @@ parts:
     numbered: True 
     chapters:
     - file: brainkbui
+  - caption: Agentic Frameworks
+    numbered: True
+    chapters:
+    - file: agents
   - caption: Deployment
     numbered: True 
     chapters:
