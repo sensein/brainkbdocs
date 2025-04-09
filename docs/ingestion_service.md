@@ -28,7 +28,7 @@ The diagram below highlights the producer in this pipeline, detailing each step 
 
 ```{mermaid}
 sequenceDiagram
-    %% Client/User on the left
+    rect rgb(255,255,255)
     box MistyRose Client
         participant Client as Client/User
     end
@@ -64,6 +64,7 @@ sequenceDiagram
         API-->>Client: 400 Bad Request
     end
     deactivate API
+    end
 ```
 
 #### **Receiving Data from the Client**
@@ -88,9 +89,8 @@ sequenceDiagram
 The diagram below highlights the consumer in this pipeline, detailing each step in the process as described below.
 
 ```{mermaid} 
-sequenceDiagram
-    %% Client/User on the left
-    
+sequenceDiagram   
+    rect rgb(255,255,255)
     box LightGoldenRodYellow RabbitMQ 
         participant RabbitMQ as RabbitMQ Queue
     end
@@ -107,9 +107,6 @@ sequenceDiagram
     box Wheat Graph Database
         participant GraphDB as Oxigraph
     end
- 
-      
-    
     %% Worker service processes the message
     RabbitMQ->>Consumer: 1. Consume message
     activate Consumer
@@ -140,7 +137,8 @@ sequenceDiagram
     deactivate Processor
     Consumer-->>RabbitMQ: 6. Acknowledge message
     deactivate Consumer 
-```
+    end
+``` 
 
 #### **Message Consumption from RabbitMQ**
 - The **RabbitMQ Queue** holds messages published by the **Producer**.
