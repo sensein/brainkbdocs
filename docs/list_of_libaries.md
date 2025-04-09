@@ -27,6 +27,10 @@
 * - SchemaExtractor
   - [sensein/SchemaExtractor](https://github.com/sensein/SchemaExtractor/tree/dev)
   - A Python library for extracting and analyzing schemas from knowledge graphs, leveraging llm-based multi-agent autonomous systems for efficient processing and analysis.
+* - StructSense
+  - [sensein/structsense](https://pypi.org/project/structsense)
+  - A Python library for extracting and analyzing schemas from knowledge graphs, leveraging llm-based multi-agent autonomous systems for efficient processing and analysis.structsense is a powerful multi-agent system designed to extract structured information from unstructured data.
+
 ```
 
 ## Ontologies/Schemas
