@@ -1,7 +1,6 @@
 # User Interface Overview 
 This section offers a detailed overview of the UI, including its layout, design elements, and functionality. It provides insights into how users can navigate the interface, interact with various components, and utilize its features effectively to achieve their goals.
 Additionally, it highlights key elements that enhance user experience, such as responsiveness, accessibility, and ease of use.
-## Overview
 
 The BrainKB UI, accessible at [beta.brainkb.org](https://beta.brainkb.org), is a user-centric interface designed to interact with the BrainKB knowledge graph infrastructure. It enables neuroscientists, researchers, and practitioners to explore, search, analyze, and visualize neuroscience knowledge effectively. The platform integrates a range of tools and features that facilitate evidence-based decision-making, making it an essential resource for advancing neuroscience research.
  
