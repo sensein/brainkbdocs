@@ -129,6 +129,17 @@ BrainKB is designed to be configurable so that it can be easily reusable in othe
 Some of the parameters (or variables) in the configuration files are not used as of now (there's a plan to use) and therefore, descriptions are not available. The descriptions will be updated as they are used or will be removed in case they are not used.
 ```
 
+ 
+> **Note**  
+> If you only want to run the UI with dummy data, you don’t need to set up any environment keys.  
+>  
+> 1. Clone the repository.  
+> 2. Navigate into the project directory.  
+> 3. Run `npm install` to install dependencies.  
+> 4. Start the development server with `npm run dev`.  
+> 5. The latest active development branch is `admin-ui`.
+ 
+
 ### config-home.yaml
 The `config-home.yaml` file is used to configure the home page, aka the landing page. The configuration file shown below is the default one that is being used in the current implementation.
 
