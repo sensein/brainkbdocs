@@ -45,7 +45,7 @@ jobs:
       - name: Build Jupyter Book
         working-directory: docs
         run: |
-          jupyter-book build .
+          jupyter-book build docs/
 
       - name: Verify build output
         run: |
