@@ -6,10 +6,11 @@ numpy==2.3.4
 sphinx_togglebutton==0.3.2
 sphinx_copybutton==0.5.2
 myst-nb
-sphinx_design
+sphinx_design==0.6.0
 sphinx_book_theme
 sphinxcontrib-bibtex
 sphinx-jupyterbook-latex
 sphinx-multitoc-numbering
 sphinx_thebe
 sphinx_comments
+sphinx_external_toc==1.0.1
