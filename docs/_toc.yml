@@ -22,7 +22,7 @@ parts:
     numbered: True 
     chapters:
     - file: brainkbui
-  - caption: Structsense
+  - caption: StructSense
     numbered: True
     chapters:
     - file: agents
