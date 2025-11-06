@@ -29,7 +29,8 @@ It orchestrates specialized agents to collaborate, align to schemas/ontologies, 
 
 ## Quickstart
 ```bash
-pip install -e .
+pip install structsense
+
 structsense-cli extract \
   --source somefile.pdf \
   --config someconfig.yaml \
