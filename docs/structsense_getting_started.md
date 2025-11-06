@@ -56,7 +56,7 @@ structsense-cli extract \
   --source somefile.pdf \
   --api_key <YOUR_API_KEY> \
   --config someconfig.yaml \
-  --env_file .env_file \
+  --env_file .env \
   --save_file result.json  # optional
 ```
 
