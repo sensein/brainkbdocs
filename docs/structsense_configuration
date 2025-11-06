@@ -1,0 +1,182 @@
+<!-- Configuration Overview & Template -->
+# Configuration Overview & Template
+
+StructSense is configured with **environment variables** and a **YAML config**.  
+Pass the YAML via CLI, e.g. `--config config/ner_agent.yaml`.
+
+**Do not rename** these top‑level YAML keys:
+- `agent_config`
+- `task_config`
+
+**Do not replace** runtime variables in braces `{}`:
+- `{literature}` — input text (e.g., extracted PDF content)
+- `{extracted_structured_information}` — extractor output
+- `{aligned_structured_information}` — alignment output
+- `{judged_structured_information_with_human_feedback}` — judge output
+- `{modification_context}`, `{user_feedback_text}` — inputs to feedback agent
+
+A blank template is available in `config_template/`. See **Templates**.
+
+<!--Agent Configuration -->
+# Agent Configuration
+
+These agent IDs are required and must not be renamed:
+- `extractor_agent`
+- `alignment_agent`
+- `judge_agent`
+- `humanfeedback_agent`
+
+Each agent has: `role`, `goal`, `backstory`, and `llm`.
+
+Example:
+```yaml
+agent_config:
+  extractor_agent:
+    role: >
+      agent role
+    goal: >
+      goal
+    backstory: >
+      agent backstory
+    llm:
+      model: openrouter/openai/gpt-4o-mini
+      base_url: https://openrouter.ai/api/v1
+```
+
+## Using Ollama (Local Models)
+```yaml
+agent_config:
+  extractor_agent:
+    role: >
+      agent role
+    goal: >
+      goal
+    backstory: >
+      agent backstory
+    llm:
+      model: ollama/deepseek-r1:14b
+      base_url: http://localhost:11434
+```
+Run without a paid API key:
+```bash
+structsense-cli extract \
+  --source SOME.pdf \
+  --config ner_config_gpt.yaml \
+  --env_file .env
+```
+
+<!-- Task Configuration -->
+# Task Configuration
+
+Required task IDs (do not rename):
+- `extraction_task`
+- `alignment_task`
+- `judge_task`
+- `humanfeedback_task`
+
+Each task includes:
+- `description` — includes expected input (e.g., `{literature}`)
+- `expected_output` — **JSON** output format or example
+- `agent_id` — must match an agent ID from `agent_config`
+
+Example:
+```yaml
+task_config:
+  extraction_task:
+    description: >
+      Extract structured information from the given literature.
+      Input: {literature}
+    expected_output: >
+      Format: JSON
+      Example: {"entities": [...], "relations": [...]}
+    agent_id: extractor_agent
+```
+
+<!-- Embeddings & Knowledge -->
+# Embeddings & Knowledge
+
+## Embedding Configuration
+```yaml
+embedder_config:
+  provider: ollama
+  config:
+    api_base: http://localhost:11434
+    model: nomic-embed-text:latest
+```
+
+## Knowledge Source (Vector DB)
+`WEAVIATE_*` environment variables are optional and only needed if you enable a knowledge source for schema/ontology lookup.
+
+<!-- Environment Variables -->
+# Environment Variables
+
+## Core
+| Variable | Description | Default |
+|---|---|---|
+| `ENABLE_KG_SOURCE` | Enable vector DB knowledge source | `false` |
+| `WEAVIATE_API_KEY` | **Required** when using Weaviate | — |
+
+> **Note:** `WEAVIATE_API_KEY` is required if you enable the knowledge source.
+
+## Weaviate (optional)
+| Variable | Description | Default |
+|---|---|---|
+| `WEAVIATE_HTTP_HOST` | HTTP host | `localhost` |
+| `WEAVIATE_HTTP_PORT` | HTTP port | `8080` |
+| `WEAVIATE_HTTP_SECURE` | HTTPS for HTTP connection | `false` |
+| `WEAVIATE_GRPC_HOST` | gRPC host | `localhost` |
+| `WEAVIATE_GRPC_PORT` | gRPC port | `50051` |
+| `WEAVIATE_GRPC_SECURE` | Use secure gRPC | `false` |
+
+## Weaviate Timeouts
+| Variable | Description | Default |
+|---|---|---|
+| `WEAVIATE_TIMEOUT_INIT` | Initialization timeout (s) | `30` |
+| `WEAVIATE_TIMEOUT_QUERY` | Query timeout (s) | `60` |
+| `WEAVIATE_TIMEOUT_INSERT` | Insert timeout (s) | `120` |
+
+## Ollama for Weaviate
+| Variable | Description | Default |
+|---|---|---|
+| `OLLAMA_API_ENDPOINT` | Ollama API endpoint | `http://host.docker.internal:11434` |
+| `OLLAMA_MODEL` | Embedding model | `nomic-embed-text` |
+
+> If Ollama runs on host and Weaviate in Docker, use `http://host.docker.internal:11434`.  
+> If both are in Docker on the same host network, use `http://localhost:11434`.
+
+## Experiment Tracking (optional)
+| Variable | Description | Default |
+|---|---|---|
+| `ENABLE_WEIGHTSANDBIAS` | Enable W&B | `false` |
+| `ENABLE_MLFLOW` | Enable MLflow | `false` |
+| `MLFLOW_TRACKING_URL` | MLflow tracking URL | `http://localhost:5000` |
+
+## Minimal (no tracking, no knowledge source)
+```bash
+ENABLE_WEIGHTSANDBIAS=false
+ENABLE_MLFLOW=false
+ENABLE_KG_SOURCE=false
+```
+
+## Example `.env`
+```bash
+WEAVIATE_API_KEY=your_api_key
+WEAVIATE_HTTP_HOST=localhost
+WEAVIATE_HTTP_PORT=8080
+WEAVIATE_HTTP_SECURE=false
+
+WEAVIATE_GRPC_HOST=localhost
+WEAVIATE_GRPC_PORT=50051
+WEAVIATE_GRPC_SECURE=false
+
+WEAVIATE_TIMEOUT_INIT=30
+WEAVIATE_TIMEOUT_QUERY=60
+WEAVIATE_TIMEOUT_INSERT=120
+
+OLLAMA_API_ENDPOINT=http://host.docker.internal:11434
+OLLAMA_MODEL=nomic-embed-text
+
+ENABLE_WEAVE=true
+ENABLE_MLFLOW=true
+MLFLOW_TRACKING_URL=http://localhost:5000
+```
