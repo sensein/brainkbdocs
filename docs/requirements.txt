@@ -5,3 +5,9 @@ matplotlib==3.10.7
 numpy==2.3.4
 sphinx_togglebutton==0.3.2
 sphinx_copybutton==0.5.2
+myst-nb
+sphinx_design
+sphinx_book_theme
+sphinxcontrib-bibtex
+sphinx-jupyterbook-latex
+sphinx-multitoc-numbering
