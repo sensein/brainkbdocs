@@ -22,7 +22,7 @@ parts:
     numbered: True 
     chapters:
     - file: brainkbui
-  - caption: Agentic Frameworks
+  - caption: Structsense
     numbered: True
     chapters:
     - file: agents
