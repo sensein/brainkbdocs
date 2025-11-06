@@ -5,14 +5,22 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
 jobs:
-  deploy-book:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
@@ -23,31 +31,42 @@ jobs:
         run: |
           pip install -r docs/requirements.txt
 
-      # Cache executed notebooks (key now hashes the correct file)
-      - name: cache executed notebooks
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Cache executed notebooks
         uses: actions/cache@v4
         with:
           path: docs/_build/.jupyter_cache
-          key: jupyter-book-cache-${{ hashFiles('docs/requirements.txt') }}
+          key: jupyter-book-cache-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            jupyter-book-cache-${{ runner.os }}-
 
-      # Build the book (run from docs/ so tools resolve paths cleanly)
-      - name: Build the book
+      - name: Build Jupyter Book
         working-directory: docs
         run: |
           jupyter-book build .
 
-      # Upload only if the build created HTML (and fail the step otherwise)
       - name: Verify build output
         run: |
-          test -d docs/_build/html || { echo "No HTML build output found"; exit 1; }
+          test -d docs/_build/html || { echo "❌ No HTML build output found"; exit 1; }
 
       - name: Upload artifact
-        if: success()
         uses: actions/upload-pages-artifact@v3.0.1
         with:
-          path: "docs/_build/html"
+          path: docs/_build/html
 
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+
+    steps:
       - name: Deploy to GitHub Pages
-        if: success()
         id: deployment
         uses: actions/deploy-pages@v4
