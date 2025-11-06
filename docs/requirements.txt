@@ -14,3 +14,4 @@ sphinx-multitoc-numbering
 sphinx_thebe
 sphinx_comments
 sphinx_external_toc==1.0.1
+linkify==1.4
