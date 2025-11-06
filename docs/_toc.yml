@@ -22,10 +22,14 @@ parts:
     numbered: True 
     chapters:
     - file: brainkbui
-  - caption: Agentic Frameworks
+  - caption: StructSense
     numbered: True
     chapters:
-    - file: agents
+    - file: structsense_overview
+    - file: structsense_getting_started
+    - file: structsense_configuration
+    - file: structsense_examples
+    - file: structsense_troubleshooting
   - caption: Deployment
     numbered: True 
     chapters:

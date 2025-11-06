@@ -1,0 +1,19 @@
+# Examples
+
+- See the `example/` directory for usage demonstrations and reference configs.
+- A blank configuration is provided under `config_template/`.
+
+## Example Use Cases
+- Entity and relation extraction from text
+- Knowledge graph construction
+
+# Blank Configuration Template
+
+A starting template is provided in `config_template/`.
+
+Before modifying, read:
+- **Configuration Overview & Template**
+- **Agents**
+- **Tasks**
+- **Embeddings & Knowledge**
+- **Environment Variables**
