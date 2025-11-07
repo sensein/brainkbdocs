@@ -49,7 +49,7 @@ export EXTERNAL_PDF_EXTRACTION_SERVICE=True
 
 ### LLM
 #### LLM for Agents
-We are using OpenRouter to access models like GPT for agents. However, Ollama can also serve as a substitute for OpenRouter when using open-source models such as Llama for agents. 
+We are using OpenRouter to access models like GPT for agents. However, Ollama can also serve as a substitute for OpenRouter when using open-source models such as Llama.
 
 #### Embedding configuration
 In our default setup, Ollama is used for embedding generation. You can also use other models via OpenRouter for embedding.
