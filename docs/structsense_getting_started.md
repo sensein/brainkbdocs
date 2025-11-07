@@ -34,7 +34,7 @@ docker run --init -p 8070:8070 -e JAVA_OPTS="-XX:+UseZGC" lfoppiano/grobid:0.8.0
 > **Note:** The `JAVA_OPTS="-XX:+UseZGC"` flag helps prevent a macOS-specific error.
 
 #### Alternative: Remote Service (e.g., Remote Grobid)
-If you prefer to use a remote or external (Grobid) service, set the environment variable as follows:
+If you prefer to use a remote service, set the environment variable as follows:
 ```bash
 export GROBID_SERVER_URL_OR_EXTERNAL_SERVICE=http://your-remote-grobid:PORT
 ```
