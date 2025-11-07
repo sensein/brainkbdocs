@@ -1,6 +1,6 @@
 <!-- # Known Issues & Troubleshooting-->
 # Troubleshooting and FAQ
-## Known Issues and Troubleshooting
+## Troubleshooting
 
 ### pip “resolution-too-deep”
 **Symptom**
@@ -11,12 +11,13 @@
 pip install --use-deprecated=legacy-resolver structsense
 ```
 
-## Python Version / No Matching Distribution
+### Python Version / No Matching Distribution
 **Symptom**
 ```
 ERROR: Could not find a version that satisfies the requirement structsense (from versions: none)
 ERROR: No matching distribution found for structsense
 ```
+**Workaround**
 Ensure Python version is **>=3.10,<3.13**.
 
 <!-- FAQ -->
