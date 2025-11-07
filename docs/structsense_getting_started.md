@@ -15,7 +15,7 @@ pip install -e .
 #### Python Version
 StructSense supports **Python >=3.10,<3.13**.
 
-### Optional Services
+## Optional Services
 - **Grobid** (PDF parsing)
 - **Weaviate** (vector database for knowledge/ontology)
 - **Ollama** (local LLM/embedding provider)
