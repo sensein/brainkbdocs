@@ -1,7 +1,8 @@
 <!-- # Known Issues & Troubleshooting-->
-# Known Issues & Troubleshooting
+# Troubleshooting and FAQ
+## Known Issues and Troubleshooting
 
-## pip “resolution-too-deep”
+### pip “resolution-too-deep”
 **Symptom**
 - During installation, `pip` backtracks across many `opentelemetry-*` packages and fails.
 
@@ -19,7 +20,7 @@ ERROR: No matching distribution found for structsense
 Ensure Python version is **>=3.10,<3.13**.
 
 <!-- FAQ -->
-# FAQ
+## FAQ
 
 **Q: Do I need Weaviate to run StructSense?**  
 A: No. Set `ENABLE_KG_SOURCE=false` to run without a vector DB.

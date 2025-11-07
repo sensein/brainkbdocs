@@ -1,5 +1,6 @@
 <!-- Configuration Overview & Template -->
-# Configuration Overview & Template
+# Setup Configuration 
+## Configuration Overview & Template
 
 StructSense is configured with **environment variables** and a **YAML config**.  
 Pass the YAML via CLI, e.g. `--config config/ner_agent.yaml`.
@@ -18,7 +19,7 @@ Pass the YAML via CLI, e.g. `--config config/ner_agent.yaml`.
 A blank template is available in `config_template/`. See **Templates**.
 
 <!--Agent Configuration -->
-# Agent Configuration
+## Agent Configuration
 
 These agent IDs are required and must not be renamed:
 - `extractor_agent`
@@ -43,7 +44,7 @@ agent_config:
       base_url: https://openrouter.ai/api/v1
 ```
 
-## Using Ollama (Local Models)
+### Using Ollama (Local Models)
 ```yaml
 agent_config:
   extractor_agent:
@@ -66,7 +67,7 @@ structsense-cli extract \
 ```
 
 <!-- Task Configuration -->
-# Task Configuration
+## Task Configuration
 
 Required task IDs (do not rename):
 - `extraction_task`
@@ -93,9 +94,9 @@ task_config:
 ```
 
 <!-- Embeddings & Knowledge -->
-# Embeddings & Knowledge
+## Embeddings & Knowledge
 
-## Embedding Configuration
+### Embedding Configuration
 ```yaml
 embedder_config:
   provider: ollama
@@ -104,13 +105,13 @@ embedder_config:
     model: nomic-embed-text:latest
 ```
 
-## Knowledge Source (Vector DB)
+### Knowledge Source (Vector DB)
 `WEAVIATE_*` environment variables are optional and only needed if you enable a knowledge source for schema/ontology lookup.
 
 <!-- Environment Variables -->
-# Environment Variables
+## Environment Variables
 
-## Core
+### Core
 | Variable | Description | Default |
 |---|---|---|
 | `ENABLE_KG_SOURCE` | Enable vector DB knowledge source | `false` |
@@ -118,7 +119,7 @@ embedder_config:
 
 > **Note:** `WEAVIATE_API_KEY` is required if you enable the knowledge source.
 
-## Weaviate (optional)
+### Weaviate (optional)
 | Variable | Description | Default |
 |---|---|---|
 | `WEAVIATE_HTTP_HOST` | HTTP host | `localhost` |
@@ -128,14 +129,14 @@ embedder_config:
 | `WEAVIATE_GRPC_PORT` | gRPC port | `50051` |
 | `WEAVIATE_GRPC_SECURE` | Use secure gRPC | `false` |
 
-## Weaviate Timeouts
+### Weaviate Timeouts
 | Variable | Description | Default |
 |---|---|---|
 | `WEAVIATE_TIMEOUT_INIT` | Initialization timeout (s) | `30` |
 | `WEAVIATE_TIMEOUT_QUERY` | Query timeout (s) | `60` |
 | `WEAVIATE_TIMEOUT_INSERT` | Insert timeout (s) | `120` |
 
-## Ollama for Weaviate
+### Ollama for Weaviate
 | Variable | Description | Default |
 |---|---|---|
 | `OLLAMA_API_ENDPOINT` | Ollama API endpoint | `http://host.docker.internal:11434` |
@@ -144,21 +145,21 @@ embedder_config:
 > If Ollama runs on host and Weaviate in Docker, use `http://host.docker.internal:11434`.  
 > If both are in Docker on the same host network, use `http://localhost:11434`.
 
-## Experiment Tracking (optional)
+### Experiment Tracking (optional)
 | Variable | Description | Default |
 |---|---|---|
 | `ENABLE_WEIGHTSANDBIAS` | Enable W&B | `false` |
 | `ENABLE_MLFLOW` | Enable MLflow | `false` |
 | `MLFLOW_TRACKING_URL` | MLflow tracking URL | `http://localhost:5000` |
 
-## Minimal (no tracking, no knowledge source)
+### Minimal (no tracking, no knowledge source)
 ```bash
 ENABLE_WEIGHTSANDBIAS=false
 ENABLE_MLFLOW=false
 ENABLE_KG_SOURCE=false
 ```
 
-## Example `.env`
+### Example `.env`
 ```bash
 WEAVIATE_API_KEY=your_api_key
 WEAVIATE_HTTP_HOST=localhost
