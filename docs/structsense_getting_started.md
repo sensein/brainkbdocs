@@ -82,8 +82,8 @@ Disabled by default. Enable with:
 The `docker/` directory contains **Docker Compose** files for running the following components:
 
 - **Grobid** – for PDF extraction
-- **Ollama** – for local language model inference
-- **Weaviate** – as the vector database
+- **Ollama** – In our setup, Ollama is used for embedding generation. However, it can also serve as a substitute for OpenRouter when using open-source models such as Llama for agents. OpenRouter, on the other hand, provides access to various proprietary models like GPT.
+- **Weaviate** – In our StructSense architecture, Weaviate acts as the vector database responsible for storing the ontology, effectively serving as the Ontology database.
 
 These Compose files allow you to quickly stand up a complete local **StructSense** stack.
 
