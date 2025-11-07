@@ -15,26 +15,26 @@ pip install -e .
 ### Python Version
 StructSense supports **Python >=3.10,<3.13**.
 
-## Optional Services
-- **Grobid** (PDF parsing)
-- **Weaviate** (vector database for knowledge/ontology)
-- **Ollama** (local LLM/embedding provider)
-- **MLflow / Weights & Biases** (experiment tracking)
 
 <!-- # Requirements -->
 ## Requirements
-### PDF Extraction (Grobid)
+### PDF Extraction with Grobid
 
-By default StructSense uses a **local Grobid** service. If Grobid is running locally, no extra setup is needed.
+StructSense supports PDF extraction using **[Grobid](https://grobid.readthedocs.io/en/latest/Introduction/)** (default) or an external API service.
 
-#### Run Grobid with Docker
+#### Default: Grobid
+By default, StructSense uses Grobid for PDF extraction. You can install and run Grobid either with Docker (recommended) or in a non-Docker setup.  
+We recommend using Docker for easier setup and dependency management.
+
+##### Run Grobid with Docker
 ```bash
 docker pull lfoppiano/grobid:0.8.0
 docker run --init -p 8070:8070 -e JAVA_OPTS="-XX:+UseZGC" lfoppiano/grobid:0.8.0
 ```
-`JAVA_OPTS="-XX:+UseZGC"` helps avoid a macOS-specific error.
+> **Note:** The `JAVA_OPTS="-XX:+UseZGC"` flag helps prevent a macOS-specific error.
 
-#### Remote Grobid
+#### Alternative: Remote (Grobid) Service
+If you prefer to use a remote or external (Grobid) service, set the environment variable as follows:
 ```bash
 export GROBID_SERVER_URL_OR_EXTERNAL_SERVICE=http://your-remote-grobid:PORT
 ```
@@ -77,11 +77,15 @@ Disabled by default. Enable with:
 ```
 
 <!-- Docker -->
-## Docker
+### Docker
 
-The `docker/` directory contains compose files (individual and merged) to run:
-- **Grobid**
-- **Ollama**
-- **Weaviate** (vector DB)
+The `docker/` directory contains **Docker Compose** files for running the following components:
 
-Use these to stand up a local end‑to‑end stack for StructSense.
+- **Grobid** – for PDF extraction  
+- **Ollama** – for local language model inference  
+- **Weaviate** – as the vector database
+
+These Compose files allow you to quickly stand up a complete local **StructSense** stack.
+
+If you prefer not to install dependencies system-wide, you can use the provided Docker Compose setup to run everything in **container mode**.  
+This makes it easy to isolate services and manage your environment with minimal setup.
