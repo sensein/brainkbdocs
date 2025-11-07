@@ -70,7 +70,7 @@ structsense-cli extract \
   --save_file result.json  # optional
 ```
 
-#### Chunking
+### Chunking
 Disabled by default. Enable with:
 ```bash
 --chunking True
