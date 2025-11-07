@@ -1,4 +1,4 @@
-# 🧩 StructSense
+# Overview
 
 **StructSense** is a multi‑agent system that extracts **structured information** from unstructured sources like PDFs and scientific text.  
 It orchestrates specialized agents to collaborate, align to schemas/ontologies, and emit JSON outputs suitable for knowledge graphs and downstream analytics.

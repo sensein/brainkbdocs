@@ -7,7 +7,7 @@
 - Entity and relation extraction from text
 - Knowledge graph construction
 
-# Blank Configuration Template
+## Blank Configuration Template
 
 A starting template is provided in `config_template/`.
 
