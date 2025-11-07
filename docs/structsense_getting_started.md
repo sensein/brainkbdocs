@@ -77,7 +77,7 @@ Disabled by default. Enable with:
 ```
 
 <!-- Docker -->
-### Docker
+## Using Docker Compose
 
 The `docker/` directory contains **Docker Compose** files for running the following components:
 
