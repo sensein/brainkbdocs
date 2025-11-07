@@ -16,7 +16,8 @@ Pass the YAML via CLI, e.g. `--config config/ner_agent.yaml`.
 - `{judged_structured_information_with_human_feedback}` — judge output
 - `{modification_context}`, `{user_feedback_text}` — inputs to feedback agent
 
-A blank template is available in `config_template/`. See **Templates**.
+**Config Template**\
+A blank template is available in [config_template](https://github.com/sensein/structsense/blob/main/config_template/config.yaml).
 
 <!--Agent Configuration -->
 ## Agent Configuration
@@ -152,32 +153,10 @@ embedder_config:
 | `ENABLE_MLFLOW` | Enable MLflow | `false` |
 | `MLFLOW_TRACKING_URL` | MLflow tracking URL | `http://localhost:5000` |
 
-### Minimal (no tracking, no knowledge source)
+<!-- Example .env -->
+## Example `.env`
 ```bash
-ENABLE_WEIGHTSANDBIAS=false
-ENABLE_MLFLOW=false
 ENABLE_KG_SOURCE=false
-```
-
-### Example `.env`
-```bash
-WEAVIATE_API_KEY=your_api_key
-WEAVIATE_HTTP_HOST=localhost
-WEAVIATE_HTTP_PORT=8080
-WEAVIATE_HTTP_SECURE=false
-
-WEAVIATE_GRPC_HOST=localhost
-WEAVIATE_GRPC_PORT=50051
-WEAVIATE_GRPC_SECURE=false
-
-WEAVIATE_TIMEOUT_INIT=30
-WEAVIATE_TIMEOUT_QUERY=60
-WEAVIATE_TIMEOUT_INSERT=120
-
-OLLAMA_API_ENDPOINT=http://host.docker.internal:11434
-OLLAMA_MODEL=nomic-embed-text
-
-ENABLE_WEAVE=true
-ENABLE_MLFLOW=true
-MLFLOW_TRACKING_URL=http://localhost:5000
+OLLAMA_API_ENDPOINT=http://localhost:11434
+OLLAMA_MODEL=nomic-embed-text:v1.5
 ```
