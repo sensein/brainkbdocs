@@ -14,4 +14,9 @@ It orchestrates specialized agents to collaborate, align to schemas/ontologies, 
 ## Architecture
 ![StructSense Architecture](images/structsense_arch.png)
 
+## Quickstart
+
+```bash
+pip install structsense
+```
 
