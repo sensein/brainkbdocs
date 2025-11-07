@@ -81,8 +81,8 @@ Disabled by default. Enable with:
 
 The `docker/` directory contains **Docker Compose** files for running the following components:
 
-- **Grobid** – for PDF extraction  
-- **Ollama** – for local language model inference  
+- **Grobid** – for PDF extraction
+- **Ollama** – for local language model inference
 - **Weaviate** – as the vector database
 
 These Compose files allow you to quickly stand up a complete local **StructSense** stack.
