@@ -12,7 +12,7 @@ git clone https://github.com/sensein/structsense.git
 cd structsense
 pip install -e .
 ```
-#### Python Version
+### Python Version
 StructSense supports **Python >=3.10,<3.13**.
 
 ## Optional Services
