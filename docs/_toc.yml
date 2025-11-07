@@ -22,6 +22,11 @@ parts:
     numbered: True 
     chapters:
     - file: brainkbui
+  - caption: Deployment
+    numbered: True 
+    chapters:
+    - file: deployment_userinterface
+    - file: deployment_braikbservices
   - caption: StructSense
     numbered: True
     chapters:
@@ -30,11 +35,6 @@ parts:
     - file: structsense_configuration
     - file: structsense_examples
     - file: structsense_troubleshooting
-  - caption: Deployment
-    numbered: True 
-    chapters:
-    - file: deployment_userinterface
-    - file: deployment_braikbservices
   - caption: Benchmarking
     numbered: True 
     chapters:
@@ -44,6 +44,3 @@ parts:
     chapters:
     - file: list_of_libaries
     - file: publications
-
-  
- 
