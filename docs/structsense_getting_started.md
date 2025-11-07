@@ -23,7 +23,7 @@ StructSense supports **Python >=3.10,<3.13**.
 StructSense supports PDF extraction using **[Grobid](https://grobid.readthedocs.io/en/latest/Introduction/)** (default) or an external API service.
 
 #### Default: Grobid
-By default, StructSense uses Grobid for PDF extraction. You can install and run Grobid either with Docker (recommended) or in a non-Docker setup.  
+By default, StructSense uses Grobid for PDF extraction. You can install and run Grobid either with Docker or in a non-Docker setup.  
 We recommend using Docker for easier setup and dependency management.
 
 ##### Run Grobid with Docker
