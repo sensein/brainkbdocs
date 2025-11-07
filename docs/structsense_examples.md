@@ -1,19 +1,9 @@
 # Examples
 
-- See the `example/` directory for usage demonstrations and reference configs.
-- A blank configuration is provided under `config_template/`.
+- See the [example/](https://github.com/sensein/structsense/tree/main/example) directory for usage demonstrations and reference configs.
 
 ## Example Use Cases
-- Entity and relation extraction from text
-- Knowledge graph construction
-
-## Blank Configuration Template
-
-A starting template is provided in `config_template/`.
-
-Before modifying, read:
-- **Configuration Overview & Template**
-- **Agents**
-- **Tasks**
-- **Embeddings & Knowledge**
-- **Environment Variables**
+**For more information about StructSense use cases, see the [StructSense paper on arXiv](https://arxiv.org/html/2507.03674v2#S5)**
+- Neuroscience Named Entity Extraction from text
+- Resource (i.e. models, datasets) Extraction
+- ReproSchema Extraction
