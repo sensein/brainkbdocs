@@ -17,7 +17,7 @@ pip install --use-deprecated=legacy-resolver structsense
 ERROR: Could not find a version that satisfies the requirement structsense (from versions: none)
 ERROR: No matching distribution found for structsense
 ```
-**Workaround**
+**Workaround**\
 Ensure Python version is **>=3.10,<3.13**.
 
 <!-- FAQ -->
