@@ -12,6 +12,8 @@ git clone https://github.com/sensein/structsense.git
 cd structsense
 pip install -e .
 ```
+Or, if you prefer not to install anything, **use StructSense directly from the BrainKB website** at [https://beta.brainkb.org/](https://beta.brainkb.org/).
+
 ### Python Version
 StructSense supports **Python >=3.10,<3.13**.
 
