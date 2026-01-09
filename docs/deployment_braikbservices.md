@@ -1,4 +1,4 @@
-# Deployment of BrainKB Services
+# Deployment
 
 BrainKB consists of multiple service components, as highlighted in the {ref}`brainkb_architecture_figure` All of the service components can be deployed independently. However, there are a few dependencies, such as setting up the PostgreSQL database that is used by JWT Users and Scope Manager, that need to be setup first. 
 

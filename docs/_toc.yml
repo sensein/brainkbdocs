@@ -18,15 +18,13 @@ parts:
     numbered: True 
     chapters:
     - file: ingestion_service
+    - file: deployment_braikbservices
   - caption: BrainKB User Interface
     numbered: True 
     chapters:
     - file: brainkbui
-  - caption: Deployment
-    numbered: True 
-    chapters:
+    - file: ui_developer_document
     - file: deployment_userinterface
-    - file: deployment_braikbservices
   - caption: StructSense
     numbered: True
     chapters:

@@ -1,4 +1,4 @@
-# Deployment of User Interface
+# Deployment
 This section provides information regarding the deployment of the BrainKB UI, both in the development and the production mode.
 
 ```{note}
