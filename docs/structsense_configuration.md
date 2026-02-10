@@ -9,12 +9,11 @@ Pass the YAML via CLI, e.g. `--config config/ner_agent.yaml`.
 - `agent_config`
 - `task_config`
 
-**Do not replace** runtime variables in braces `{}`:
-- `{literature}` — input text (e.g., extracted PDF content)
-- `{extracted_structured_information}` — extractor output
-- `{aligned_structured_information}` — alignment output
-- `{judged_structured_information_with_human_feedback}` — judge output
-- `{modification_context}`, `{user_feedback_text}` — inputs to feedback agent
+**Do not replace variables** enclosed in curly braces (`{}`); they are dynamically populated at runtime. Names must match the pipeline input map (see `config_template` for examples):
+- **Extraction input:** `{input_text}` — input text (e.g. PDF content or raw text)
+- **Alignment input:** `{extracted_structured_information}` — output from the extractor agent
+- **Judge input:** `{aligned_structured_information}` — output from the alignment agent
+- **Human feedback input:** `{judged_structured_information_with_human_feedback}` — output from the judge agent; `{modification_context}` and `{user_feedback_text}` — user feedback for the feedback agent
 
 A blank template is available in `config_template/`. See **Templates**.
 
