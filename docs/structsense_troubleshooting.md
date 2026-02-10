@@ -44,6 +44,8 @@ ENABLE_CREW_MEMORY=false
 **Q: How do chunk sizes affect performance and accuracy?**  
 A: Smaller chunk sizes generally improve extraction accuracy, but they also increase processing time. Larger chunks run faster but may reduce accuracy—choose based on your priority.
 
+**Q: Where can I find developer documentation?**  
+A: Developer documentation is available in the repository under `Developer.md`.
 
 **Q: Can I use local models without API keys?**  
 A: Yes, via **Ollama**. Update agent configs to use the Ollama base URL and model.
