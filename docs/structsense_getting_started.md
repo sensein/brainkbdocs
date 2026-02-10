@@ -7,6 +7,8 @@ pip install structsense
 ```
 Alternatively, you can install the latest version of StructSense from the source code on GitHub:
 
+**Note:** The latest updates are not pushed to PyPI, so for now it's recommended to use from GitHub.
+
 ```bash
 git clone https://github.com/sensein/structsense.git
 cd structsense
@@ -19,16 +21,18 @@ StructSense supports **Python >=3.10,<3.13**.
 
 
 <!-- # Requirements -->
-## Requirements
+## Requirements 
+
 ### PDF Extraction with Grobid
 
 StructSense supports PDF extraction using **[Grobid](https://grobid.readthedocs.io/en/latest/Introduction/)** (default) or an external API service.
 
 #### Default: Grobid
-By default, StructSense uses Grobid for PDF extraction. You can install and run Grobid either with Docker or in a non-Docker setup.  
+StructSense uses Grobid for PDF extraction. You can install and run Grobid either with Docker or in a non-Docker setup.  
 We recommend using Docker for easier setup and dependency management.
 
 ##### Run Grobid with Docker
+
 ```bash
 docker pull lfoppiano/grobid:0.8.0
 docker run --init -p 8070:8070 -e JAVA_OPTS="-XX:+UseZGC" lfoppiano/grobid:0.8.0
