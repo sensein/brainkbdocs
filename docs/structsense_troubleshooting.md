@@ -23,11 +23,32 @@ Ensure Python version is **>=3.10,<3.13**.
 <!-- FAQ -->
 ## FAQ
 
-**Q: Do I need Weaviate to run StructSense?**  
-A: No. Set `ENABLE_KG_SOURCE=false` to run without a vector DB.
+**Q: Why does the agent prompt “Would you like to view your execution traces?”**  
+A: This happens when execution tracing or telemetry is enabled by default. You can disable the prompt by turning off tracing and telemetry via environment variables.
+
+```bash
+CREWAI_TRACING_ENABLED=false
+CREWAI_DISABLE_TELEMETRY=true
+CREWAI_DISABLE_TRACING=true
+CREWAI_TELEMETRY=false
+OTEL_SDK_DISABLED=true
+ENABLE_CREW_MEMORY=false
+```
+**Q: I am seeing non-fatal agent memory errors. What should I do?**  
+A: This is commonly related to agent memory being enabled without a valid OpenAI key. If you don’t need memory, disable it explicitly.
+
+```bash
+ENABLE_CREW_MEMORY=false
+```
+
+**Q: How do chunk sizes affect performance and accuracy?**  
+A: Smaller chunk sizes generally improve extraction accuracy, but they also increase processing time. Larger chunks run faster but may reduce accuracy—choose based on your priority.
+
 
 **Q: Can I use local models without API keys?**  
 A: Yes, via **Ollama**. Update agent configs to use the Ollama base URL and model.
 
 **Q: Where do I find a minimal `.env`?**  
 A: See **Environment Variables → Minimal** section.
+
+
