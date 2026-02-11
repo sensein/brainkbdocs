@@ -1,7 +1,7 @@
 # Tutorials & Examples
 
 - See the `tutorial/` directory for usage demonstrations.
-- See the `example/` directory task specific reference configs that can be used for `StructSense`. 
+- See the `example/` directory for task specific reference configs that can be used for `StructSense`. 
 - A configuration is provided under `config_template/`.
 
 
