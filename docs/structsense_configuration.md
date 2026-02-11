@@ -9,15 +9,13 @@ Pass the YAML via CLI, e.g. `--config config/ner_agent.yaml`.
 - `agent_config`
 - `task_config`
 
-**Do not replace** runtime variables in braces `{}`:
-- `{literature}` — input text (e.g., extracted PDF content)
-- `{extracted_structured_information}` — extractor output
-- `{aligned_structured_information}` — alignment output
-- `{judged_structured_information_with_human_feedback}` — judge output
-- `{modification_context}`, `{user_feedback_text}` — inputs to feedback agent
+**Do not replace variables** enclosed in curly braces (`{}`); they are dynamically populated at runtime. Names must match the pipeline input map (see `config_template` for examples):
+- **Extraction input:** `{input_text}` — input text (e.g. PDF content or raw text)
+- **Alignment input:** `{extracted_structured_information}` — output from the extractor agent
+- **Judge input:** `{aligned_structured_information}` — output from the alignment agent
+- **Human feedback input:** `{judged_structured_information_with_human_feedback}` — output from the judge agent; `{modification_context}` and `{user_feedback_text}` — user feedback for the feedback agent
 
-**Config Template**\
-A blank template is available in [config_template](https://github.com/sensein/structsense/blob/main/config_template/config.yaml).
+A blank template as well as templates for tasks such as `NER`, `Resource Extraction` and `PDF2 ReproSchema` is available in `config_template/`. See **Templates**.
 
 <!--Agent Configuration -->
 ## Agent Configuration
@@ -63,7 +61,7 @@ Run without a paid API key:
 ```bash
 structsense-cli extract \
   --source SOME.pdf \
-  --config ner_config_gpt.yaml \
+  --config ner-config.yaml \
   --env_file .env
 ```
 
@@ -77,7 +75,7 @@ Required task IDs (do not rename):
 - `humanfeedback_task`
 
 Each task includes:
-- `description` — includes expected input (e.g., `{literature}`)
+- `description` — includes expected input (e.g., `{input_text}`)
 - `expected_output` — **JSON** output format or example
 - `agent_id` — must match an agent ID from `agent_config`
 
@@ -106,6 +104,20 @@ embedder_config:
     model: nomic-embed-text:latest
 ```
 
+### Experiment Tracking (optional)
+| Variable | Description | Default |
+|---|---|---|
+| `ENABLE_WEIGHTSANDBIAS` | Enable W&B | `false` |
+| `ENABLE_MLFLOW` | Enable MLflow | `false` |
+| `MLFLOW_TRACKING_URL` | MLflow tracking URL | `http://localhost:5000` |
+
+### Minimal (no tracking, no knowledge source)
+```bash
+ENABLE_WEIGHTSANDBIAS=false
+ENABLE_MLFLOW=false
+ENABLE_KG_SOURCE=false
+```
+## Legacy
 ### Knowledge Source (Vector DB)
 `WEAVIATE_*` environment variables are optional and only needed if you enable a knowledge source for schema/ontology lookup.
 
@@ -146,17 +158,25 @@ embedder_config:
 > If Ollama runs on host and Weaviate in Docker, use `http://host.docker.internal:11434`.  
 > If both are in Docker on the same host network, use `http://localhost:11434`.
 
-### Experiment Tracking (optional)
-| Variable | Description | Default |
-|---|---|---|
-| `ENABLE_WEIGHTSANDBIAS` | Enable W&B | `false` |
-| `ENABLE_MLFLOW` | Enable MLflow | `false` |
-| `MLFLOW_TRACKING_URL` | MLflow tracking URL | `http://localhost:5000` |
-
-<!-- Example .env -->
-## Example `.env`
+### Example `.env`
 ```bash
-ENABLE_KG_SOURCE=false
-OLLAMA_API_ENDPOINT=http://localhost:11434
-OLLAMA_MODEL=nomic-embed-text:v1.5
+WEAVIATE_API_KEY=your_api_key
+WEAVIATE_HTTP_HOST=localhost
+WEAVIATE_HTTP_PORT=8080
+WEAVIATE_HTTP_SECURE=false
+
+WEAVIATE_GRPC_HOST=localhost
+WEAVIATE_GRPC_PORT=50051
+WEAVIATE_GRPC_SECURE=false
+
+WEAVIATE_TIMEOUT_INIT=30
+WEAVIATE_TIMEOUT_QUERY=60
+WEAVIATE_TIMEOUT_INSERT=120
+
+OLLAMA_API_ENDPOINT=http://host.docker.internal:11434
+OLLAMA_MODEL=nomic-embed-text
+
+ENABLE_WEAVE=true
+ENABLE_MLFLOW=true
+MLFLOW_TRACKING_URL=http://localhost:5000
 ```
