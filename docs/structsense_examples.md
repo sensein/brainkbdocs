@@ -8,7 +8,7 @@
 ## Blank Configuration Template
 
 A starting template is provided in `config_template/`. 
-Please note that `config_template/` folder also contains configuration files for `NER`, `Resource Extraction` and `PDF2ReproSchema` task.
+Please note that `config_template/` folder also contains configuration files for `NER`, `Resource Extraction` and `PDF2ReproSchema` tasks.
 
 Before modifying, read:
 - **Configuration Overview & Template**
