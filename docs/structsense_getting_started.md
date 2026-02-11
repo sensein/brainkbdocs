@@ -21,7 +21,7 @@ StructSense supports **Python >=3.10,<3.13**.
 
 
 <!-- # Requirements -->
-## Requirements 
+## Requirements
 
 ### PDF Extraction with Grobid
 
