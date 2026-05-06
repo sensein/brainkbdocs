@@ -245,6 +245,8 @@ Key flows:
 - **Grounded assistant** — retrieve scoped memory → retrieve IRIs → hydrate claims → cited answer
 - **Release activation** — validate manifest → graph diff → projection parity checks → activate → revalidate memory
 
+Detailed service-level sequence diagrams for each flow are in the [Key Sequence Flows](#key-sequence-flows) section below.
+
 Out of scope at L3:
 
 - Data model internals and deployment topology.
@@ -306,7 +308,7 @@ flowchart LR
 
 ## Key Sequence Flows
 
-Seven flows cover the full runtime surface of BrainKB. Each diagram uses the actual service names from the L2 architecture.
+These diagrams expand L3 to the service level — each flow from L3 shown step-by-step across the actual services from the L2 architecture.
 
 ### Seq 1 — User Search Query
 
