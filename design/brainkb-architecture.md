@@ -3,25 +3,485 @@
 Status: design document  
 Audience: engineering team  
 
-## Revised Intent
+## Purpose
 
-The rebuilt deck should be an engineering reference for building BrainKB. It should explain what the platform must let people do, what system capabilities those workflows require, and how the architecture supports them.
+Neuroscience knowledge is fragmented across resources, schemas, papers, archives, and tools. No single system lets a researcher trace a taxonomy class to its supporting evidence, assets, publications, and provenance — or ask what was known as of a given date.
 
-The current deck has the right ingredients: provenance, federation, versioned named graphs, use-case packages, core services, concrete containers, deployment, and LLM/agent boundaries. The rebuild should make those ingredients easier to act on by organizing the story in this order:
+BrainKB is a federated knowledge platform that connects those resources and makes the connections auditable. It is not a replacement for archives, atlases, or databases — it is the layer that links them, tracks claims, and makes knowledge evolution queryable.
 
-1. Why BrainKB exists: neuroscience knowledge is fragmented across resources, schemas, papers, archives, and tools.
-2. Who uses it: researchers, curators, pipelines, reviewers, agents, and application services.
-3. What they need to do: ten epic-level stories with clear acceptance criteria.
-4. What the platform must provide: stable identifiers, claim provenance, named graph versioning, federated reads, validated ingest, review workflows, and grounded AI.
-5. How the architecture supports this: five zoom levels that move from ecosystem to data model.
+## Document Structure
 
-The deck should stop feeling like a collection of architecture diagrams plus scattered examples. It should become a traceable argument: user stories drive capabilities, capabilities drive service boundaries, and service boundaries drive data/model choices.
+This document has six parts. Contracts say what the system must satisfy; strategies explain why it is shaped the way it is. Both are needed — contracts without rationale are opaque, rationale without contracts is unenforceable.
 
-After informatics, operations, and neuroscience review, the next revision should also make three contracts explicit enough for engineering discussion:
+| Part | Sections | What it answers |
+| --- | --- | --- |
+| **Context** | Users and Actors · Use Cases | Who uses BrainKB and what they need to accomplish |
+| **Architecture** | Five Architecture Zoom Levels · Key Sequence Flows | How the system is structured at every level of detail, and how data flows at runtime |
+| **MVP** | MVP Competency Fixture · MVP Scope | The grounding fixture and capability boundary for the first release |
+| **Contracts** | Identifier Governance · Claim and Provenance · Graph Release and Projection · Operational Readiness · Ontology Alignment and FAIR | Binding requirements the system must satisfy — each contract has a testable review question |
+| **Strategy** | Store and Query · API Boundary and Service Decomposition · Cache and Agent Memory | Design decisions with rationale — explains the trade-offs behind the architecture |
+| **Epics and Traceability** | Epic User Stories · Traceability Matrix · Contract Traceability Matrix | User-facing goals, bootstrap priority, and cross-references between epics, contracts, and architecture levels |
 
-1. What minimum seed knowledge is enough to make the researcher workflows credible.
-2. What trust primitives make identifiers, claims, provenance, graph releases, and projections auditable.
-3. What operational behaviors make ingest, deployment, auth, backup, external calls, and rollback safe enough to build against.
+---
+
+## Users and Actors
+
+### Human actors
+
+- **Researcher** — searches, explores entities, reviews evidence, queries as-of dates
+- **Curator** — submits and edits claims, manages ingest jobs, requests batch publish
+- **Reviewer** — approves or rejects claim drafts, reviews validation reports
+- **Operator** — deploys services, monitors health, manages releases and rollbacks
+
+### Machine clients
+
+Services and pipelines that call BrainKB:
+
+- **Ingest pipelines** — automated submission of structured data from atlases, archives, or partner KBs
+- **Partner release bots** — trigger ingests when an upstream KB publishes a new release
+- **Agents** — LLM-driven agents querying or writing to BrainKB on behalf of a user
+- **Application services** — tools built on top of BrainKB, such as structsense (claim extraction), knowledgesynth (grounded chat), and prisma-review (systematic review)
+
+### Machine dependencies
+
+External services BrainKB calls:
+
+- **LLM providers** — for extraction, grounded answers, and agent reasoning
+- **Archives** — DANDI, BIL, NeMO, and similar for asset resolution
+- **Ontology services** — for vocabulary lookup and alignment
+
+## Use Cases
+
+| # | Question | Actor |
+|---|---|---|
+| 01 | "What do we know — and how well do we know it?" | Researcher |
+| 02 | "What might be true that nobody has stated yet?" | Researcher |
+| 03 | "What tool fits this dataset — and when does it break?" | Methodologist |
+| 04 | "What resources exist across neuroscience — and when?" | Planner |
+| 05 | "Show me everything we know about this cell type." | Researcher |
+| 06 | "I have a paper. Make its claims part of the graph." | Curator |
+| 07 | "A partner KB published a new release. Pull it in." | Pipeline / bot |
+| 08 | "Combine evidence from three sources, in one query." | Researcher |
+| 09 | "Answer in plain English — but cite the graph." | Researcher |
+| 10 | "Where did this claim come from?" | Reviewer |
+
+Full engineering requirements for each use case are in the Epic User Stories section.
+
+---
+
+## Five Architecture Zoom Levels
+
+The architecture is described at five levels of detail, each answering a different question. Each level builds on the previous — L0 sets the context, L4 defines the data model that makes everything else possible.
+
+| Level | Name | Question |
+|---|---|---|
+| L0 | Ecosystem | Who and what does BrainKB connect? |
+| L1 | System | What can users and products do with BrainKB? |
+| L2 | Containers | What are the tiers and how do dependencies flow? |
+| L3 | Key Flows | How do the key workflows move through the system? |
+| L4 | Knowledge/Data Model | What data model makes trust and evolution possible? |
+
+### L0 - Ecosystem
+
+Question answered: who and what does BrainKB connect?
+
+BrainKB is a federating platform in the neuroscience ecosystem, not a replacement for existing source systems.
+
+In scope at L0:
+
+- Human actors: researchers, curators, reviewers, operators.
+- Machine clients: ingest pipelines, partner release bots, agents, application services (structsense, knowledgesynth, prisma-review).
+- External knowledge sources: publications and preprints, archives and atlases (DANDI, BIL, NeMO, Allen, BICAN), ontologies and schemas, tool registries, partner knowledge bases.
+- Governance boundaries: identity providers, access policies, data-use terms, rate limits, licenses, and data-egress constraints.
+
+Out of scope at L0:
+
+- Internal service names, store choices, queue details, and schema tables.
+
+```mermaid
+flowchart LR
+  subgraph Actors
+    R["Researchers"]
+    C["Curators and reviewers"]
+    P["Ingest pipelines and bots"]
+    A["Agents and application services"]
+    Op["Operators"]
+  end
+  subgraph BrainKB
+    T["BrainKB boundary"]
+  end
+  subgraph Resources
+    Pub["Publications and preprints"]
+    Arc["Archives and atlases"]
+    Ont["Ontologies and schemas"]
+    Tool["Tools and repositories"]
+    Partner["Partner knowledge bases"]
+  end
+  Policy["Access and governance policy"] --> T
+  R --> T
+  C --> T
+  P --> T
+  A --> T
+  Op --> T
+  Pub --> T
+  Arc --> T
+  Ont --> T
+  Tool --> T
+  Partner --> T
+```
+
+### L1 - System
+
+Question answered: what can users and products do with BrainKB?
+
+L1 shows BrainKB as a single system — its product workflows and the interface it exposes. Internal decomposition is not shown here; that belongs at L2.
+
+Product capabilities:
+
+- Evidence review: entity search/detail, claim comparison, conflict/silence states, provenance drilldown.
+- Curation: candidate claim review, structured edits, batch publish request, validation report review.
+- Release administration: graph release visibility, activation status, rollback target, projection readiness.
+- Research workspace: saved searches, collections, task context, and explicit memory controls.
+- Grounded assistant: plain-language queries with cited graph answers.
+
+Out of scope at L1:
+
+- Internal services, stores, deployment choices, and schema details.
+
+```mermaid
+flowchart LR
+  subgraph Clients
+    UI["brainkb-ui"]
+    Apps["Application services"]
+    Pipes["Ingest pipelines"]
+    Agents["Agents"]
+  end
+  subgraph BrainKB["BrainKB"]
+    API["Public API"]
+  end
+  UI --> API
+  Apps --> API
+  Pipes --> API
+  Agents --> API
+  API --> EvidenceReview["Evidence review"]
+  API --> Curation["Curation"]
+  API --> Release["Release and as-of"]
+  API --> Workspace["Research workspace"]
+  API --> Assistant["Grounded assistant"]
+```
+
+### L2 - Containers
+
+Question answered: what are the tiers and how do dependencies flow?
+
+BrainKB is organized in five tiers with dependencies flowing strictly downward.
+
+- **Frontend** — web UI and researcher/curator surfaces
+- **Application services** — use-case packages built on top of core (structsense, knowledgesynth, prisma-review)
+- **Core services** — the shared platform: knowledge graph, ingest, job orchestration, connectors, identity
+- **Storage** — RDF triplestore, relational/vector store, object storage
+- **External services** — reached only through the connector layer: LLM APIs, federated KBs, parsers, ontology services
+
+Dependency rules:
+
+- Frontend calls application services only.
+- Application services compose core services — never call externals directly.
+- Only core services touch storage.
+- All outbound calls to external services go through the connector layer.
+
+Out of scope at L2:
+
+- Specific service names, ports, and workflow internals — those belong at L3.
+
+```mermaid
+flowchart TB
+  Frontend["Frontend\nWeb UI"] --> AppServices
+  subgraph AppServices["Application services"]
+    direction LR
+    S["structsense"]
+    K["knowledgesynth"]
+    P["prisma-review"]
+  end
+  AppServices --> CoreServices
+  subgraph CoreServices["Core services"]
+    direction LR
+    KG["Knowledge graph"]
+    Ingest["Ingest"]
+    Jobs["Job orchestration"]
+    Conn["Connectors"]
+    Auth["Identity"]
+  end
+  CoreServices --> Storage
+  subgraph Storage
+    direction LR
+    RDF["RDF triplestore"]
+    PG["Postgres + pgvector"]
+    Obj["Object storage"]
+  end
+  Conn --> External
+  subgraph External["External services"]
+    direction LR
+    LLM["LLM APIs"]
+    KBs["Federated KBs"]
+    Parse["Parsers"]
+    Onto["Ontology services"]
+  end
+```
+
+### L3 - Key Flows
+
+Question answered: how do the key workflows move through the system?
+
+Key flows:
+
+- **Search and entity detail** — query → entity hydration → evidence badges → cache lookup/fill
+- **Ingest** — submit → validate profile → write named graph → build projection → activate release → invalidate caches
+- **Provenance audit** — claim lookup → evidence node hydration → source/contributor/schema rendering
+- **Federated query** — connector calls → cache state → source attribution
+- **Grounded assistant** — retrieve scoped memory → retrieve IRIs → hydrate claims → cited answer
+- **Release activation** — validate manifest → graph diff → projection parity checks → activate → revalidate memory
+
+Out of scope at L3:
+
+- Data model internals and deployment topology.
+
+```mermaid
+flowchart TB
+  Search["Search/detail"] --> Hydrate["Entity hydration"]
+  Hydrate --> Evidence["Evidence badges"]
+  Hydrate --> CacheLookup["Cache lookup/fill"]
+  Ingest["Submit ingest"] --> Validate["Validate profile"]
+  Validate --> Graph["Write named graph"]
+  Graph --> Project["Build projection"]
+  Project --> Activate["Activate release"]
+  Activate --> Invalidate["Invalidate caches"]
+  Activate --> Recheck["Revalidate memory"]
+  Claim["Claim click"] --> Prov["Provenance audit"]
+  Federate["Federated query"] --> Connect["Connector calls"]
+  Connect --> ExtCache["Connector cache state"]
+  Assist["Plain-language question"] --> MemoryRead["Retrieve scoped memory"]
+  MemoryRead --> Retrieve["Retrieve IRIs"]
+  Retrieve --> Hydrate
+  Assist --> Draft["Save/reject candidate"]
+  Draft --> MemoryWrite["Write task/project memory"]
+```
+
+### L4 - Knowledge/Data Model
+
+Question answered: what data model makes trust and evolution possible?
+
+- **Identity**: stable IRIs, ORCID, DOI, dataset IDs, file/asset IDs, Patch-seq cell/specimen IDs, gene IDs, cross-references.
+- **Domain model**: BICAN, openMINDS, NIMP, taxonomy releases, cell/specimen/file assets, tool/model entities, datasets, claims.
+- **Standards and vocabularies**: LinkML, SHACL, BIDS, NWB; UBERON, CL, NCBITaxon, biolink categories.
+- **Provenance**: PROV-O, source, contributor, generated-by, derived-from, timestamp.
+- **Versioning**: named graphs per source/release/contribution, supersession edges, lifecycle states, as-of queries.
+- **Claim bundles**: stable claim IDs, qualifiers, evidence nodes, activity/agent/source lineage, confidence/evidence labels, review lifecycle state.
+- **Release manifests**: immutable release ID, source checksum, transform digest, validation report, projection schema version, activation timestamp, rollback target.
+
+Contracts governing how read models and derived indexes must preserve these properties are in the Contracts section.
+
+Out of scope at L4:
+
+- UI layouts, product grouping, and container deployment diagrams.
+
+```mermaid
+flowchart LR
+  ID["Stable identifiers"] --> Claim["Qualified claim bundles"]
+  Claim --> Evidence["Evidence nodes"]
+  Evidence --> Prov["PROV-O activity/agent/source"]
+  Claim --> Graph["Named graph"]
+  Graph --> Release["Release manifest"]
+  Release --> AsOf["As-of and rollback"]
+  Release --> Projection["Projection contract"]
+  Release --> Derived["Derived and workflow-state contract"]
+  Derived --> BackRef["Canonical back-pointers"]
+  BackRef --> Claim
+  Ont["Application profile and ontology imports"] --> Claim
+  Ont --> Graph
+```
+
+## Key Sequence Flows
+
+Seven flows cover the full runtime surface of BrainKB. Each diagram uses the actual service names from the L2 architecture.
+
+### Seq 1 — User Search Query
+
+Frontend resolves a page config, mints a service JWT, then issues a SPARQL SELECT against kg-api.
+
+```mermaid
+sequenceDiagram
+  participant U as Researcher
+  participant UI as brainkb-ui
+  participant Auth as auth-api
+  participant KG as kg-api
+  participant Ox as oxigraph
+
+  U->>UI: GET /knowledge-base/genomeannotation?q=…
+  UI->>UI: load page-mapper.yaml + *_card.yaml
+  UI->>Auth: POST /auth/token
+  Auth-->>UI: access_token (HS256)
+  UI->>KG: POST /kg/query/sparql/ Bearer …
+  KG->>KG: verify token · check scope
+  KG->>Ox: HTTP SPARQL SELECT
+  Ox-->>KG: sparql-results+json
+  KG-->>UI: 200 · rows
+  UI-->>U: rendered list (paginated)
+```
+
+### Seq 2 — Data Ingestion Pipeline
+
+External pipelines push validated RDF; kg-api validates, stages, and inserts into a per-source named graph.
+
+```mermaid
+sequenceDiagram
+  participant P as Pipeline / curator
+  participant KG as kg-api
+  participant J as job queue
+  participant V as validators (rdflib · pyshacl)
+  participant Ox as oxigraph
+
+  P->>KG: POST /kg/ingest (.ttl / .jsonld)
+  KG->>KG: verify token · check write:kg scope
+  KG->>J: enqueue(job_id)
+  KG-->>P: 202 · {job_id}
+  J->>V: parse + SHACL validate
+  V-->>J: shape report
+  J->>Ox: INSERT DATA into named graph
+  Ox-->>J: 200
+  P-->>KG: GET /kg/ingest/{id} (polling)
+  KG-->>P: {status: done, triples: N}
+```
+
+### Seq 3 — Entity Detail and Traversal
+
+A detail page is a stack of templated CONSTRUCT queries — one per box, plus optional outbound dereference of linked IRIs.
+
+```mermaid
+sequenceDiagram
+  participant U as Researcher
+  participant UI as brainkb-ui
+  participant KG as kg-api
+  participant Ox as oxigraph
+  participant Ext as External KB (allen · dandi · ebrains)
+
+  U->>UI: click entity → /knowledge-base/{slug}/{id}
+  UI->>KG: POST /kg/entity (summary box)
+  KG->>Ox: CONSTRUCT around <id>
+  Ox-->>KG: triples
+  KG-->>UI: fields + provenance
+  UI->>KG: POST /kg/entity/related
+  KG->>Ox: wasDerivedFrom · biolink:category traversal
+  Ox-->>KG: related entities
+  UI-->>Ext: GET dereferenceable IRI (optional · cross-resource)
+  Ext-->>UI: JSON-LD
+  UI-->>U: tabs: Summary · Related · Provenance · History
+```
+
+### Seq 4 — Authentication and Authorization
+
+NextAuth handles human identity; auth-api mints service JWTs. Every protected endpoint verifies the shared HS256 secret and checks the embedded scope claim.
+
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant UI as brainkb-ui (NextAuth)
+  participant IdP as GitHub / ORCID / Globus
+  participant Auth as auth-api
+  participant PG as postgres (users · scopes)
+  participant Svc as protected API (kg-api / connector-api)
+
+  U->>UI: sign in
+  UI->>IdP: OAuth authorize
+  IdP-->>UI: code + identity
+  UI->>Auth: POST /auth/register / activate
+  Auth->>PG: upsert user + scopes
+  PG-->>Auth: ok
+  UI->>Auth: POST /auth/token
+  Auth-->>UI: JWT (HS256, scopes embedded)
+  UI->>Svc: Authorization: Bearer …
+  Svc->>Svc: verify shared secret · enforce scope
+  Svc-->>UI: 200
+```
+
+### Seq 5 — Cross-Resource Federated Query
+
+SPARQL SERVICE clauses fan out to RDF-native KBs; REST adapters lift JSON resources into ephemeral triples.
+
+```mermaid
+sequenceDiagram
+  participant UI as brainkb-ui
+  participant KG as kg-api
+  participant Ox as oxigraph
+  participant Allen as Allen API (JSON)
+  participant Dandi as DANDI / EBRAINS (SPARQL)
+
+  UI->>KG: POST /kg/query/sparql (federated)
+  KG->>Ox: SERVICE <…> { … }
+  Ox->>Dandi: SERVICE call → DANDI/EBRAINS endpoint
+  Dandi-->>Ox: partial bindings
+  KG-->>Allen: GET /api/v3/data/… REST adapter (async)
+  Allen-->>KG: JSON → triples in-mem
+  Ox-->>KG: merged result set
+  KG-->>UI: unified rows + source IRI per row
+```
+
+### Seq 6 — Curator Extract, Review, and Publish
+
+structsense streams candidate extractions over WebSocket; the curator approves, then approved RDF lands in oxigraph through the standard ingest path. Drafts live in postgres so review state survives across sessions.
+
+```mermaid
+sequenceDiagram
+  participant C as Curator
+  participant UI as brainkb-ui
+  participant SS as structsense (app service)
+  participant GR as GROBID (pdf parser · optional)
+  participant PG as postgres (drafts)
+  participant KG as kg-api
+  participant Ox as oxigraph
+
+  C->>UI: upload PDF · click "extract"
+  UI->>SS: WS /ai/extract
+  SS-->>GR: parse PDF → TEI (optional)
+  GR-->>SS: sections · figures
+  SS->>SS: NER · LLM judge · candidate triples
+  SS->>PG: save draft
+  SS-->>UI: WS frame · candidates
+  C->>UI: review · accept / edit
+  UI->>KG: POST /kg/ingest (approved RDF)
+  KG->>Ox: INSERT into curator named graph
+  KG-->>UI: job complete
+```
+
+### Seq 7 — LLM-Assisted Query (RAG over the KG)
+
+Retrieval is grounded in IRIs from pgvector; SPARQL hydration ensures every answer is backed by triples — citations are real graph nodes.
+
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant UI as brainkb-ui
+  participant Synth as knowledgesynth (app service)
+  participant PG as postgres (pgvector · embeddings)
+  participant LLM as connector-api → LLM
+  participant KG as kg-api
+  participant Ox as oxigraph
+
+  U->>UI: ask question
+  UI->>Synth: POST /ai/chat?stream=true
+  Synth-->>LLM: embed(question)
+  LLM-->>Synth: vector
+  Synth->>PG: pgvector kNN · ontology + entity index
+  PG-->>Synth: top-k IRIs + snippets
+  Synth->>KG: SPARQL: hydrate IRIs · summary triples
+  KG->>Ox: SELECT · CONSTRUCT
+  Ox-->>KG: grounded facts
+  KG-->>Synth: grounded facts
+  Synth->>LLM: generate(prompt + grounded context)
+  LLM-->>Synth: tokens (stream)
+  Synth-->>UI: answer + citation IRIs
+```
+
+---
 
 ## MVP Competency Fixture
 
@@ -64,61 +524,12 @@ Required graph object types:
 
 - `TaxonomyRelease`, `TaxonClass`, `Cell`, `Specimen`, `Gene`, `GeneSet`, `Dataset`, `FileAsset`, `Publication`, `Preprint`, `Person`, `Organization`, `Resource`, `Claim`, `Evidence`, `AnalysisGraph`, `Notebook`, `WorkflowRun`, `ModelProfile`, `IdentifierMapping`, and `ReleaseManifest`.
 
-Required identifier rule:
-
-- Every seed entity must have a canonical BrainKB IRI before review.
-- Every seed entity should carry at least one resolvable external identifier or source-specific accession when one exists.
-- Placeholder identifiers may be used only in internal fixture drafts; they must not appear on review slides as if they were real external IDs.
-- Cross-resource equivalence must state its relation type: exact match, close match, broad/narrow match, related match, or unresolved candidate.
-- Patch-seq cell/specimen IDs and file assets must remain queryable as first-class identifiers, even when the public-facing researcher question starts from a taxonomy class, gene, or paper.
-
-Example claim table shape:
-
-| Field | Required meaning |
-| --- | --- |
-| `claim_id` | Stable claim identifier exposed in RDF and projections. |
-| `subject_iri` | Canonical BrainKB entity IRI. |
-| `predicate_iri` | Predicate from the application profile. |
-| `object_iri_or_value` | Object entity IRI or literal value. |
-| `species_id` | Taxon identifier, such as `NCBITaxon:10090` or `NCBITaxon:9606`. |
-| `region_id` | Anatomical region identifier when available. |
-| `assay_or_modality` | Experimental modality or assay context. |
-| `source_id` | Publication, dataset, release, or upstream resource identifier. |
-| `evidence_id` | Evidence node or source fragment backing the claim. |
-| `support_state` | Supported, conflicting, refuted, not stated, inferred, or pending review. |
-| `evidence_grade` | Lightweight confidence/evidence-strength label, not a claim of scientific certainty. |
-| `graph_uri` | Named graph containing the claim. |
-| `release_id` | Immutable graph release identifier. |
-| `as_of` | Date or timestamp used for as-of query behavior. |
-| `lifecycle_state` | Draft, active, superseded, deprecated, or withdrawn. |
-
-Acceptance expansion:
-
-- Entity pages must exist for taxonomy classes, Patch-seq cells/specimens, genes, gene sets, file assets, datasets, papers/preprints, people, organizations, resources, claims, and evidence.
-- The UI must expose file-level lineage and source asset links, not just top-level dataset metadata.
-- Publication-derived claims must show whether they were manually curated, NER/extraction-derived, inferred from an analysis graph, or imported from a source package.
-- Reusable adapters and derived artifacts must be named in release manifests so other domains can reuse the same services and tooling.
-
-Architecture stress points:
-
-- L0 external resources: ABC Atlas/GitHub package, BICAN model/profile, DANDI/BIL/NeMO-style archives, bioRxiv, PubMed/Semantic Scholar-style metadata, ontology/gene services, repository/notebook artifacts, and partner KBs.
-- L1 product/API: evidence review, taxonomy/cell/file lookup, paper/preprint curation, release/as-of view, saved workspace, and optional assistant evidence expansion behind one `brainkb-api`.
-- L2 containers/stores: `brainkb-ui`, `brainkb-api`, `brainkb-worker`, connector adapters, object storage, Postgres/GraphQL projections, canonical graph store, cache, and memory.
-- L3 workflows: atlas ingest, h5ad metadata extraction, Patch-seq mapping ingest, archive asset resolution, publication NER/claim extraction, analysis-graph provenance packaging, projection parity, cache invalidation, and memory revalidation.
-- L4 model: identifiers, taxonomy/model profile, cell/specimen/file asset lineage, claim/evidence bundles, named graphs, release manifests, provenance activities, mappings, lifecycle states, and derived/workflow-state contract.
-
-Source anchors to verify before fixture implementation:
-
-- [ABC Atlas access repository](https://github.com/AllenInstitute/abc_atlas_access) and [ABC Atlas data access docs](https://alleninstitute.github.io/abc_atlas_access/intro.html).
-- [HMBA-BG notebooks](https://alleninstitute.github.io/abc_atlas_access/descriptions/HMBA-BG_notebooks.html) and data descriptions, including taxonomy/clustering, h5ad/gene expression, spatial, and Patch-seq components.
-- Archive mappings from Patch-seq cell/specimen IDs to DANDI/BIL/NeMO-style assets and files. Exact DANDI/BIL/NeMO asset identifiers should be validated before becoming fixture facts.
-- Publication/preprint corpus where the taxonomy was created, reused, cited, or discussed.
-
 Researcher success criterion:
 
 - A neuroscientist can start from a BG taxonomy class, Patch-seq cell ID, gene/gene set, file asset, or bioRxiv/preprint record and reach taxonomy context, supporting evidence, source files, people/resources/claims, and release/as-of state in less than five minutes.
 
-## MVP Capability Boundaries
+
+## MVP Scope
 
 The MVP should be framed as a trustable evidence-review and ingest slice, not a broad discovery assistant.
 
@@ -141,16 +552,30 @@ Post-MVP or gated capabilities:
 - Evidence-strength scoring across heterogeneous claims at production scale.
 - Broad methods/models recommendation beyond a small structured catalog.
 
-Hypothesis and assistant guardrails:
+Hypothesis and assistant guardrails (apply beyond MVP):
 
 - Initial outputs should be framed as candidate gap surfacing, triage, or evidence expansion, not discovery of new biological facts.
 - The system should expose sparse-graph bias, literature-retrieval bias, ontology-mapping uncertainty, correlation-versus-mechanism limits, and species/modality transfer risk.
 - A generated suggestion should not be written to the canonical graph without curator or reviewer action.
 - If local evidence coverage is low, the product should fall back to search, external evidence expansion, or "insufficient evidence" rather than over-answering.
 
+---
+
+## Contracts
+
+Contracts define the non-negotiable behaviors that BrainKB must satisfy across all services, releases, and integrations. They are not implementation recipes — they are the commitments that engineering decisions must preserve.
+
 ## Identifier Governance Contract
 
 BrainKB needs explicit identifier governance because almost every epic depends on stable identity and explainable cross-resource alignment.
+
+MVP fixture identifier rules:
+
+- Every seed entity must have a canonical BrainKB IRI before review.
+- Every seed entity should carry at least one resolvable external identifier or source-specific accession when one exists.
+- Placeholder identifiers may be used only in internal fixture drafts; they must not appear in production as if they were real external IDs.
+- Cross-resource equivalence must state its relation type: exact match, close match, broad/narrow match, related match, or unresolved candidate.
+- Patch-seq cell/specimen IDs and file assets must remain queryable as first-class identifiers, even when the public-facing question starts from a taxonomy class, gene, or paper.
 
 Canonical IRI policy:
 
@@ -165,7 +590,7 @@ Equivalence policy:
 - Prefer SKOS-style mapping relations for most cross-resource alignments: exact match, close match, broad match, narrow match, related match, and candidate match.
 - Each xref or mapping must have provenance: source, method, contributor or service, date, confidence, and graph/release context.
 
-Merge, split, and deprecation lifecycle:
+Merge, split, and deprecation policy:
 
 - Merges should create explicit replacement edges and preserve old IRIs as resolvable deprecated identifiers.
 - Splits should preserve the historical entity and point to replacement entities with rationale.
@@ -176,17 +601,27 @@ Merge, split, and deprecation lifecycle:
 
 The unit of knowledge should not be an unqualified triple. BrainKB should represent each user-visible assertion as a qualified claim bundle.
 
-Claim bundle requirements:
+Claim fields:
 
-- Stable `claim_id`.
-- Subject, predicate, object/value, and optional qualifiers such as species, region, modality, developmental stage, assay, and context.
-- Evidence node linking to publication, dataset, release, source fragment, table, figure, archive file, or upstream assertion.
-- Provenance activity: imported, extracted, inferred, curated, reviewed, activated, superseded, or withdrawn.
-- Agent: curator, reviewer, service principal, external resource, extraction model, or transform job.
-- Graph and release context: named graph URI, schema version, application profile version, release ID, and as-of timestamp.
-- Review and lifecycle state: draft, pending review, active, superseded, deprecated, rejected, or withdrawn.
-- Evidence status: supports, refutes, conflicts with, not stated by, or insufficient evidence.
-- Confidence/evidence grade with a documented interpretation and no implication of absolute biological truth.
+| Field | Required meaning |
+| --- | --- |
+| `claim_id` | Stable claim identifier exposed in RDF and projections. |
+| `subject_iri` | Canonical BrainKB entity IRI. |
+| `predicate_iri` | Predicate from the application profile. |
+| `object_iri_or_value` | Object entity IRI or literal value. |
+| `species_id` | Taxon identifier, such as `NCBITaxon:10090` or `NCBITaxon:9606`. |
+| `region_id` | Anatomical region identifier when available. |
+| `assay_or_modality` | Experimental modality or assay context. |
+| `source_id` | Publication, dataset, release, or upstream resource identifier. |
+| `evidence_id` | Evidence node or source fragment backing the claim. |
+| `provenance_activity` | How the claim was created: imported, extracted, inferred, curated, reviewed, activated, superseded, or withdrawn. |
+| `agent` | Who or what created the claim: curator, reviewer, service principal, extraction model, or transform job. |
+| `support_state` | Supported, conflicting, refuted, not stated, inferred, or pending review. |
+| `evidence_grade` | Lightweight confidence/evidence-strength label, not a claim of scientific certainty. |
+| `graph_uri` | Named graph containing the claim. |
+| `release_id` | Immutable graph release identifier. |
+| `as_of` | Date or timestamp used for as-of query behavior. |
+| `lifecycle_state` | Draft, active, superseded, deprecated, or withdrawn. |
 
 Modeling direction:
 
@@ -195,7 +630,7 @@ Modeling direction:
 - PROV-O should express activity, agent, entity, derivation, generation time, and source lineage.
 - SHACL or equivalent validation should enforce required provenance fields before activation.
 
-Researcher-facing evidence UX:
+Evidence UX constraint:
 
 - Default views should first answer: what is the claim, what supports/refutes it, which paper/dataset/release says so, which species/region/modality applies, and whether the assertion is curated, imported, inferred, extracted, or superseded.
 - Full PROV-O lineage should be one drilldown away, not the first thing a scientist must parse.
@@ -224,19 +659,17 @@ Activation rule:
 
 Ingest and activation state machine:
 
-`submitted -> staged -> transformed -> validated -> graph_written -> projected -> projection_validated -> ready_to_activate -> active`
-
-Failure and control states:
-
-`failed`, `cancelled`, `retrying`, `quarantined`, `rolled_back`, `superseded`
-
-Operational rules:
-
-- Ingest submissions must be idempotent by source, release, graph URI, and payload checksum.
-- Validation failures should produce actionable reports, not just job failure states.
-- Retry behavior should distinguish transient connector errors from deterministic schema failures.
-- Dead-letter or quarantine queues should preserve failed payloads and logs for review.
-- Rollback should move the active pointer back to the previous successful release without deleting the failed or superseded graph.
+```mermaid
+flowchart LR
+  submitted --> staged --> transformed --> validated --> graph_written
+  graph_written --> projected --> projection_validated --> ready_to_activate --> active
+  submitted & staged & transformed & validated & graph_written & projected & projection_validated & ready_to_activate --> failed
+  failed --> retrying
+  failed --> quarantined
+  active --> rolled_back
+  active --> superseded
+  submitted & staged & transformed --> cancelled
+```
 
 Projection parity requirements:
 
@@ -246,7 +679,7 @@ Projection parity requirements:
 
 ## Operational Readiness Contract
 
-The deck should make deployability and operations reviewable rather than leaving them as implied implementation detail.
+This contract makes deployability and operations reviewable rather than leaving them as implied implementation detail.
 
 Deployment targets:
 
@@ -264,7 +697,7 @@ Observability requirements:
 
 - Metrics: ingest duration, validation failure rate, queue depth, projection lag, activation failures, stale reads, cache hit/miss/stale rates, cache invalidation failures, memory promotion/rejection counts, embedding freshness, connector latency/error rate, external rate-limit hits, LLM call count/cost/error rate, auth failures, backup freshness, and restore-test age.
 - Logs: request ID, job ID, release ID, graph URI, actor/service principal, connector name, upstream source, and error category.
-- Traces: `brainkb-api` is the trace root for browser workflows and propagates request ID, user/session/project, release/as-of context, job ID, projection freshness, cache status, partial-result status, and downstream service/module spans for ingest, projection, cache lookup/fill/invalidation, memory read/write/promotion, search, provenance lookup, federation, and assistant retrieval.
+- Traces: each service (`kg-api`, `ingest-api`, `jobs-api`, `connector-api`, `auth-api`) is a trace root for its own operations; the gateway or UI is the trace root for browser workflows. All spans propagate request ID, user/session/project, release/as-of context, job ID, projection freshness, cache status, partial-result status, and downstream service/module spans for ingest, projection, cache lookup/fill/invalidation, memory read/write/promotion, search, provenance lookup, federation, and assistant retrieval.
 - SLO candidates: read availability, search latency, cache freshness, memory retrieval latency, projection lag after activation, ingest success rate for fixture packages, and restore time.
 
 Auth and scope matrix:
@@ -281,7 +714,7 @@ Auth and scope matrix:
 
 Browser-facing auth rule:
 
-- `brainkb-ui` authenticates with `brainkb-api` only. `brainkb-api` enforces the user/session/project/release policy and calls internal modules with service identity plus propagated user and scope claims.
+- `brainkb-ui` authenticates with the gateway/BFF only. The gateway enforces the user/session/project/release policy and calls internal services with service identity plus propagated user and scope claims.
 
 Backup and restore:
 
@@ -301,85 +734,97 @@ External service boundaries:
 
 Ontology and schema alignment should be a named workstream, not a hidden data-cleaning task.
 
+Vocabulary layer stack:
+
+BrainKB uses a layered vocabulary model rather than a single ontology. Each layer answers a different alignment question:
+
+| Layer | Vocabularies | Role |
+| --- | --- | --- |
+| Upper | biolink-model | Entity categories: Gene, Disease, AnatomicalEntity, … |
+| Domain | BICAN · openMINDS · NIMP | Cell taxonomies, experiments, datasets |
+| Standards | BIDS · NWB · LinkML | Data structure and metadata schemas |
+| Provenance | PROV-O | `wasDerivedFrom` · `wasGeneratedBy` · Agent |
+| Reference | UBERON · CL · NCBITaxon | Anatomy, cell types, species |
+| Identity | IRIs · ORCID · DOI | Stable, dereferenceable identifiers |
+
 Application profile:
 
 - Define the minimal BrainKB application profile for the MVP fixture: entity classes, predicates, claim qualifiers, provenance fields, release fields, and validation shapes.
+- Express the application profile as LinkML schemas and SHACL shapes; apply `rdflib` and `pyshacl` during ingestion validation.
 - Version the application profile and tie each graph release to the profile version used for validation.
 
 Ontology import and alignment:
 
 - State which versions of BICAN, openMINDS, NIMP, BIDS, NWB, UBERON, CL, NCBITaxon, biolink, and other vocabularies are imported or referenced.
-- Preserve crosswalk provenance, mapping confidence, mapping method, and mapping lifecycle.
+- Express crosswalk mappings using SKOS equivalence relations (`skos:exactMatch`, `skos:closeMatch`, `skos:broadMatch`); preserve mapping confidence, method, and lifecycle as named-graph provenance.
 - Validate term usage across the MVP fixture before presenting a claim as active.
 - Track term deprecation, replacement, and unresolved mapping candidates.
 
 FAIR and export metadata:
 
-- Each graph release should expose machine-readable metadata for citation, license/access constraints, source attribution, schema/profile version, checksums, and provenance.
-- Consider RO-Crate, DataCite, and schema.org-style metadata for release packages.
-- Exportable snapshots should include enough manifest and provenance metadata to reproduce the fixture review without relying on hidden local state.
+- Each graph release must include machine-readable metadata covering citation, license/access constraints, source attribution, schema/profile version, checksums, and provenance.
+- Export packages must conform to at least one structured metadata standard: RO-Crate, DataCite, or schema.org. Choose before the first public release and version the choice.
+- Exportable snapshots must include enough manifest and provenance metadata to reproduce the fixture review without relying on hidden local state.
+
+---
 
 ## Store And Query Strategy
 
-The current deck frames the triplestore as the canonical knowledge store. The rebuild should preserve that as the conceptual model, but also surface a practical variant: GraphQL backed by Postgres projections for efficient UI and application reads.
+RDF is the lingua franca for knowledge; everything else lives in Postgres. The query layer hides the seam.
+
+Polyglot persistence:
+
+| Engine | Query | Role |
+| --- | --- | --- |
+| Oxigraph (RDF/named graphs) | SPARQL | Canonical knowledge store: claims, provenance, federation, versioning, named-graph-per-source |
+| Postgres + pgvector | SQL + vector kNN | Users, scopes, jobs, ingest state, operational metadata; embeddings and read projections |
+| Local filesystem | files | TTL/JSON-LD/RDF dumps, PDF uploads, Oxigraph data directory |
 
 Baseline decision:
 
-- RDF/named graphs remain the canonical model for claims, provenance, source boundaries, versioning, and federation semantics.
-- `brainkb-api` is the single browser-facing API/BFF. It owns the product API contract, auth/session enforcement, release/as-of context, trace roots, and routing to internal modules.
-- The graph/knowledge module behind `brainkb-api` owns writes, validation, and canonical query semantics regardless of the backing implementation.
+- RDF/named graphs are the canonical model for claims, provenance, source boundaries, versioning, and federation semantics.
+- The public API surface (the gateway layer or the service that the UI faces) owns product API contract, auth/session enforcement, release/as-of context, and routing to internal services.
+- `kg-api` owns writes, validation, and canonical query semantics regardless of the backing triplestore implementation.
 - Postgres already stores operational state; it may also hold denormalized read models for common entity, evidence, search, dashboard, task-memory, and agent-memory views.
 - Caches and memory stores improve performance and workflow continuity, but they do not become canonical knowledge unless a reviewed promotion writes through the standard claim/provenance path.
-- `brainkb-ui` and browser-based agents should call only `brainkb-api`; they should not call graph, ingest, job, cache, memory, connector, or store APIs directly.
+- `brainkb-ui` and browser-based agents should call only the public API surface; they should not call graph, ingest, job, cache, memory, connector, or store APIs directly.
 
 GraphQL/Postgres variant:
 
-- Add a GraphQL read mode on `brainkb-api`, or a GraphQL module behind it, backed by Postgres tables or materialized projections derived from canonical RDF/named graphs.
+- Add a GraphQL read mode on the public API surface, or as a dedicated module behind it, backed by Postgres tables or materialized projections derived from canonical RDF/named graphs.
 - Use GraphQL for high-traffic UI patterns that are awkward or slow to express directly as SPARQL: entity detail pages, nested evidence views, faceted search, timelines, review queues, and dashboard summaries.
 - Keep SPARQL/RDF available for graph-native queries, federation, provenance audits, schema/version operations, and expert workflows.
 - Treat GraphQL objects as read models with explicit semantics, not as a second source of truth.
 - Expose canonical IRI, claim ID, graph URI, release ID, schema/profile version, evidence links, lifecycle/as-of state, and projection freshness on relevant GraphQL objects.
 
-Required sync and lifecycle rules:
+Service design implications:
 
-- Ingestion/update cycles must include projection updates after validation and named graph activation.
-- Projection records must preserve canonical IRIs, claim IDs, graph URIs, source IDs, schema version, evidence node IDs, lifecycle state, and activation/as-of timestamps.
-- Graph activation must be atomic from the user's perspective: a graph release and its Postgres/GraphQL projection are either both visible or both still pending.
-- Projection lag and cache freshness must be observable through job status, sync timestamps, stale/readiness flags, and invalidation logs.
-- No application write should bypass canonical validation just because a GraphQL/Postgres view exists.
-- Projection parity tests must cover the MVP competency questions and compare canonical RDF/SPARQL answers against GraphQL/Postgres responses.
-- If RDF and projection versions disagree, the API must return release/freshness metadata and either block the stale view or clearly label it as stale.
+- The triplestore plus an optional GraphQL/Postgres read projection is a deliberate performance boundary, not an accidental duplicate source of truth.
+- Projection and cache semantics that must survive any read path: provenance, versioning, named graph membership, identifier stability, auth scope, and release context.
+- Sync rules and projection lifecycle requirements are defined in the Graph Release And Projection Contract.
 
-Architecture impact:
+## API Boundary And Service Decomposition
 
-- L1 should show one BrainKB API boundary between products/workflows and backend modules.
-- L2 should show a minimal deployable slice first: `brainkb-ui`, `brainkb-api`, `brainkb-worker`, connector adapters, and stores.
-- L2 should show the triplestore plus an optional GraphQL/Postgres read projection as a deliberate performance boundary, not as an accidental duplicate source of truth.
-- L2 should keep GraphQL, jobs, ingest, cache, memory, and auth as internal modules or future split points unless scale or ownership requires separate deployables.
-- L3 ingest flows should include projection refresh, projection validation, cache invalidation, and rollback/stale-state handling.
-- L4 should explain which semantics must survive projection, caching, and memory retrieval: provenance, versioning, named graph membership, identifier stability, auth scope, and release context.
+The architectural boundary matters more than the initial packaging. BrainKB can preserve its trust contracts with separate services without exposing all of them directly to the browser.
 
-## API Boundary And Technical Burden
+Service topology:
 
-The first build should minimize frontend and operational coupling. BrainKB can preserve the important trust contracts without starting as many browser-facing microservices.
+| Service | Browser-facing | Role |
+| --- | --- | --- |
+| `kg-api` | Internal | Graph reads, writes, validation, canonical SPARQL queries |
+| `ingest-api` | Internal | Ingest submission, manifest handling, source registration |
+| `jobs-api` | Internal | Job status, progress, cancellation, activation control |
+| `connector-api` | Internal | Credential isolation, rate limiting, connector orchestration |
+| `auth-api` | Internal | OAuth2/JWT issuance, scope enforcement, session management |
+| Gateway / BFF | Yes | Routes product-shaped requests to internal services; enforces user/session/release context |
+| `brainkb-ui` | Yes | Browser client; calls only the gateway/BFF surface |
 
-MVP API topology:
+Decomposition rationale:
 
-- `brainkb-ui` talks to one public surface: `brainkb-api`.
-- `brainkb-api` may be implemented as a BFF/gateway, as a module around the graph/knowledge API, or as a single `brainkb-api` service. The architectural boundary matters more than the initial packaging.
-- `brainkb-api` exposes product-shaped operations: search, entity detail, evidence/provenance views, release/as-of context, saved collections, task workspace, curator review, ingest status, and admin/release status.
-- Internal modules behind `brainkb-api` handle graph reads/writes, GraphQL projection reads, auth/policy, jobs, ingest submission, memory reads/writes, cache lookup/fill, and connector orchestration.
-- `brainkb-worker` handles long-running ingest, validation, graph writes, projection build, parity checks, release activation, rollback preparation, cache invalidation, and memory revalidation.
-- Connector adapters should start as an internal library or sidecar boundary. Split them into a separate `connector-api` only when credential isolation, rate limiting, scaling, or ownership requires it.
-
-Services that should not be directly browser-facing:
-
-- Triplestore, Postgres/pgvector, Redis, object storage, release workers, connector adapters, cache internals, memory stores, and external LLM/search/archive endpoints.
-- `jobs-api`, `ingest-api`, `cache-api`, `memory-api`, `auth-api`, and `graphql-api` are useful names for internal modules or future split points, but the deck should not require them as day-one deployables.
-
-Single invariant:
-
-- Canonical facts live in RDF/named graphs. Projections, cache, memory, vectors, connector responses, and assistant outputs are derived or workflow state unless promoted through review, validation, named graph write, and release activation.
+- Each service owns its own boundary: credentials, scaling, failure domain, and deployment lifecycle are independent.
+- The gateway or BFF layer is the only surface the UI and browser-based agents should call. It translates product operations (search, entity detail, evidence view, review queue, ingest status) into internal service calls.
+- Services that should never be directly browser-facing: triplestore, Postgres/pgvector, Redis, object storage, cache internals, memory stores, and external LLM/search/archive endpoints.
+- A service earns a separate deployable when credential isolation, rate limiting, ownership, or failure domain requires it — not because it has a name.
 
 ## Cache And Agent Memory Strategy
 
@@ -387,12 +832,12 @@ BrainKB should treat caching and agent memory as related but distinct platform c
 
 Cache service:
 
-- The cache module, exposed internally and split later as `cache-api` only if needed, provides a deterministic cache facade for entity hydration, provenance lookup, release readiness, connector responses, federated subquery results, search facets, projection materialization status, and expensive LLM/tool-call intermediates.
-- Cache keys must include the relevant `release_id`, `graph_uri`, `as_of` date or active pointer, application profile/schema version, source/resource ID, query template version, connector version, tenant/project, and auth scope.
-- Cache entries must expose status metadata: hit, miss, stale, negative cache, upstream source, source timestamp, cache timestamp, TTL, invalidation reason, and replay/recompute pointer when available.
+- The cache module (split later as `cache-api` only if needed) provides a deterministic cache facade for entity hydration, provenance lookup, release readiness, connector responses, federated subquery results, search facets, and expensive LLM/tool-call intermediates.
+- Cache keys should encode: release and schema version, source/resource identity, query template version, auth scope, and tenant/project. This ensures cache entries are never silently shared across releases or permission boundaries.
+- Cache entries should expose status metadata (hit, miss, stale, negative cache) and enough provenance (source timestamp, TTL, invalidation reason) for the UI to distinguish live results from cached ones.
 - Graph release activation should namespace or invalidate cache entries by release and schema version rather than mutating old results in place.
-- Redis can back hot short-TTL cache; Postgres or object storage can back durable connector/result caches when replay, rate-limit protection, reproducibility, or offline review matter.
-- Cache misses, stale reads, invalidation failures, negative-cache rates, and upstream retry behavior must be observable.
+- Redis backs hot short-TTL cache; Postgres or object storage backs durable connector/result caches where replay, rate-limit protection, or offline review matter.
+- Cache health (misses, stale reads, invalidation failures, upstream retry behavior) should be observable.
 
 Agent memory components:
 
@@ -406,19 +851,21 @@ Agent memory components:
 Memory lifecycle and promotion rules:
 
 - The memory module, exposed internally and split later as `memory-api` only if needed, owns memory reads, writes, retention, promotion, and deletion; UI code and agents should not write directly to store tables.
-- Every memory item should carry owner, scope, source, created_at, updated_at, expires_at, release context, graph URI or active-release pointer, auth policy, privacy class, retrieval score, decay policy, and revalidation status.
+- Every memory item should carry enough metadata to answer: who owns it, what scope it belongs to, where it came from, when it expires, which graph release it was valid for, and what privacy/auth policy applies.
 - Promotion path is explicit: ephemeral memory can become task memory; task memory can become project memory; project memory can propose candidate claims; candidate claims enter the canonical graph only through review, validation, named graph write, and release activation.
 - Memory can bias retrieval and workflow continuity, but it cannot replace evidence. Agent answers must cite canonical entities, claims, papers, datasets, or explicitly labeled external results.
 - Stale memory must be revalidated when graph releases, ontology mappings, projection schemas, or connector versions change.
 - Private user/project memory must not be used as institutional memory or model-training/evaluation input without explicit policy and consent.
 
-## Cleaned Epic User Stories
+---
 
-Each story uses the same template so the later deck can turn it into slides, issues, or implementation slices without reinterpreting intent.
+## Epic User Stories
+
+Each story follows the same template so it can be turned into issues or implementation slices without reinterpreting intent.
 
 Bootstrap dependency priority uses ease of resolution, not importance:
 
-- Easy: can be seeded from existing deck content, a small curated fixture, public metadata exports, or simple adapters.
+- Easy: can be seeded from existing documentation, a small curated fixture, public metadata exports, or simple adapters.
 - Medium: needs schema alignment, repeated curation, service integration, or a reliable sync/update process.
 - Hard: depends on substantial KB coverage, external search/retrieval services, model evaluation, cross-resource agreement, or sustained curator/researcher feedback.
 
@@ -444,10 +891,12 @@ Acceptance criteria:
 - Conflicting claims are visible together, not silently collapsed.
 - Each claim links to evidence, source resource, contributor, and graph/version metadata.
 - Users can filter or compare by source, version, and as-of date.
+- Entity pages exist for taxonomy classes, Patch-seq cells/specimens, genes, gene sets, file assets, datasets, papers/preprints, people, organizations, resources, claims, and evidence.
+- The UI exposes file-level lineage and source asset links, not just top-level dataset metadata.
+- Publication-derived claims show whether they were manually curated, NER/extraction-derived, inferred from an analysis graph, or imported from a source package.
+- Reusable adapters and derived artifacts are named in release manifests so other domains can reuse the same services and tooling.
 
-Architecture dependencies: L0 external resources, L1 evidence review workflow, L2 brainkb-api and canonical graph store, L3 entity search/detail and provenance lookup, L4 named graphs and PROV-O.
-
-Suggested slides: "Why evidence review matters", "Epic story card", "Evidence/provenance interaction flow", "L4 provenance model".
+Architecture dependencies: L0 external resources, L1 evidence review workflow, L2 gateway/BFF, kg-api, canonical graph store, L3 entity search/detail and provenance lookup, L4 named graphs and PROV-O.
 
 Bootstrap assumptions and dependencies, ordered easiest to hardest:
 
@@ -483,9 +932,7 @@ Acceptance criteria:
 - Users can save, reject, or send a suggestion to curator review without committing it to the canonical graph.
 - Saved or rejected suggestions are stored as task/project memory with release context and can be revalidated when the graph changes.
 
-Architecture dependencies: L1 gated assistant/hypothesis workflow, L2 brainkb-api, connector adapters, internal memory module, Postgres/pgvector, L3 LLM-assisted query, memory promotion, and graph hydration, L4 identifiers, claim provenance, and workflow-state semantics.
-
-Suggested slides: "Hypothesis as a user story", "Grounded suggestion flow", "AI boundary rules".
+Architecture dependencies: L1 gated assistant/hypothesis workflow, L2 gateway/BFF, kg-api, connector-api, memory module, Postgres/pgvector, L3 LLM-assisted query, memory promotion, and graph hydration, L4 identifiers, claim provenance, and workflow-state semantics.
 
 Bootstrap assumptions and dependencies, ordered easiest to hardest:
 
@@ -519,9 +966,7 @@ Acceptance criteria:
 - Incompatible tools are excluded or shown with clear contraindications.
 - Tool versions, owners, inputs, and outputs are visible.
 
-Architecture dependencies: L0 tools and registries, L1 methods/catalog workflow, L2 brainkb-api and canonical graph store, L3 query planning, L4 tool/model schema and provenance.
-
-Suggested slides: "Methods are graph entities", "Tool compatibility story", "Schema requirements".
+Architecture dependencies: L0 tools and registries, L1 methods/catalog workflow, L2 gateway/BFF, kg-api, canonical graph store, L3 query planning, L4 tool/model schema and provenance.
 
 Bootstrap assumptions and dependencies, ordered easiest to hardest:
 
@@ -554,9 +999,7 @@ Acceptance criteria:
 - Version history and replacement edges are visible.
 - The same lifecycle vocabulary applies to taxonomies, schemas, datasets, and tools.
 
-Architecture dependencies: L0 resource ecosystem, L1 resource landscape workflow, L2 brainkb-api and canonical graph store, L3 as-of query support, L4 lifecycle vocabulary and named graph versioning.
-
-Suggested slides: "Resource lifecycle story", "As-of resource query", "Versioned named graph model".
+Architecture dependencies: L0 resource ecosystem, L1 resource landscape workflow, L2 gateway/BFF, kg-api, canonical graph store, L3 as-of query support, L4 lifecycle vocabulary and named graph versioning.
 
 Bootstrap assumptions and dependencies, ordered easiest to hardest:
 
@@ -590,9 +1033,7 @@ Acceptance criteria:
 - Read-only exploration works without login.
 - Logged-in users can save searches or collections if identity is enabled.
 
-Architecture dependencies: L1 search/detail workflow, L2 brainkb-ui, brainkb-api, canonical graph store, Postgres/pgvector projections, L3 search and drill-down flows, L4 identifiers and ontology mappings.
-
-Suggested slides: "Entity exploration story", "Search to detail flow", "L3 search/drill-down components".
+Architecture dependencies: L1 search/detail workflow, L2 brainkb-ui, gateway/BFF, kg-api, canonical graph store, Postgres/pgvector projections, L3 search and drill-down flows, L4 identifiers and ontology mappings.
 
 Bootstrap assumptions and dependencies, ordered easiest to hardest:
 
@@ -626,9 +1067,7 @@ Acceptance criteria:
 - Approved triples are written through the standard ingest path.
 - Published claims land in a named graph tied to the source and curator.
 
-Architecture dependencies: L1 curator review workflow, L2 brainkb-api, brainkb-worker, connector adapters, Postgres, canonical graph store, L3 curator and ingest flows, L4 schema validation and provenance.
-
-Suggested slides: "Curator review story", "Draft-to-publish lifecycle", "Ingest and provenance components".
+Architecture dependencies: L1 curator review workflow, L2 gateway/BFF, ingest-api, jobs-api, connector-api, Postgres, canonical graph store, L3 curator and ingest flows, L4 schema validation and provenance.
 
 Bootstrap assumptions and dependencies, ordered easiest to hardest:
 
@@ -662,9 +1101,7 @@ Acceptance criteria:
 - New releases become active without deleting old releases.
 - Failures leave the previous active graph untouched and produce actionable logs.
 
-Architecture dependencies: L1 ingestion/release workflow, L2 brainkb-api, brainkb-worker, canonical graph store, Postgres/Redis if needed, L3 auth and ingest flows, L4 named graph lifecycle.
-
-Suggested slides: "Automated ingest story", "Atomic release replace", "Deployment and operational state".
+Architecture dependencies: L1 ingestion/release workflow, L2 ingest-api, jobs-api, canonical graph store, Postgres/Redis if needed, L3 auth and ingest flows, L4 named graph lifecycle.
 
 Bootstrap assumptions and dependencies, ordered easiest to hardest:
 
@@ -698,9 +1135,7 @@ Acceptance criteria:
 - Slow or unavailable sources degrade gracefully with visible status.
 - REST-backed resources can be lifted into temporary graph-like results through connectors.
 
-Architecture dependencies: L0 partner resources, L1 federated query workflow, L2 brainkb-api, connector adapters, and cache module, L3 federation flow, L4 identity mapping and source attribution.
-
-Suggested slides: "Federation story", "Query planning flow", "Connector boundary".
+Architecture dependencies: L0 partner resources, L1 federated query workflow, L2 gateway/BFF, connector-api, cache module, L3 federation flow, L4 identity mapping and source attribution.
 
 Bootstrap assumptions and dependencies, ordered easiest to hardest:
 
@@ -724,8 +1159,8 @@ Trigger: a user asks a question in an assistant panel or invokes a query-generat
 Preconditions:
 
 - Retrieval can return candidate entities and claims by semantic and graph context.
-- The answer generator can hydrate retrieved IRIs through `brainkb-api`.
-- LLM providers are routed through connector adapters behind `brainkb-api` or a single AI service boundary.
+- The answer generator can hydrate retrieved IRIs through `kg-api`.
+- LLM providers are routed through `connector-api` or a dedicated AI service boundary.
 - Memory retrieval can supply user/project context while still respecting auth, release, and provenance constraints.
 
 Acceptance criteria:
@@ -736,16 +1171,14 @@ Acceptance criteria:
 - Provider, prompt, model, and trace metadata are captured for provenance where outputs become draft claims.
 - The assistant separates canonical evidence, external cached evidence, and memory-derived context in the answer trace.
 
-Architecture dependencies: L1 gated assistant workflow, L2 brainkb-api, connector adapters, cache/memory modules, Postgres/pgvector, L3 cache-aware retrieval and LLM-assisted query flow, L4 claim/evidence and workflow-state contracts.
-
-Suggested slides: "Grounded assistant story", "RAG over the graph", "LLM/agent boundary".
+Architecture dependencies: L1 gated assistant workflow, L2 gateway/BFF, connector-api, cache/memory modules, Postgres/pgvector, L3 cache-aware retrieval and LLM-assisted query flow, L4 claim/evidence and workflow-state contracts.
 
 Bootstrap assumptions and dependencies, ordered easiest to hardest:
 
 - Easy: start with answer synthesis over the BG fixture and force citations to retrieved IRIs, claims, file assets, papers/preprints, and release manifests.
 - Easy: fall back to entity search when retrieval confidence or evidence coverage is low.
 - Easy: keep session/task memory for active questions, selected entities, and prior retrieval traces so agent follow-ups are useful but auditable.
-- Medium: add embeddings for entities, claims, papers, and resource descriptions, with hydration through `brainkb-api`.
+- Medium: add embeddings for entities, claims, papers, and resource descriptions, with hydration through `kg-api`.
 - Medium: route PubMed/Semantic Scholar/repository expansion through connector adapters when local evidence is insufficient.
 - Hard: deliver reliable answers for broad neuroscience questions without hallucination when the KB is sparse or external retrieval is noisy.
 
@@ -772,9 +1205,7 @@ Acceptance criteria:
 - Users can navigate from claim to publication, dataset, curator action, and previous versions.
 - Updates create new versions or supersession edges, not silent edits.
 
-Architecture dependencies: L1 evidence/provenance workflow, L2 brainkb-api and canonical graph store, L3 provenance lookup, L4 PROV-O, named graphs, identifiers, and lifecycle vocabulary.
-
-Suggested slides: "Provenance audit story", "Claim lineage model", "Evidence chain UX".
+Architecture dependencies: L1 evidence/provenance workflow, L2 gateway/BFF, kg-api, canonical graph store, L3 provenance lookup, L4 PROV-O, named graphs, identifiers, and lifecycle vocabulary.
 
 Bootstrap assumptions and dependencies, ordered easiest to hardest:
 
@@ -783,141 +1214,6 @@ Bootstrap assumptions and dependencies, ordered easiest to hardest:
 - Medium: support claim-level IDs and evidence-node lookup in both RDF and any GraphQL/Postgres projection.
 - Medium: preserve old assertions during updates and expose supersession history in the UI.
 - Hard: show complete provenance chains across federated resources when upstream systems have incomplete or incompatible metadata.
-
-## Five Architecture Zoom Levels
-
-### L0 - Ecosystem
-
-Question answered: who and what does BrainKB connect?
-
-L0 should show BrainKB as a federating platform in the neuroscience ecosystem, not as a replacement for every source system.
-
-In scope at L0:
-
-- Human actors: researchers, curators, reviewers, methodologists, infrastructure operators, and anonymous readers.
-- Machine actors: ingest pipelines, partner release bots, external agents, service principals, extraction models, and assistant/LLM providers.
-- External knowledge sources: papers/preprints, PubMed/Semantic Scholar/Google Scholar-like search, ABC Atlas/HMBA-BG-style atlas packages, DANDI/BIL/NeMO/Allen/BICAN-style archives and atlases, h5ad/NWB/source files, ontologies, schemas, tool registries, repositories, and partner knowledge bases.
-- Governance boundaries: identity providers, access policies, data-use terms, rate limits, licenses, citation rules, and privacy/data-egress constraints.
-
-Out of scope at L0:
-
-- Internal service names, store choices, queue details, and schema tables.
-
-The diagram should make one point: BrainKB sits between actors, external resources, and governance constraints in an ecosystem whose data quality and availability vary. It should not introduce internal services or schema mechanics; those belong to L2-L4.
-
-### L1 - Product/API Boundary
-
-Question answered: what product workflows call the BrainKB platform, and through what stable boundary?
-
-L1 should show the product/API boundary, not backend deployment detail.
-
-Products and workflows:
-
-- Evidence review: entity search/detail, claim comparison, conflict/silence states, provenance drilldown.
-- Curation: candidate claim review, structured edits, batch publish request, validation report review.
-- Release/as-of administration: graph release visibility, activation status, rollback target, projection readiness.
-- Research workspace: saved searches, collections, task context, and explicit memory controls.
-- Gated later: grounded assistant, broad live federation, long-term project memory, and hypothesis generation beyond the fixture.
-
-Single public API boundary:
-
-- `brainkb-ui` calls `brainkb-api`, not individual graph, job, ingest, memory, cache, or connector APIs.
-- `brainkb-api` exposes product-shaped operations: search, evidence, provenance, ingest status, release context, collections, task workspace, and admin/review actions.
-- `brainkb-api` can route internally to REST handlers, GraphQL read mode, graph queries, job state, memory, cache, and connector orchestration without exposing that topology to the UI.
-
-Backend capability modules behind the boundary:
-
-- Graph and claims: canonical graph reads/writes, identifier resolution, claim/evidence/provenance hydration.
-- Ingest and release: staged submissions, validation, projection build, activation, rollback, and readiness.
-- Projection and search: GraphQL/read models, facets, entity pages, and vector/search indexes.
-- Connector adapters: LLMs, parsers, external search, archives, partner KBs, credentials, retries, and rate limits.
-- Cache and memory policy: cache freshness, stale/partial-result states, memory retention, revalidation, and promotion gates.
-
-Out of scope at L1:
-
-- Service deployment choices, store names, table schemas, queue phases, and exact cache/memory key fields.
-
-The diagram should make one point: products call one BrainKB API. Backend modules can evolve without turning the UI into a service orchestrator.
-
-### L2 - Service Containers / Minimal Deployable Slice
-
-Question answered: what is the smallest useful deployable topology?
-
-L2 should show a minimal deployable slice first, with future split points named but not required.
-
-Day-one deployables:
-
-- `brainkb-ui`: web UI only. It calls `brainkb-api` and does not orchestrate internal services.
-- `brainkb-api`: public BFF/API facade for REST/GraphQL reads, auth/policy enforcement, search, entity/evidence/provenance views, release/as-of context, saved collections, task workspace, ingest submission, and job status.
-- `brainkb-worker`: asynchronous worker for ingest, validation, canonical graph writes, projection build, parity checks, release activation, rollback prep, cache invalidation, memory revalidation, and export jobs.
-- Connector adapters: internal library or sidecar for LLMs, parsers, ontology services, external search, archives, and partner KBs.
-
-Stores:
-
-- Canonical graph store: RDF/named graphs and release-scoped graph state. Oxigraph is a plausible first choice; Fuseki or GraphDB remain alternatives.
-- Postgres + pgvector: users, scopes, jobs, drafts, review state, GraphQL/read projections, vector indexes, durable memory, and durable connector/result cache.
-- Object/artifact storage: source packages, validation reports, graph diffs, extraction artifacts, release manifests, and export snapshots.
-- Redis, optional: queue broker, locks, and short-lived hot cache only if the chosen worker/cache approach needs it.
-
-Future split points:
-
-- Split GraphQL/read projection, jobs, ingest, connector, cache, memory, auth, or observability into dedicated services only when scale, security, ownership, deployment cadence, or isolation requires it.
-- Keep internal interfaces clean enough that these splits are possible, but do not present them as the default operational burden.
-
-Out of scope at L2:
-
-- Product story details and graph schema semantics that belong at L1 or L4.
-
-The diagram should make one point: BrainKB can start as one UI, one API, one worker, connector adapters, and a few stores while preserving the trust boundary. Products never write directly to graph stores, memory tables, caches, or external services.
-
-### L3 - Core Workflow Components
-
-Question answered: how do the key workflows move through the system?
-
-L3 should not be a generic module dump. It should show internals only for the workflows the deck promises:
-
-- Search and entity detail: UI config, `brainkb-api` route, query template, graph/projection read, entity hydration, evidence badges.
-- Ingest: submit job, stage, transform, validate, write named graph, build projection, validate projection, activate or fail safely.
-- Projection sync: after graph activation, update Postgres/GraphQL read models, verify sync status, expose stale projection warnings, and invalidate release-scoped caches.
-- Provenance audit: claim lookup, evidence node hydration, source/contributor/schema/version rendering.
-- Federation: plan subqueries, call partner endpoints or adapters, reconcile by canonical URI, annotate source.
-- Assistant: retrieve scoped memory, retrieve IRIs, hydrate claims, consult connector/cache for external expansion if needed, call LLM boundary, return cited answer or fallback.
-- Release activation: validate manifest, compare graph diff, run SHACL and projection parity checks, move active pointer, record activation ledger, retain rollback target.
-
-Cross-cutting annotations on those workflows:
-
-- Cache lifecycle: compute scoped key, lookup, return freshness metadata, fill, negative-cache where appropriate, invalidate by release/schema/source/auth scope, and record cache traces.
-- Agent memory lifecycle: capture working context, write task memory, retrieve scoped memory, hydrate canonical evidence, decay or expire stale memory, and promote only through explicit review gates.
-- Job control: expose state, progress, retries, cancellation, quarantine, and final release/projection identifiers.
-
-Out of scope at L3:
-
-- Full ontology/class design and full deployment topology.
-
-The diagram should make one point: each workflow uses the same core primitives: stable identifiers, scoped access, named graphs, validation, provenance, release context, cache freshness, and memory promotion rules.
-
-### L4 - Knowledge/Data Model
-
-Question answered: what data model makes trust and evolution possible?
-
-L4 should explain the model in layers:
-
-- Identity: stable IRIs, ORCID, DOI, dataset IDs, file/asset IDs, Patch-seq cell/specimen IDs, gene IDs, repository commits, cross-references.
-- Domain model: BICAN, openMINDS, NIMP, taxonomy releases, cell/specimen/file assets, tool/model entities, datasets, claims.
-- Standards: LinkML, SHACL, BIDS, NWB, schema versions.
-- Reference vocabularies: UBERON, CL, NCBITaxon, biolink categories.
-- Provenance: PROV-O, source, contributor, generated-by, derived-from, timestamp.
-- Versioning: named graphs per source/release/contribution, supersession edges, lifecycle states, as-of queries.
-- Claim bundles: stable claim IDs, qualifiers, evidence nodes, activity/agent/source lineage, confidence/evidence labels, and review lifecycle state.
-- Release manifests: immutable release ID, source checksum, transform digest, validation report, projection schema version, activation timestamp, previous release, and rollback target.
-- Projection contract: any GraphQL/Postgres read model must preserve IRIs, claim IDs, graph membership, evidence links, schema versions, and lifecycle/as-of state.
-- Derived/index/workflow-state contract: cache keys, memory items, vector entries, connector responses, and assistant traces must carry release context, auth scope, source, freshness/revalidation status, and pointers back to canonical entities/claims/evidence where applicable.
-
-Out of scope at L4:
-
-- UI layouts, product grouping, and container deployment diagrams.
-
-The diagram should make one point: provenance, versioning, release context, projection semantics, cache freshness, and memory lifecycle are not add-ons. They are the data model that keeps BrainKB usable by humans and agents.
 
 ## Traceability Matrix
 
@@ -936,13 +1232,13 @@ The diagram should make one point: provenance, versioning, release context, proj
 
 ## Contract Traceability Matrix
 
-| Contract | Primary epics | Architecture levels | Required review question |
+| Contract / Strategy | Primary epics | Architecture levels | Required review question |
 | --- | --- | --- | --- |
-| MVP competency fixture | 01, 05, 06, 07, 08, 09, 10 | L0, L1, L2, L3, L4 | Can a neuroscientist start from a BG taxonomy class, Patch-seq cell, gene/gene set, file asset, or preprint and explain taxonomy, files, evidence, claims, support/conflict/silence, and as-of state? |
-| Identifier governance | 01, 03, 04, 05, 08, 10 | L0, L3, L4 | Can every visible entity and mapping explain its canonical IRI, source xrefs, mapping type, confidence, and lifecycle state? |
-| Claim/provenance bundle | 01, 06, 09, 10 | L1, L3, L4 | Can every user-visible assertion identify its evidence, source, activity, agent, graph, release, schema, and review state? |
-| Graph release and projection | 04, 05, 07, 10 | L2, L3, L4 | Can a release activate atomically, expose projection freshness, and roll back without losing history? |
-| Ops readiness | 06, 07, 08, 09 | L1, L2, L3 | Can the stack be deployed locally and operated with observable ingest, projection, auth, backup, restore, and connector behavior? |
-| Ontology alignment and FAIR | 03, 04, 05, 08 | L0, L4 | Can the fixture state vocabulary versions, crosswalk provenance, validation profile, citation, license, and export metadata? |
-| Cache and agent memory | 02, 05, 08, 09, 10 | L1, L2, L3, L4 | Can agents reuse context and cached work while respecting release freshness, provenance, auth scope, retention, and promotion gates? |
+| MVP Scope (contract) | 01, 05, 06, 07, 08, 09, 10 | L0, L1, L2, L3, L4 | Can a neuroscientist start from a BG taxonomy class, Patch-seq cell, gene/gene set, file asset, or preprint and explain taxonomy, files, evidence, claims, support/conflict/silence, and as-of state? |
+| Identifier Governance Contract | 01, 03, 04, 05, 08, 10 | L0, L3, L4 | Can every visible entity and mapping explain its canonical IRI, source xrefs, mapping type, confidence, and lifecycle state? |
+| Claim And Provenance Contract | 01, 06, 09, 10 | L1, L3, L4 | Can every user-visible assertion identify its evidence, source, activity, agent, graph, release, schema, and review state? |
+| Graph Release And Projection Contract | 04, 05, 07, 10 | L2, L3, L4 | Can a release activate atomically, expose projection freshness, and roll back without losing history? |
+| Operational Readiness Contract | 06, 07, 08, 09 | L1, L2, L3 | Can the stack be deployed locally and operated with observable ingest, projection, auth, backup, restore, and connector behavior? |
+| Ontology Alignment And FAIR Contract | 03, 04, 05, 08 | L0, L4 | Can the fixture state vocabulary versions, crosswalk provenance, validation profile, citation, license, and export metadata? |
+| Cache And Agent Memory Strategy | 02, 05, 08, 09, 10 | L1, L2, L3, L4 | Can agents reuse context and cached work while respecting release freshness, provenance, auth scope, retention, and promotion gates? |
 
