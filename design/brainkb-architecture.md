@@ -24,6 +24,8 @@ This document has six parts. Contracts say what the system must satisfy; strateg
 
 ---
 
+# Part 1 · Context
+
 ## Users and Actors
 
 ### Human actors
@@ -68,6 +70,8 @@ External services BrainKB calls:
 Full engineering requirements for each use case are in the Epic User Stories section.
 
 ---
+
+# Part 2 · Architecture
 
 ## Five Architecture Zoom Levels
 
@@ -483,6 +487,8 @@ sequenceDiagram
 
 ---
 
+# Part 3 · MVP
+
 ## MVP Competency Fixture
 
 Purpose: prove that BrainKB can answer a bounded neuroscience evidence-review question with enough concrete data to expose identity, provenance, versioning, source disagreement, projection behavior, file-level lineage, literature-derived claims, and reusable platform services.
@@ -560,6 +566,8 @@ Hypothesis and assistant guardrails (apply beyond MVP):
 - If local evidence coverage is low, the product should fall back to search, external evidence expansion, or "insufficient evidence" rather than over-answering.
 
 ---
+
+# Part 4 · Contracts
 
 ## Contracts
 
@@ -768,6 +776,8 @@ FAIR and export metadata:
 
 ---
 
+# Part 5 · Strategy
+
 ## Store And Query Strategy
 
 RDF is the lingua franca for knowledge; everything else lives in Postgres. The query layer hides the seam.
@@ -858,6 +868,8 @@ Memory lifecycle and promotion rules:
 - Private user/project memory must not be used as institutional memory or model-training/evaluation input without explicit policy and consent.
 
 ---
+
+# Part 6 · Epics and Traceability
 
 ## Epic User Stories
 
