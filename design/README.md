@@ -5,14 +5,12 @@
 **Edit these files directly:**
 
 - **`brainkb-architecture.md`** — primary architecture design document, organized in six parts: Context (users, use cases), Architecture (L0–L4 zoom levels, key sequence flows), MVP (competency fixture, scope), Contracts (identifier governance, claim/provenance, graph release, operational readiness, ontology/FAIR), Strategy (store/query, API boundary, cache/memory), and Epics and Traceability
-- **`brainkb-review-deck-plan.md`** — review deck preparation; slide outline, authoring guidance, validation checklist
 
 ## Directory Structure
 
 ```
 design/
   brainkb-architecture.md          # <-- edit this
-  brainkb-review-deck-plan.md      # <-- edit this
   original_source/
     brainkb-architecture-deck-redesign.md   # historical reference; do not edit
   utils/
@@ -25,13 +23,3 @@ design/
 
 Contains `brainkb-architecture-deck-redesign.md` — the original combined document from which the two working files were derived via `utils/split_design_doc.py`.  Do not edit it; all ongoing work happens in the split files above.
 
-## Merging for review or export
-
-To produce a single combined document:
-
-```bash
-cd design/
-python utils/merge_design_doc.py brainkb-architecture.md brainkb-review-deck-plan.md
-```
-
-Output: `brainkb-architecture-merged.md` (written alongside `brainkb-architecture.md`)
