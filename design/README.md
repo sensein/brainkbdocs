@@ -21,3 +21,10 @@
 ## `original_source/`
 
 Contains the original document from which `brainkb-architecture.md` was derived. Kept for historical reference only — do not edit it.
+
+## Source presentations
+
+Two presentations were used as source material during the initial design doc authoring:
+
+- **BrainKB Architecture (standalone)** (custom JSX/React) — Satra's first version, created with Claude via claude.ai/design; source of the sequence diagrams, vocabulary layer stack, service names, and L2 architecture tiers. Not included in this repository.
+- **BrainKB Architecture Review Deck** (Reveal.js) — Satra's second version, created outside claude.ai/design; source of several Mermaid diagrams used in the zoom levels. The source markdown is stored in `original_source/`.
