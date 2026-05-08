@@ -4,7 +4,7 @@
 
 **Edit these files directly:**
 
-- **`brainkb-architecture.md`** — primary document; contracts, epic user stories, architecture zoom levels, traceability matrices
+- **`brainkb-architecture.md`** — primary architecture design document, organized in six parts: Context (users, use cases), Architecture (L0–L4 zoom levels, key sequence flows), MVP (competency fixture, scope), Contracts (identifier governance, claim/provenance, graph release, operational readiness, ontology/FAIR), Strategy (store/query, API boundary, cache/memory), and Epics and Traceability
 - **`brainkb-review-deck-plan.md`** — review deck preparation; slide outline, authoring guidance, validation checklist
 
 ## Directory Structure
