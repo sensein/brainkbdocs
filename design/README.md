@@ -2,20 +2,17 @@
 
 ## Documents
 
-**Edit these files directly:**
-
-- **`brainkb-architecture.md`** — primary architecture design document, organized in six parts: Context (users, use cases), Architecture (L0–L4 zoom levels, key sequence flows), MVP (competency fixture, scope), Contracts (identifier governance, claim/provenance, graph release, operational readiness, ontology/FAIR), Strategy (store/query, API boundary, cache/memory), and Epics and Traceability
+- **`brainkb-architecture.md`** — the architecture design document. Organized in six parts: Context (users, use cases), Architecture (L0–L4 zoom levels, key sequence flows), MVP (competency fixture, scope), Contracts (identifier governance, claim/provenance, graph release, operational readiness, ontology/FAIR), Strategy (store/query, API boundary, cache/memory), and Epics and Traceability.
 
 ## Directory Structure
 
 ```
 design/
-  brainkb-architecture.md          # <-- edit this
+  brainkb-architecture.md          # primary document — edit this
   original_source/
     brainkb-architecture-deck-redesign.md   # historical reference; do not edit
 ```
 
 ## `original_source/`
 
-Contains `brainkb-architecture-deck-redesign.md` — the original combined document from which the two working files were derived via `utils/split_design_doc.py`.  Do not edit it; all ongoing work happens in the split files above.
-
+Contains the original document from which `brainkb-architecture.md` was derived. Kept for historical reference only — do not edit it.
