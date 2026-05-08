@@ -17,14 +17,6 @@
 | **Strategy** | Store and Query · API Boundary and Service Decomposition · Cache and Agent Memory | Design decisions with rationale — explains the trade-offs behind the architecture |
 | **Epics and Traceability** | Epic User Stories · Traceability Matrix · Contract Traceability Matrix | User-facing goals, bootstrap priority, and cross-references between epics, contracts, and architecture levels |
 
-## Directory Structure
-
-```
-design/
-  brainkb-architecture.md          # primary document — edit this
-  original_source/
-    brainkb-architecture-deck-redesign.md   # historical reference; do not edit
-```
 
 ## `original_source/`
 
