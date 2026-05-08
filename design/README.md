@@ -13,10 +13,6 @@ design/
   brainkb-architecture.md          # <-- edit this
   original_source/
     brainkb-architecture-deck-redesign.md   # historical reference; do not edit
-  utils/
-    split_design_doc.py            # one-time split utility (already run)
-    merge_design_doc.py            # combines both docs for review/export
-    README.md
 ```
 
 ## `original_source/`
