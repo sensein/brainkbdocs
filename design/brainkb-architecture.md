@@ -188,7 +188,7 @@ BrainKB is organized in five tiers with dependencies flowing strictly downward.
 
 Dependency rules:
 
-- Frontend calls application services only.
+- Frontend calls core and application services directly — no gateway layer.
 - Application services compose core services — never call externals directly.
 - Only core services touch storage.
 - All outbound calls to external services go through the connector layer.
@@ -707,7 +707,7 @@ Observability requirements:
 
 - Metrics: ingest duration, validation failure rate, queue depth, projection lag, activation failures, stale reads, cache hit/miss/stale rates, cache invalidation failures, memory promotion/rejection counts, embedding freshness, connector latency/error rate, external rate-limit hits, LLM call count/cost/error rate, auth failures, backup freshness, and restore-test age.
 - Logs: request ID, job ID, release ID, graph URI, actor/service principal, connector name, upstream source, and error category.
-- Traces: each service (`kg-api`, `ingest-api`, `jobs-api`, `connector-api`, `auth-api`) is a trace root for its own operations; the gateway or UI is the trace root for browser workflows. All spans propagate request ID, user/session/project, release/as-of context, job ID, projection freshness, cache status, partial-result status, and downstream service/module spans for ingest, projection, cache lookup/fill/invalidation, memory read/write/promotion, search, provenance lookup, federation, and assistant retrieval.
+- Traces: each service (`kg-api`, `ingest-api`, `jobs-api`, `connector-api`, `auth-api`) is a trace root for its own operations; `brainkb-ui` is the trace root for browser-initiated workflows. All spans propagate request ID, user/session/project, release/as-of context, job ID, projection freshness, cache status, partial-result status, and downstream service/module spans for ingest, projection, cache lookup/fill/invalidation, memory read/write/promotion, search, provenance lookup, federation, and assistant retrieval.
 - SLO candidates: read availability, search latency, cache freshness, memory retrieval latency, projection lag after activation, ingest success rate for fixture packages, and restore time.
 
 Auth and scope matrix:
@@ -724,7 +724,7 @@ Auth and scope matrix:
 
 Browser-facing auth rule:
 
-- `brainkb-ui` authenticates with the gateway/BFF only. The gateway enforces the user/session/project/release policy and calls internal services with service identity plus propagated user and scope claims.
+- `brainkb-ui` authenticates directly with `auth-api`. Each service verifies the JWT independently using the shared HS256 secret and enforces its own scope requirements.
 
 Backup and restore:
 
@@ -795,7 +795,7 @@ Polyglot persistence:
 Baseline decision:
 
 - RDF/named graphs are the canonical model for claims, provenance, source boundaries, versioning, and federation semantics.
-- The public API surface (the gateway layer or the service that the UI faces) owns product API contract, auth/session enforcement, release/as-of context, and routing to internal services.
+- `brainkb-ui` calls services directly; each service owns its own auth enforcement, release/as-of context, and API contract.
 - `kg-api` owns writes, validation, and canonical query semantics regardless of the backing triplestore implementation.
 - Postgres already stores operational state; it may also hold denormalized read models for common entity, evidence, search, dashboard, task-memory, and agent-memory views.
 - Caches and memory stores improve performance and workflow continuity, but they do not become canonical knowledge unless a reviewed promotion writes through the standard claim/provenance path.
@@ -823,20 +823,21 @@ Service topology:
 
 | Service | Browser-facing | Role |
 | --- | --- | --- |
-| `kg-api` | Internal | Graph reads, writes, validation, canonical SPARQL queries |
-| `ingest-api` | Internal | Ingest submission, manifest handling, source registration |
-| `jobs-api` | Internal | Job status, progress, cancellation, activation control |
-| `connector-api` | Internal | Credential isolation, rate limiting, connector orchestration |
-| `auth-api` | Internal | OAuth2/JWT issuance, scope enforcement, session management |
-| Gateway / BFF | Yes | Routes product-shaped requests to internal services; enforces user/session/release context |
-| `brainkb-ui` | Yes | Browser client; calls only the gateway/BFF surface |
+| `kg-api` | Yes | Graph reads, writes, validation, canonical SPARQL queries |
+| `ingest-api` | Yes | Ingest submission, manifest handling, source registration |
+| `jobs-api` | Yes | Job status, progress, cancellation, activation control |
+| `connector-api` | No | Credential isolation, rate limiting, connector orchestration — called by core services only |
+| `auth-api` | Yes | OAuth2/JWT issuance, scope enforcement, session management |
+| `brainkb-ui` | Yes | Browser client; calls services directly |
 
 Decomposition rationale:
 
+- `brainkb-ui` calls services directly — there is no gateway or BFF layer. This is the same pattern as DANDI.
 - Each service owns its own boundary: credentials, scaling, failure domain, and deployment lifecycle are independent.
-- The gateway or BFF layer is the only surface the UI and browser-based agents should call. It translates product operations (search, entity detail, evidence view, review queue, ingest status) into internal service calls.
 - Services that should never be directly browser-facing: triplestore, Postgres/pgvector, Redis, object storage, cache internals, memory stores, and external LLM/search/archive endpoints.
+- Long-running operations (ingest, validation, projection build) are handled asynchronously via job queues — the UI submits and polls rather than waiting on a synchronous response.
 - A service earns a separate deployable when credential isolation, rate limiting, ownership, or failure domain requires it — not because it has a name.
+- Long-running operations (ingest, validation, projection build, LLM extraction) are handled asynchronously via job queues or pub-sub events — the UI or pipeline submits and polls rather than holding a synchronous connection open.
 
 ## Cache And Agent Memory Strategy
 
@@ -910,7 +911,7 @@ Acceptance criteria:
 - Publication-derived claims show whether they were manually curated, NER/extraction-derived, inferred from an analysis graph, or imported from a source package.
 - Reusable adapters and derived artifacts are named in release manifests so other domains can reuse the same services and tooling.
 
-Architecture dependencies: L0 external resources, L1 evidence review workflow, L2 gateway/BFF, kg-api, canonical graph store, L3 entity search/detail and provenance lookup, L4 named graphs and PROV-O.
+Architecture dependencies: L0 external resources, L1 evidence review workflow, L2 brainkb-ui, kg-api, canonical graph store, L3 entity search/detail and provenance lookup, L4 named graphs and PROV-O.
 
 Bootstrap assumptions and dependencies, ordered easiest to hardest:
 
@@ -946,7 +947,7 @@ Acceptance criteria:
 - Users can save, reject, or send a suggestion to curator review without committing it to the canonical graph.
 - Saved or rejected suggestions are stored as task/project memory with release context and can be revalidated when the graph changes.
 
-Architecture dependencies: L1 gated assistant/hypothesis workflow, L2 gateway/BFF, kg-api, connector-api, memory module, Postgres/pgvector, L3 LLM-assisted query, memory promotion, and graph hydration, L4 identifiers, claim provenance, and workflow-state semantics.
+Architecture dependencies: L1 gated assistant/hypothesis workflow, L2 brainkb-ui, kg-api, connector-api, memory module, Postgres/pgvector, L3 LLM-assisted query, memory promotion, and graph hydration, L4 identifiers, claim provenance, and workflow-state semantics.
 
 Bootstrap assumptions and dependencies, ordered easiest to hardest:
 
@@ -980,7 +981,7 @@ Acceptance criteria:
 - Incompatible tools are excluded or shown with clear contraindications.
 - Tool versions, owners, inputs, and outputs are visible.
 
-Architecture dependencies: L0 tools and registries, L1 methods/catalog workflow, L2 gateway/BFF, kg-api, canonical graph store, L3 query planning, L4 tool/model schema and provenance.
+Architecture dependencies: L0 tools and registries, L1 methods/catalog workflow, L2 brainkb-ui, kg-api, canonical graph store, L3 query planning, L4 tool/model schema and provenance.
 
 Bootstrap assumptions and dependencies, ordered easiest to hardest:
 
@@ -1013,7 +1014,7 @@ Acceptance criteria:
 - Version history and replacement edges are visible.
 - The same lifecycle vocabulary applies to taxonomies, schemas, datasets, and tools.
 
-Architecture dependencies: L0 resource ecosystem, L1 resource landscape workflow, L2 gateway/BFF, kg-api, canonical graph store, L3 as-of query support, L4 lifecycle vocabulary and named graph versioning.
+Architecture dependencies: L0 resource ecosystem, L1 resource landscape workflow, L2 brainkb-ui, kg-api, canonical graph store, L3 as-of query support, L4 lifecycle vocabulary and named graph versioning.
 
 Bootstrap assumptions and dependencies, ordered easiest to hardest:
 
@@ -1047,7 +1048,7 @@ Acceptance criteria:
 - Read-only exploration works without login.
 - Logged-in users can save searches or collections if identity is enabled.
 
-Architecture dependencies: L1 search/detail workflow, L2 brainkb-ui, gateway/BFF, kg-api, canonical graph store, Postgres/pgvector projections, L3 search and drill-down flows, L4 identifiers and ontology mappings.
+Architecture dependencies: L1 search/detail workflow, L2 brainkb-ui, kg-api, canonical graph store, Postgres/pgvector projections, L3 search and drill-down flows, L4 identifiers and ontology mappings.
 
 Bootstrap assumptions and dependencies, ordered easiest to hardest:
 
@@ -1081,7 +1082,7 @@ Acceptance criteria:
 - Approved triples are written through the standard ingest path.
 - Published claims land in a named graph tied to the source and curator.
 
-Architecture dependencies: L1 curator review workflow, L2 gateway/BFF, ingest-api, jobs-api, connector-api, Postgres, canonical graph store, L3 curator and ingest flows, L4 schema validation and provenance.
+Architecture dependencies: L1 curator review workflow, L2 brainkb-ui, ingest-api, jobs-api, connector-api, Postgres, canonical graph store, L3 curator and ingest flows, L4 schema validation and provenance.
 
 Bootstrap assumptions and dependencies, ordered easiest to hardest:
 
@@ -1100,7 +1101,7 @@ Goal: ingest a new upstream dataset, taxonomy, or schema release automatically a
 
 Value: BrainKB can stay current with partner resources while preserving reproducibility and history.
 
-Trigger: upstream release tag, scheduled job, webhook, or CI pipeline.
+Trigger: upstream release tag, scheduled job, webhook, pub-sub event, or CI pipeline. Ingest is inherently asynchronous — the pipeline submits a job and polls for status rather than waiting on a synchronous response.
 
 Preconditions:
 
@@ -1149,7 +1150,7 @@ Acceptance criteria:
 - Slow or unavailable sources degrade gracefully with visible status.
 - REST-backed resources can be lifted into temporary graph-like results through connectors.
 
-Architecture dependencies: L0 partner resources, L1 federated query workflow, L2 gateway/BFF, connector-api, cache module, L3 federation flow, L4 identity mapping and source attribution.
+Architecture dependencies: L0 partner resources, L1 federated query workflow, L2 brainkb-ui, connector-api, cache module, L3 federation flow, L4 identity mapping and source attribution.
 
 Bootstrap assumptions and dependencies, ordered easiest to hardest:
 
@@ -1185,7 +1186,7 @@ Acceptance criteria:
 - Provider, prompt, model, and trace metadata are captured for provenance where outputs become draft claims.
 - The assistant separates canonical evidence, external cached evidence, and memory-derived context in the answer trace.
 
-Architecture dependencies: L1 gated assistant workflow, L2 gateway/BFF, connector-api, cache/memory modules, Postgres/pgvector, L3 cache-aware retrieval and LLM-assisted query flow, L4 claim/evidence and workflow-state contracts.
+Architecture dependencies: L1 gated assistant workflow, L2 brainkb-ui, connector-api, cache/memory modules, Postgres/pgvector, L3 cache-aware retrieval and LLM-assisted query flow, L4 claim/evidence and workflow-state contracts.
 
 Bootstrap assumptions and dependencies, ordered easiest to hardest:
 
@@ -1219,7 +1220,7 @@ Acceptance criteria:
 - Users can navigate from claim to publication, dataset, curator action, and previous versions.
 - Updates create new versions or supersession edges, not silent edits.
 
-Architecture dependencies: L1 evidence/provenance workflow, L2 gateway/BFF, kg-api, canonical graph store, L3 provenance lookup, L4 PROV-O, named graphs, identifiers, and lifecycle vocabulary.
+Architecture dependencies: L1 evidence/provenance workflow, L2 brainkb-ui, kg-api, canonical graph store, L3 provenance lookup, L4 PROV-O, named graphs, identifiers, and lifecycle vocabulary.
 
 Bootstrap assumptions and dependencies, ordered easiest to hardest:
 
