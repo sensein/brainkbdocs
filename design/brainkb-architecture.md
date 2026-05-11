@@ -112,7 +112,7 @@ flowchart LR
     Op["Operators"]
   end
   subgraph BrainKB
-    T["BrainKB boundary"]
+    T["BrainKB platform"]
   end
   subgraph Resources
     Pub["Publications and preprints"]
@@ -154,8 +154,8 @@ Out of scope at L1:
 
 ```mermaid
 flowchart LR
-  subgraph Clients
-    UI["brainkb-ui"]
+  subgraph Actors
+    UI["Web UI"]
     Apps["Application services"]
     Pipes["Ingest pipelines"]
     Agents["Agents"]
@@ -167,11 +167,18 @@ flowchart LR
   Apps --> API
   Pipes --> API
   Agents --> API
-  API --> EvidenceReview["Evidence review"]
-  API --> Curation["Curation"]
-  API --> Release["Release and as-of"]
-  API --> Workspace["Research workspace"]
-  API --> Assistant["Grounded assistant"]
+  subgraph Capabilities["Capabilities"]
+    EvidenceReview["Evidence review"]
+    Curation["Curation"]
+    Release["Release and as-of"]
+    Workspace["Research workspace"]
+    Assistant["Grounded assistant"]
+  end
+  API --> EvidenceReview
+  API --> Curation
+  API --> Release
+  API --> Workspace
+  API --> Assistant
 ```
 
 ### L2 - Containers
@@ -182,7 +189,12 @@ BrainKB is organized in five tiers with dependencies flowing strictly downward.
 
 - **Frontend** — web UI and researcher/curator surfaces
 - **Application services** — use-case packages built on top of core (structsense, knowledgesynth, prisma-review)
-- **Core services** — the shared platform: knowledge graph, ingest, job orchestration, connectors, identity
+- **Core services** — the shared platform:
+  - `kg-api` — graph reads, writes, SPARQL queries, SHACL validation, named graph management
+  - `ingest-api` — ingest submission, manifest handling, source registration, release lifecycle
+  - `jobs-api` — async job queue for long-running operations (ingest, validation, projection build, LLM extraction); exposes job status, progress, cancellation, and activation control
+  - `connector-api` — credential isolation, rate limiting, retry policy, and orchestration of all outbound calls to external services
+  - `auth-api` — OAuth2/JWT issuance, scope enforcement, user and session management
 - **Storage** — RDF triplestore, relational/vector store, object storage
 - **External services** — reached only through the connector layer: LLM APIs, federated KBs, parsers, ontology services
 
@@ -238,12 +250,11 @@ Question answered: how do the key workflows move through the system?
 
 Key flows:
 
-- **Search and entity detail** — query → entity hydration → evidence badges → cache lookup/fill
-- **Ingest** — submit → validate profile → write named graph → build projection → activate release → invalidate caches
-- **Provenance audit** — claim lookup → evidence node hydration → source/contributor/schema rendering
-- **Federated query** — connector calls → cache state → source attribution
-- **Grounded assistant** — retrieve scoped memory → retrieve IRIs → hydrate claims → cited answer
-- **Release activation** — validate manifest → graph diff → projection parity checks → activate → revalidate memory
+- **Search / entity detail** — Search/detail → entity hydration → evidence badges + cache lookup/fill
+- **Ingest** — submit → validate profile → write named graph → build projection → activate release → invalidate caches + revalidate memory
+- **Provenance audit** — claim click → provenance audit (resolves through the provenance graph)
+- **Federated query** — federated query → connector calls → connector cache state
+- **Grounded assistant** — plain-language question → retrieve scoped memory → retrieve IRIs → entity hydration (shared with the search path); also: save/reject candidate → write task/project memory
 
 Detailed service-level sequence diagrams for each flow are in the [Key Sequence Flows](#key-sequence-flows) section below.
 
@@ -276,13 +287,12 @@ flowchart TB
 
 Question answered: what data model makes trust and evolution possible?
 
-- **Identity**: stable IRIs, ORCID, DOI, dataset IDs, file/asset IDs, Patch-seq cell/specimen IDs, gene IDs, cross-references.
-- **Domain model**: BICAN, openMINDS, NIMP, taxonomy releases, cell/specimen/file assets, tool/model entities, datasets, claims.
-- **Standards and vocabularies**: LinkML, SHACL, BIDS, NWB; UBERON, CL, NCBITaxon, biolink categories.
-- **Provenance**: PROV-O, source, contributor, generated-by, derived-from, timestamp.
-- **Versioning**: named graphs per source/release/contribution, supersession edges, lifecycle states, as-of queries.
-- **Claim bundles**: stable claim IDs, qualifiers, evidence nodes, activity/agent/source lineage, confidence/evidence labels, review lifecycle state.
-- **Release manifests**: immutable release ID, source checksum, transform digest, validation report, projection schema version, activation timestamp, rollback target.
+- **Identity** — stable, dereferenceable IRIs anchor every entity; typed against domain vocabularies (BICAN, openMINDS, NIMP).
+- **Claim bundles** — qualified assertions carrying confidence scores, qualifiers, and a review lifecycle state.
+- **Evidence and provenance** — each evidence node is backed by a PROV-O activity/agent/source chain.
+- **Named graphs** — one graph per source/release/contribution; the unit of versioning and atomic replacement.
+- **Release manifests** — immutable snapshots with checksum, transform digest, and validation report; each release exposes a projection contract and a derived/workflow-state contract with canonical back-pointers to source claims.
+- **Application profile** — LinkML shapes, biolink categories, and reference ontologies constrain both claims and named graphs.
 
 Contracts governing how read models and derived indexes must preserve these properties are in the Contracts section.
 
@@ -292,17 +302,17 @@ Out of scope at L4:
 
 ```mermaid
 flowchart LR
-  ID["Stable identifiers"] --> Claim["Qualified claim bundles"]
-  Claim --> Evidence["Evidence nodes"]
-  Evidence --> Prov["PROV-O activity/agent/source"]
-  Claim --> Graph["Named graph"]
-  Graph --> Release["Release manifest"]
-  Release --> AsOf["As-of and rollback"]
-  Release --> Projection["Projection contract"]
+  ID["Stable identifiers\nIRI · ORCID · DOI · dataset/file IDs"] --> Claim["Qualified claim bundles\nstable ID · qualifiers · confidence · review state"]
+  Claim --> Evidence["Evidence nodes\nactivity · agent · source lineage"]
+  Evidence --> Prov["PROV-O\nwasDerivedFrom · wasGeneratedBy · timestamp"]
+  Claim --> Graph["Named graph\nper source / release / contribution"]
+  Graph --> Release["Release manifest\nchecksum · transform digest · validation report"]
+  Release --> AsOf["As-of and rollback\nactivation timestamp · rollback target"]
+  Release --> Projection["Projection contract\nprojection schema version"]
   Release --> Derived["Derived and workflow-state contract"]
   Derived --> BackRef["Canonical back-pointers"]
   BackRef --> Claim
-  Ont["Application profile and ontology imports"] --> Claim
+  Ont["Application profile and ontology imports\nLinkML · SHACL · biolink · UBERON · CL · NCBITaxon"] --> Claim
   Ont --> Graph
 ```
 
