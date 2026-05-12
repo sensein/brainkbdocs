@@ -898,7 +898,7 @@ Bootstrap dependency priority uses ease of resolution, not importance:
 
 Actor: researcher or reviewer
 
-Goal: review everything BrainKB knows about an entity or claim, including agreement and conflict across sources.
+Goal: review everything BrainKB knows about an entity (e.g., cell type, claim, etc.), including agreement and conflict across sources.
 
 Value: users can evaluate the field's state of knowledge without flattening contradictory evidence into a single asserted fact.
 
@@ -907,8 +907,8 @@ Trigger: a user searches for an entity, opens a property, or asks "what do we kn
 Preconditions:
 
 - Entities have stable identifiers or resolvable cross-references.
-- Claims are stored with source, contributor, timestamp, and schema version.
-- Named graphs preserve source boundaries.
+- Entitities are stored with source, contributor, timestamp, and schema version.
+- Named graphs (or other storage types) preserve source boundaries.
 
 Acceptance criteria:
 
@@ -932,7 +932,7 @@ Bootstrap assumptions and dependencies, ordered easiest to hardest:
 - Medium: build or project common entity/evidence views into Postgres/GraphQL if direct SPARQL reads are too slow for UI iteration.
 - Hard: assign defensible evidence-strength scores across heterogeneous sources without overclaiming scientific certainty.
 
-### Epic 02 - Hypothesis Generation
+### Epic 02 - Hypothesis Generation/Testing
 
 Actor: researcher
 
@@ -968,11 +968,11 @@ Bootstrap assumptions and dependencies, ordered easiest to hardest:
 - Medium: integrate external discovery services such as PubMed, Semantic Scholar, Google Scholar-like search, repositories, or archive APIs as evidence expansion sources.
 - Hard: produce scientifically useful hypothesis suggestions, because this depends on KB coverage, external literature retrieval quality, model behavior, and researcher feedback loops.
 
-### Epic 03 - Methods and Models Catalog
+### Epic 03 - Resources Catalog (add definition)
 
 Actor: methodologist or analyst
 
-Goal: find tools, models, and pipelines that fit a dataset and understand when they fail.
+Goal: find datasets, tools, models, and pipelinesand understand the the limitation.
 
 Value: tool selection becomes a query over applicability, benchmark evidence, and failure modes instead of a manual literature search.
 
@@ -1001,7 +1001,7 @@ Bootstrap assumptions and dependencies, ordered easiest to hardest:
 - Medium: align dataset signatures to controlled terms so compatibility queries are not just keyword matching.
 - Hard: maintain trustworthy failure-mode and benchmark claims across tool versions and heterogeneous datasets.
 
-### Epic 04 - Resource Landscape
+### Epic 04 - Resource Landscape (TODO: merge with 03, provenance)
 
 Actor: planner, new entrant, or infrastructure lead
 
@@ -1034,7 +1034,7 @@ Bootstrap assumptions and dependencies, ordered easiest to hardest:
 - Medium: implement as-of graph selection or projection filters for a few versioned resources.
 - Hard: keep the registry current across many independent resources without automated monitoring and review ownership.
 
-### Epic 05 - Entity Exploration
+### Epic 05 - Entity Exploration (epic 1?)
 
 Actor: neuroscientist or researcher
 
@@ -1068,7 +1068,7 @@ Bootstrap assumptions and dependencies, ordered easiest to hardest:
 - Medium: project entity detail read models into Postgres/GraphQL if direct graph traversal creates slow or brittle UI reads.
 - Hard: provide a "full connected picture" across modalities and species without broad ingestion from archives, atlases, and papers.
 
-### Epic 06 - Curated Claim Ingest
+### Epic 06 - Curated Claim/Resources Workflow
 
 Actor: curator or domain expert
 
@@ -1137,7 +1137,7 @@ Bootstrap assumptions and dependencies, ordered easiest to hardest:
 - Medium: implement scoped service credentials for machine ingest.
 - Hard: build reliable automated polling/webhooks and transforms for multiple partner resources with different release practices.
 
-### Epic 08 - Cross-KB Federated Query
+### Epic 08 - Cross-KB Federated Query (Dandi/BBQS, RepoNim lakes/ponds, low priority)
 
 Actor: analyst or advanced researcher
 
@@ -1171,7 +1171,7 @@ Bootstrap assumptions and dependencies, ordered easiest to hardest:
 - Medium: add timeout, partial result, and stale cache behavior so external failures are visible rather than mysterious.
 - Hard: generalize query planning across heterogeneous SPARQL, REST, file, and repository sources with predictable performance.
 
-### Epic 09 - Grounded Assistant
+### Epic 09 - Grounded Assistant / chatbot /mcp
 
 Actor: researcher
 
@@ -1207,7 +1207,7 @@ Bootstrap assumptions and dependencies, ordered easiest to hardest:
 - Medium: route PubMed/Semantic Scholar/repository expansion through connector adapters when local evidence is insufficient.
 - Hard: deliver reliable answers for broad neuroscience questions without hallucination when the KB is sparse or external retrieval is noisy.
 
-### Epic 10 - Provenance Audit
+### Epic 10 - Provenance Audit (it's more of the feature, contract)
 
 Actor: reviewer, curator, scientist, or compliance user
 
