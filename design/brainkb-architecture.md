@@ -30,7 +30,7 @@ This document has six parts. Contracts say what the system must satisfy; strateg
 
 ### Human actors
 
-- **Researcher** — searches, explores entities, reviews evidence, queries as-of dates
+- **Researcher** — searches, explores entities, reviews evidence, tests hypotheses, queries as-of dates
 - **Curator** — submits and edits claims, manages ingest jobs, requests batch publish
 - **Reviewer** — approves or rejects claim drafts, reviews validation reports
 - **Operator** — deploys services, monitors health, manages releases and rollbacks
@@ -43,6 +43,7 @@ Services and pipelines that call BrainKB:
 - **Partner release bots** — trigger ingests when an upstream KB publishes a new release
 - **Agents** — LLM-driven agents querying or writing to BrainKB on behalf of a user
 - **Application services** — tools built on top of BrainKB, such as structsense (claim extraction), knowledgesynth (grounded chat), and prisma-review (systematic review)
+- **External agents and tools** — third-party tools connecting via MCP to query entities, claims, or run SPARQL without bespoke integration
 
 ### Machine dependencies
 
@@ -54,20 +55,17 @@ External services BrainKB calls:
 
 ## Use Cases
 
-| # | Question | Actor |
-|---|---|---|
-| 01 | "What do we know — and how well do we know it?" | Researcher |
-| 02 | "What might be true that nobody has stated yet?" | Researcher |
-| 03 | "What tool fits this dataset — and when does it break?" | Methodologist |
-| 04 | "What resources exist across neuroscience — and when?" | Planner |
-| 05 | "Show me everything we know about this cell type." | Researcher |
-| 06 | "I have a paper. Make its claims part of the graph." | Curator |
-| 07 | "A partner KB published a new release. Pull it in." | Pipeline / bot |
-| 08 | "Combine evidence from three sources, in one query." | Researcher |
-| 09 | "Answer in plain English — but cite the graph." | Researcher |
-| 10 | "Where did this claim come from?" | Reviewer |
+Each use case corresponds to an epic in the [Epic User Stories](#epic-user-stories) section, where full preconditions, acceptance criteria, and implementation sequencing are defined.
 
-Full engineering requirements for each use case are in the Epic User Stories section.
+| # | Question | Actor | Epic |
+|---|---|---|---|
+| 01 | "What do we know — and how well do we know it?" | Researcher | [Epic 01](#epic-01---entity-exploration-and-knowledge-review) |
+| 02 | "What tool fits this dataset — and when does it break?" | Researcher | [Epic 02](#epic-02---resources-catalog) |
+| 03 | "I have a paper. Make its claims part of the graph." | Curator | [Epic 03](#epic-03---curation-workflow) |
+| 04 | "Does the evidence support, contradict, or say nothing about this hypothesis?" | Researcher | [Epic 04](#epic-04---hypothesis-testing-and-generation) |
+| 05 | "Answer in plain English — and expose the graph to any tool that asks." | Researcher, external agent or tool | [Epic 05](#epic-05---grounded-assistant--mcp-interface) |
+| 06 | "A partner KB published a new release. Pull it in." | Ingest pipeline, partner release bot | [Epic 06](#epic-06---automated-ingestion-pipeline) |
+| 07 | "Combine evidence from three sources, in one query." | Researcher | [Epic 07](#epic-07---cross-kb-federated-query) |
 
 ---
 
@@ -571,7 +569,9 @@ Hypothesis and assistant guardrails (apply beyond MVP):
 
 # Part 4 · Contracts
 
-## Contracts
+**TODO: we should not only review but think what other contracts are important to us. 
+These contracts should be enough specific that claude can use to use for implementation.**
+
 
 Contracts define the non-negotiable behaviors that BrainKB must satisfy across all services, releases, and integrations. They are not implementation recipes — they are the commitments that engineering decisions must preserve.
 
@@ -639,6 +639,7 @@ Modeling direction:
 - Consider a nanopublication-like or RDF-star-compatible representation for qualified statements, but do not require the deck to choose syntax before modeling requirements are agreed.
 - PROV-O should express activity, agent, entity, derivation, generation time, and source lineage.
 - SHACL or equivalent validation should enforce required provenance fields before activation.
+- Updates must create new versions or supersession edges; silent in-place edits are not permitted.
 
 Evidence UX constraint:
 
@@ -876,384 +877,283 @@ Memory lifecycle and promotion rules:
 
 ## Epic User Stories
 
-Each story follows the same template so it can be turned into issues or implementation slices without reinterpreting intent.
+Each story follows the same template so it can be turned into issues or implementation slices without reinterpreting intent. Each epic has four sections:
 
-Bootstrap dependency priority uses ease of resolution, not importance:
+- **Preconditions** — what must be true before the epic can be implemented.
+- **Acceptance criteria** — what must be true for the epic to be considered done.
+- **Implementation sequencing** — the recommended order to build the pieces.
 
-- Easy: can be seeded from existing documentation, a small curated fixture, public metadata exports, or simple adapters.
-- Medium: needs schema alignment, repeated curation, service integration, or a reliable sync/update process.
-- Hard: depends on substantial KB coverage, external search/retrieval services, model evaluation, cross-resource agreement, or sustained curator/researcher feedback.
+All items are assumed to be in scope for the first release unless marked otherwise:
 
-### Epic 01 - Knowledge Review
+- `[Future]` — desired but deferred beyond the first release.
 
-Actor: researcher or reviewer
+Epics:
 
-Goal: review everything BrainKB knows about an entity (e.g., cell type, claim, etc.), including agreement and conflict across sources.
+1. [Entity Exploration and Knowledge Review](#epic-01---entity-exploration-and-knowledge-review)
+2. [Resources Catalog](#epic-02---resources-catalog)
+3. [Curation Workflow](#epic-03---curation-workflow)
+4. [Hypothesis Testing and Generation](#epic-04---hypothesis-testing-and-generation)
+5. [Grounded Assistant / MCP Interface](#epic-05---grounded-assistant--mcp-interface)
+6. [Automated Ingestion Pipeline](#epic-06---automated-ingestion-pipeline)
+7. [Cross-KB Federated Query](#epic-07---cross-kb-federated-query)
 
-Value: users can evaluate the field's state of knowledge without flattening contradictory evidence into a single asserted fact.
+### Epic 01 - Entity Exploration and Knowledge Review
 
-Trigger: a user searches for an entity, opens a property, or asks "what do we know about this?"
+**Actor:** researcher or reviewer
 
-Preconditions:
+**Goal:** search for any entity (cell type, dataset, region, paper, method, claim) and see the full connected picture, including agreement and conflict across sources.
+
+**Value:** read-only exploration works without requiring users to know SPARQL, RDF, or source-specific identifiers; logged-in users can evaluate the field's state of knowledge without flattening contradictory evidence into a single asserted fact.
+
+**Trigger:** a user enters a name, synonym, or identifier; or opens a property and asks "what do we know about this?" Natural-language phrase search is a future trigger once semantic search is available.
+
+**Preconditions:**
 
 - Entities have stable identifiers or resolvable cross-references.
-- Entitities are stored with source, contributor, timestamp, and schema version.
+- Entity type schemas are defined for each supported entity type.
+- A seed entity set is ingested from the BG taxonomy atlas, including taxonomy classes, gene/genome data, library generation data following BICAN LinkML models.
+- A seed set of claims and papers is ingested.
+- Entities are stored with source, contributor, timestamp, and schema version.
 - Named graphs (or other storage types) preserve source boundaries.
+- Search indexes cover labels, synonyms, and identifiers.
+- [Future] Search indexes cover claim text.
+- [Future] Authentication and authorization are available for identity-gated features.
+- [Future] External links and federated attributes are clearly attributed.
 
-Acceptance criteria:
-
-- Entity views group assertions by predicate and source.
-- Conflicting claims are visible together, not silently collapsed.
-- Each claim links to evidence, source resource, contributor, and graph/version metadata.
-- Users can filter or compare by source, version, and as-of date.
-- Entity pages exist for taxonomy classes, Patch-seq cells/specimens, genes, gene sets, file assets, datasets, papers/preprints, people, organizations, resources, claims, and evidence.
-- The UI exposes file-level lineage and source asset links, not just top-level dataset metadata.
-- Publication-derived claims show whether they were manually curated, NER/extraction-derived, inferred from an analysis graph, or imported from a source package.
-- Reusable adapters and derived artifacts are named in release manifests so other domains can reuse the same services and tooling.
-
-Architecture dependencies: L0 external resources, L1 evidence review workflow, L2 brainkb-ui, kg-api, canonical graph store, L3 entity search/detail and provenance lookup, L4 named graphs and PROV-O.
-
-Bootstrap assumptions and dependencies, ordered easiest to hardest:
-
-- Easy: seed a small entity set from the BG taxonomy atlas fixture with stable IRIs, labels, synonyms, source links, BICAN model/profile context, and a few manually curated claims.
-- Easy: include a minimal set of taxonomy classes, h5ad assets, gene/gene-set evidence, Patch-seq cell IDs, file assets, and source papers/preprints so the UI can traverse from any entry point.
-- Easy: require every seed claim to include source, contributor placeholder, timestamp, schema version, and named graph URI.
-- Medium: curate enough overlapping claims across at least two sources to demonstrate agreement, disagreement, and "not stated" states.
-- Medium: build or project common entity/evidence views into Postgres/GraphQL if direct SPARQL reads are too slow for UI iteration.
-- Hard: assign defensible evidence-strength scores across heterogeneous sources without overclaiming scientific certainty.
-
-### Epic 02 - Hypothesis Generation/Testing
-
-Actor: researcher
-
-Goal: surface plausible hypotheses from graph structure, gaps, analogies, contradictions, and similarity.
-
-Value: BrainKB helps users discover candidate ideas while keeping generated suggestions grounded and reviewable.
-
-Trigger: a user starts from an entity, region, species, marker set, or graph pattern and asks what might be implied.
-
-Preconditions:
-
-- Core graph search and entity hydration are available.
-- Similarity signals exist for entities, claims, or documents.
-- The system can cite graph nodes behind any generated suggestion.
-- Task memory can retain query plans, rejected ideas, retrieved evidence, and candidate drafts without treating them as graph facts.
-
-Acceptance criteria:
-
-- Suggested hypotheses are labeled as candidates, not facts.
-- Each suggestion includes supporting evidence, missing evidence, and possible counterevidence.
-- The system exposes the source nodes, paths, or neighbors used to create the suggestion.
-- Users can save, reject, or send a suggestion to curator review without committing it to the canonical graph.
-- Saved or rejected suggestions are stored as task/project memory with release context and can be revalidated when the graph changes.
-
-Architecture dependencies: L1 gated assistant/hypothesis workflow, L2 brainkb-ui, kg-api, connector-api, memory module, Postgres/pgvector, L3 LLM-assisted query, memory promotion, and graph hydration, L4 identifiers, claim provenance, and workflow-state semantics.
-
-Bootstrap assumptions and dependencies, ordered easiest to hardest:
-
-- Easy: limit initial hypotheses to "candidate connections" over the seed graph, such as shared markers, shared regions, missing evidence, or source disagreement.
-- Easy: expose the underlying graph paths and retrieved nodes before attempting polished natural-language synthesis.
-- Easy: store candidate, saved, and rejected suggestions as scoped task memory so users can resume exploration and review what the agent already tried.
-- Medium: populate enough claims, entity embeddings, and paper/dataset metadata to make similarity results useful rather than trivial.
-- Medium: integrate external discovery services such as PubMed, Semantic Scholar, Google Scholar-like search, repositories, or archive APIs as evidence expansion sources.
-- Hard: produce scientifically useful hypothesis suggestions, because this depends on KB coverage, external literature retrieval quality, model behavior, and researcher feedback loops.
-
-### Epic 03 - Resources Catalog (add definition)
-
-Actor: methodologist or analyst
-
-Goal: find datasets, tools, models, and pipelinesand understand the the limitation.
-
-Value: tool selection becomes a query over applicability, benchmark evidence, and failure modes instead of a manual literature search.
-
-Trigger: a user describes a dataset signature, task, modality, species, scale, or noise regime.
-
-Preconditions:
-
-- Tools and models are represented as first-class graph entities.
-- Applicability conditions and benchmark evidence are structured.
-- Dataset metadata uses aligned vocabularies.
-
-Acceptance criteria:
-
-- Users can query for methods compatible with a dataset signature.
-- Results show works-when, breaks-when, benchmark evidence, and source provenance.
-- Incompatible tools are excluded or shown with clear contraindications.
-- Tool versions, owners, inputs, and outputs are visible.
-
-Architecture dependencies: L0 tools and registries, L1 methods/catalog workflow, L2 brainkb-ui, kg-api, canonical graph store, L3 query planning, L4 tool/model schema and provenance.
-
-Bootstrap assumptions and dependencies, ordered easiest to hardest:
-
-- Easy: seed a short catalog of tools/models from known project context with inputs, outputs, modality, species, scale, owner, version, and links.
-- Easy: represent applicability conditions as structured metadata even before full ontology alignment is complete.
-- Medium: add benchmark and failure-mode evidence from papers, docs, or curated notes for enough tools to make comparison meaningful.
-- Medium: align dataset signatures to controlled terms so compatibility queries are not just keyword matching.
-- Hard: maintain trustworthy failure-mode and benchmark claims across tool versions and heterogeneous datasets.
-
-### Epic 04 - Resource Landscape (TODO: merge with 03, provenance)
-
-Actor: planner, new entrant, or infrastructure lead
-
-Goal: understand which neuroscience resources exist, how they relate, and how their lifecycle changes over time.
-
-Value: BrainKB becomes a time-aware map of resources, schemas, ontologies, archives, and initiatives.
-
-Trigger: a user asks for active resources for a topic as of a date or across a time window.
-
-Preconditions:
-
-- Resources are first-class graph entities.
-- Releases, lifecycle states, supersession, dependencies, and dates are captured.
-- As-of graph selection is supported.
-
-Acceptance criteria:
-
-- Users can view resources by topic, status, date, and relationship.
-- The UI shows active, superseded, deprecated, and retired resources.
-- Version history and replacement edges are visible.
-- The same lifecycle vocabulary applies to taxonomies, schemas, datasets, and tools.
-
-Architecture dependencies: L0 resource ecosystem, L1 resource landscape workflow, L2 brainkb-ui, kg-api, canonical graph store, L3 as-of query support, L4 lifecycle vocabulary and named graph versioning.
-
-Bootstrap assumptions and dependencies, ordered easiest to hardest:
-
-- Easy: seed a resource registry for the resources already named in the source deck and BG fixture: BICAN, ABC Atlas/HMBA-BG, DANDI, BIL, NeMO, Allen Brain Atlas, NeuroMorpho, EBRAINS, BIDS, NWB, openMINDS, bioRxiv, PubMed/Semantic Scholar-style metadata, and relevant ontologies.
-- Easy: capture minimal lifecycle metadata: active/superseded/deprecated/retired, homepage, API endpoint, release URL, and last checked date.
-- Medium: add version edges, replaces/extends/dependency relations, and topic tags for a bounded neuroscience area.
-- Medium: implement as-of graph selection or projection filters for a few versioned resources.
-- Hard: keep the registry current across many independent resources without automated monitoring and review ownership.
-
-### Epic 05 - Entity Exploration (epic 1?)
-
-Actor: neuroscientist or researcher
-
-Goal: search for a cell type, dataset, region, paper, method, or claim and see the full connected picture.
-
-Value: read-only exploration works without requiring users to know SPARQL, RDF, or source-specific identifiers.
-
-Trigger: a user enters a name, synonym, identifier, or natural-language phrase.
-
-Preconditions:
-
-- Search indexes cover labels, synonyms, identifiers, and selected claim text.
-- Entity detail pages can hydrate graph neighborhoods.
-- External links and federated attributes are clearly attributed.
-
-Acceptance criteria:
+**Acceptance criteria:**
 
 - Search resolves synonyms and cross-references to canonical entity pages.
-- Entity pages show definitions, properties, related entities, source links, file-level assets, and evidence badges.
-- BG fixture exploration works from taxonomy class, Patch-seq cell/specimen ID, gene, gene set, file asset, dataset, paper/preprint, person, resource, or claim.
 - Read-only exploration works without login.
-- Logged-in users can save searches or collections if identity is enabled.
+- [Future] Logged-in users can save searches or collections.
+- Entity pages exist for taxonomy classes, Patch-seq cells/specimens, genes, gene sets, file assets, datasets, papers/preprints, resources, claims, and evidence.
+- Entity pages display the identifier, name, and properties according to the entity type schema (e.g., related entities, source links, file-level assets, and any type-specific fields).
+- Assertions are grouped so users can compare values across sources; conflicting claims are visible together, not silently collapsed.
+- Each claim surfaces its provenance.
+- [Future] Users can filter or compare by source, version, and as-of date.
 
-Architecture dependencies: L1 search/detail workflow, L2 brainkb-ui, kg-api, canonical graph store, Postgres/pgvector projections, L3 search and drill-down flows, L4 identifiers and ontology mappings.
 
-Bootstrap assumptions and dependencies, ordered easiest to hardest:
+**Implementation sequencing:**
 
-- Easy: choose the BG taxonomy atlas fixture and populate canonical entities, labels, synonyms, definitions, source links, file assets, and a few relationship types.
-- Easy: build search over labels, synonyms, and identifiers before adding semantic search.
-- Medium: add enough cross-references and ontology mappings to make synonym, Patch-seq cell/specimen, gene, gene-set, and file-asset resolution credible across resources.
-- Medium: project entity detail read models into Postgres/GraphQL if direct graph traversal creates slow or brittle UI reads.
-- Hard: provide a "full connected picture" across modalities and species without broad ingestion from archives, atlases, and papers.
+1. Build label, synonym, and identifier search.
+2. Build single-source entity pages and allow cross-references between entities.
+3. Curate overlapping claims across at least two sources and build the multi-source conflict view to demonstrate agreement, disagreement, and "not stated" states.
+4. [Future] Add claim-text search to the search index.
+5. [Future] Assign defensible evidence-strength scores across heterogeneous sources.
+6. [Future] Expand ingestion to cover a full connected picture across modalities and species.
 
-### Epic 06 - Curated Claim/Resources Workflow
+### Epic 02 - Resources Catalog
 
-Actor: curator or domain expert
+Resources are tangible things with identifiers — datasets, tools, models, pipelines, archives, schemas, and ontologies. Concepts such as claims or hypotheses are not resources.
 
-Goal: extract candidate claims from a paper or preprint, review them, and publish approved claims into the graph.
+**Actor:** researcher
 
-Value: experts can add structured knowledge without writing RDF by hand, while preserving human review and provenance.
+**Goal:** find datasets, tools, models, pipelines, and other neuroscience resources and understand their applicability and limitations.
 
-Trigger: a curator uploads or references a publication and starts an extraction/review job.
+**Value:** users can find and compare resources based on applicability, usage in similar tasks, benchmark evidence, and known limitations rather than manual literature search.
 
-Preconditions:
+**Trigger:** a user searches for resources by type, task, modality, species, or topic.
 
-- Document parsing produces structured text and offsets.
-- Extraction creates candidate entities and relations.
+**Preconditions:**
+
+- Resource entity type schemas are defined (consistent with Epic 01).
+- Resources are represented as first-class graph entities with stable identifiers.
+- Applicability conditions and benchmark evidence are structured.
+- [Future] Lifecycle states (active, superseded, deprecated, retired), version history, and as-of graph selection are supported.
+
+**Acceptance criteria:**
+
+- Users can search for resources by type, task, modality, species, or topic.
+- Resource pages display identifier, name, and properties according to the entity type schema.
+- Results show applicability conditions, benchmark evidence, failure modes, and source provenance.
+- Tool versions, owners, inputs, and outputs are visible.
+- [Future] Users can view resources by status, date, and version history; lifecycle states (active, superseded, deprecated, retired) and replacement relationships are visible.
+
+**Implementation sequencing:**
+
+1. Define entity type schemas for resource types and seed a catalog from known project resources (BICAN, ABC Atlas/HMBA-BG, DANDI, BIL, NeMO, Allen Brain Atlas, NeuroMorpho, EBRAINS, BIDS, NWB, openMINDS) with applicability conditions as structured metadata.
+2. Add benchmark evidence, failure modes, and usage examples from papers and curated notes.
+3. [Future] Add lifecycle metadata (active/superseded/deprecated/retired, version edges, replacement relations).
+4. [Future] Implement as-of graph selection for versioned resources.
+5. [Future] Keep the registry current with automated monitoring across independent resources.
+
+### Epic 03 - Curation Workflow
+
+**Actor:** curator
+
+**Goal:** extract candidate claims and entities from a paper or preprint, review them, and publish approved content into the graph.
+
+**Value:** experts can add structured knowledge without writing RDF by hand; the extract → review → publish cycle applies to any entity type and preserves full curator provenance.
+
+**Trigger:** a curator uploads or references a publication and starts an extraction/review job.
+
+**Preconditions:**
+
+- Claim and entity type schemas are defined and validation paths exist.
 - Review state can persist before publication.
-- Approved claims can be validated against schema.
+- An ingest path is available for approved content for authenticated users.
 
-Acceptance criteria:
+**Acceptance criteria:**
 
-- Candidate claims include source document, offsets, model/prompt metadata when relevant, and confidence.
+- Curators can manually author candidate claims and entities from a publication.
+- Candidates include source document, curator identity, and confidence.
 - Curators can approve, edit, reject, or batch publish candidates.
-- Approved triples are written through the standard ingest path.
-- Published claims land in a named graph tied to the source and curator.
+- Approved content is written through an ingest path into a named graph tied to the source and curator.
+- Automated extraction produces candidate claims and entities from uploaded documents; candidates include source offsets and model/prompt metadata.
 
-Architecture dependencies: L1 curator review workflow, L2 brainkb-ui, ingest-api, jobs-api, connector-api, Postgres, canonical graph store, L3 curator and ingest flows, L4 schema validation and provenance.
+**Implementation sequencing:**
 
-Bootstrap assumptions and dependencies, ordered easiest to hardest:
+1. Support manually authored candidate claims from BG taxonomy papers/preprints; store draft review state with links to source document and target graph/schema version.
+2. Define a minimal claim schema and validation path so approved claims can be written consistently.
+3. Integrate a PDF/text parser and entity extraction path with NER for people, organizations, resources, datasets, tools, genes, and cell classes.
+4. [Future] Support extraction of claims from figures, tables, and notebooks (not just text), representing the source data as structured evidence nodes.
 
-- Easy: start with manually authored candidate claims from one or two BG taxonomy papers/preprints instead of requiring automated extraction on day one.
-- Easy: store draft review state in Postgres with links to source document, offsets where available, and target graph/schema version.
-- Medium: integrate one PDF/text parser and one entity extraction path behind connector adapters or an app service boundary, with NER for people, organizations, resources, datasets, tools, atlas references, genes, and cell classes.
-- Medium: represent figure/table/notebook-derived or estimated analysis-graph evidence as structured evidence nodes before writing canonical claims.
-- Medium: define a minimal claim schema and SHACL validation path so approved claims can be written consistently.
-- Hard: reach high-quality automated extraction across neuroscience papers, figures, tables, and terminology without sustained model and curator evaluation.
+### Epic 04 - Hypothesis Testing and Generation
 
-### Epic 07 - Automated Partner Release Ingest
+**Actor:** researcher
 
-Actor: pipeline, bot, or service principal
+**Goal:** check whether a stated hypothesis is supported, contradicted, or unaddressed by graph evidence; surface candidate hypotheses from graph patterns and gaps.
 
-Goal: ingest a new upstream dataset, taxonomy, or schema release automatically and replace the previous active graph atomically.
+**Value:** researchers can validate or challenge ideas against structured evidence without manual literature search; the graph structure reveals candidate connections worth investigating.
 
-Value: BrainKB can stay current with partner resources while preserving reproducibility and history.
+**Trigger:** a user states a hypothesis and asks what the evidence says, points to a specific publication to test against, or asks what graph patterns imply.
 
-Trigger: upstream release tag, scheduled job, webhook, pub-sub event, or CI pipeline. Ingest is inherently asynchronous — the pipeline submits a job and polls for status rather than waiting on a synchronous response.
+**Preconditions:**
 
-Preconditions:
+- Entity exploration and claim evidence views are available (Epic 01).
+- Hypotheses are representable as graph entities with stable identifiers and provenance.
+- Claims can be queried for support, conflict, and absence against a given pattern.
+- [Future] Similarity signals exist for entities, claims, and documents.
+- [Future] Working state — query plans, rejected ideas, and candidate drafts — can be stored in session or task memory and promoted to the canonical graph only after curator review.
+
+**Acceptance criteria:**
+
+- Users can state a hypothesis and retrieve supporting, conflicting, and absent evidence from the graph.
+- Users can provide a specific publication to test a hypothesis against, or search for all relevant publications in the graph.
+- Hypotheses are labeled as candidates, not facts, and stored as graph entities with provenance.
+- Users can save, reject, or send a hypothesis to curator review without committing it to the canonical graph.
+- [Future] The system surfaces candidate hypotheses from graph structure, gaps, analogies, or marker/region similarity.
+- [Future] Saved or rejected hypotheses are stored as task memory with release context and can be revalidated when the graph changes.
+
+**Implementation sequencing:**
+
+1. Represent hypotheses as first-class entities with stable identifiers, provenance, and lifecycle state (draft, active, rejected, superseded).
+2. Build hypothesis testing: given a stated hypothesis, retrieve supporting, conflicting, and absent evidence from the graph; allow the user to pin a specific publication or search all relevant publications as the evidence scope.
+3. [Future] Add candidate connection suggestions over the seed graph (shared markers, regions, missing evidence, source disagreement).
+4. [Future] Populate entity embeddings and paper metadata to make similarity-based suggestions useful.
+5. [Future] Integrate external discovery services as evidence expansion sources.
+
+### Epic 05 - Grounded Assistant / MCP Interface
+
+**Actor:** researcher, external agent or tool (via MCP)
+
+**Goal:** expose BrainKB knowledge through an MCP-compatible interface so external agents and tools can query the graph; optionally provide a built-in assistant panel for direct plain-language questions grounded in graph evidence.
+
+**Value:** any tool that speaks MCP can query BrainKB without bespoke integration; the optional built-in assistant demonstrates the same capability for researchers who prefer a chat interface.
+
+**Trigger:** an external agent invokes an MCP endpoint, or a user asks a question in the assistant panel.
+
+**Preconditions:**
+
+- Entity lookup, SPARQL query, and claim retrieval are available through `kg-api`.
+- [Future] LLM providers, semantic retrieval, and memory are available to support the built-in assistant.
+
+**Acceptance criteria:**
+
+- BrainKB exposes an MCP-compatible interface covering entity lookup, SPARQL query, and claim retrieval.
+- [Future] Built-in assistant provides grounded answers with citations and an inspectable retrieval basis.
+
+**Implementation sequencing:**
+
+1. Define and expose an MCP-compatible interface for entity lookup and SPARQL queries over `kg-api`.
+2. [Future] Build a built-in assistant panel with grounded answer synthesis, citations, and retrieval tracing.
+3. [Future] Extend with memory, external source routing, and reliability improvements.
+
+### Epic 06 - Automated Ingestion Pipeline
+
+> Low priority — the implementation sequencing should be reviewed and refined when automated ingestion is being planned.
+
+**Actor:** ingest pipeline, partner release bot, or service principal
+
+**Goal:** monitor partner resources for new releases — datasets, models, preprints, taxonomies, schemas — and ingest them automatically, activating a new graph version without removing prior versions.
+
+**Value:** BrainKB stays current with partner resources while preserving reproducibility and history.
+
+**Trigger:** upstream release tag, scheduled job, webhook, or pub-sub event. Ingest is inherently asynchronous — the pipeline submits a job and polls for status.
+
+**Preconditions:**
 
 - Machine credentials and scoped write tokens exist.
-- Incoming data can be validated locally and by BrainKB.
+- Incoming data can be validated before activation.
 - Versioned graph URIs and supersession policy exist.
 
-Acceptance criteria:
+**Acceptance criteria:**
 
 - Pipelines can submit idempotent ingest jobs through a headless API.
-- Validation reports and graph diffs are available before activation.
 - New releases become active without deleting old releases.
 - Failures leave the previous active graph untouched and produce actionable logs.
+- [Future] Validation reports and graph diffs are available before activation.
 
-Architecture dependencies: L1 ingestion/release workflow, L2 ingest-api, jobs-api, canonical graph store, Postgres/Redis if needed, L3 auth and ingest flows, L4 named graph lifecycle.
+**Implementation sequencing:**
 
-Bootstrap assumptions and dependencies, ordered easiest to hardest:
+1. [Future] Support file-based release ingest for the ABC Atlas/HMBA-BG package with each package declaring source, release ID, graph URI, and schema version.
+2. [Future] Add validation reports, graph diffs, and projection sync checks to the job lifecycle.
+3. [Future] Implement scoped service credentials for machine ingest.
+4. [Future] Build automated polling/webhooks and transforms for multiple partner resources with different release practices.
 
-- Easy: support file-based or fixture-based release ingest for the ABC Atlas/HMBA-BG package before building full upstream automation.
-- Easy: require each ingest package to declare source, release ID, graph URI, schema version, and expected activation behavior.
-- Medium: add validation reports, graph diffs, file-asset manifests, h5ad metadata summaries, and projection sync checks to the job lifecycle.
-- Medium: add a repeatable Patch-seq-to-archive asset resolution step so cell/specimen-level file links update with the release.
-- Medium: implement scoped service credentials for machine ingest.
-- Hard: build reliable automated polling/webhooks and transforms for multiple partner resources with different release practices.
+### Epic 07 - Cross-KB Federated Query
 
-### Epic 08 - Cross-KB Federated Query (Dandi/BBQS, RepoNim lakes/ponds, low priority)
+> Low priority — external resources often lack working federation endpoints; implementation creates external dependencies. Target resources: DANDI, BBQS, ReproNim lakes/ponds. Review when federation with a specific partner is being planned.
 
-Actor: analyst or advanced researcher
+**Actor:** researcher
 
-Goal: ask one question whose answer spans local BrainKB knowledge and partner resources.
+**Goal:** ask one question whose answer spans local BrainKB knowledge and one or more external resources.
 
-Value: BrainKB handles identity alignment, query planning, source attribution, and partial results so users do not export and join data by hand.
+**Value:** users do not need to export and join data by hand; BrainKB handles query planning, source attribution, and partial results.
 
-Trigger: a user builds a query that combines properties owned by different resources.
+**Trigger:** a user searches for information that exists across BrainKB and an external resource.
 
-Preconditions:
+**Preconditions:**
 
 - Equivalent entities are mapped to canonical identifiers or cross-references.
-- External resources expose SPARQL, REST, file, or adapter-accessible interfaces.
-- The system tracks latency, failure, and source attribution per external call.
+- [Future] External resources expose SPARQL, REST, or adapter-accessible interfaces.
 
-Acceptance criteria:
+**Acceptance criteria:**
 
-- The query service can plan local and federated subqueries.
-- Results reconcile by canonical URI and preserve per-cell provenance.
-- Slow or unavailable sources degrade gracefully with visible status.
-- REST-backed resources can be lifted into temporary graph-like results through connectors.
+- [Future] Results reconcile by canonical URI and preserve per-result provenance.
+- [Future] Slow or unavailable sources degrade gracefully with visible status.
+- [Future] REST-backed resources can be lifted into temporary graph-like results through connectors.
 
-Architecture dependencies: L0 partner resources, L1 federated query workflow, L2 brainkb-ui, connector-api, cache module, L3 federation flow, L4 identity mapping and source attribution.
+**Implementation sequencing:**
 
-Bootstrap assumptions and dependencies, ordered easiest to hardest:
-
-- Easy: demonstrate federation with one local graph and one mocked or stable external endpoint/adapter such as ABC Atlas metadata, archive asset lookup, or publication metadata.
-- Easy: preserve source attribution per result cell even when the first query plan is hand-authored.
-- Easy: cache connector responses with source, TTL, auth scope, and stale/partial-result status so repeated demos do not depend on live upstream behavior.
-- Medium: align canonical identifiers or cross-references across two or three real resources such as ABC Atlas/HMBA-BG, DANDI/BIL/NeMO-style archives, bioRxiv/PubMed/Semantic Scholar-style publication metadata, and gene/ontology services.
-- Medium: add timeout, partial result, and stale cache behavior so external failures are visible rather than mysterious.
-- Hard: generalize query planning across heterogeneous SPARQL, REST, file, and repository sources with predictable performance.
-
-### Epic 09 - Grounded Assistant / chatbot /mcp
-
-Actor: researcher
-
-Goal: ask a plain-language question and receive a readable answer with citations to graph nodes, claims, papers, or datasets.
-
-Value: natural-language interaction broadens access while keeping the answer grounded in BrainKB evidence.
-
-Trigger: a user asks a question in an assistant panel or invokes a query-generation workflow.
-
-Preconditions:
-
-- Retrieval can return candidate entities and claims by semantic and graph context.
-- The answer generator can hydrate retrieved IRIs through `kg-api`.
-- LLM providers are routed through `connector-api` or a dedicated AI service boundary.
-- Memory retrieval can supply user/project context while still respecting auth, release, and provenance constraints.
-
-Acceptance criteria:
-
-- Answers cite retrieved graph nodes, claims, papers, or datasets.
-- The generated query or retrieval basis is inspectable.
-- The assistant refuses or falls back to search when evidence is insufficient.
-- Provider, prompt, model, and trace metadata are captured for provenance where outputs become draft claims.
-- The assistant separates canonical evidence, external cached evidence, and memory-derived context in the answer trace.
-
-Architecture dependencies: L1 gated assistant workflow, L2 brainkb-ui, connector-api, cache/memory modules, Postgres/pgvector, L3 cache-aware retrieval and LLM-assisted query flow, L4 claim/evidence and workflow-state contracts.
-
-Bootstrap assumptions and dependencies, ordered easiest to hardest:
-
-- Easy: start with answer synthesis over the BG fixture and force citations to retrieved IRIs, claims, file assets, papers/preprints, and release manifests.
-- Easy: fall back to entity search when retrieval confidence or evidence coverage is low.
-- Easy: keep session/task memory for active questions, selected entities, and prior retrieval traces so agent follow-ups are useful but auditable.
-- Medium: add embeddings for entities, claims, papers, and resource descriptions, with hydration through `kg-api`.
-- Medium: route PubMed/Semantic Scholar/repository expansion through connector adapters when local evidence is insufficient.
-- Hard: deliver reliable answers for broad neuroscience questions without hallucination when the KB is sparse or external retrieval is noisy.
-
-### Epic 10 - Provenance Audit (it's more of the feature, contract)
-
-Actor: reviewer, curator, scientist, or compliance user
-
-Goal: inspect the full lineage of a single claim or property.
-
-Value: trust is built into the platform because there is no no-provenance mode.
-
-Trigger: a user clicks a provenance badge, conflict indicator, or evidence link.
-
-Preconditions:
-
-- Claims are addressable and connected to evidence nodes.
-- Source URIs, contributor IDs, schema versions, ingest timestamps, and graph versions are stored.
-- Old assertions remain queryable after updates.
-
-Acceptance criteria:
-
-- Every visible claim has an accessible provenance view.
-- Provenance views show source, contributor, schema version, graph URI, ingest time, and supersession status.
-- Users can navigate from claim to publication, dataset, curator action, and previous versions.
-- Updates create new versions or supersession edges, not silent edits.
-
-Architecture dependencies: L1 evidence/provenance workflow, L2 brainkb-ui, kg-api, canonical graph store, L3 provenance lookup, L4 PROV-O, named graphs, identifiers, and lifecycle vocabulary.
-
-Bootstrap assumptions and dependencies, ordered easiest to hardest:
-
-- Easy: make provenance mandatory in seed data and fixture ingest, even if contributor values initially use placeholders.
-- Easy: define a compact provenance card model: source URI, contributor, schema version, graph URI, ingest time, and supersession state.
-- Medium: support claim-level IDs and evidence-node lookup in both RDF and any GraphQL/Postgres projection.
-- Medium: preserve old assertions during updates and expose supersession history in the UI.
-- Hard: show complete provenance chains across federated resources when upstream systems have incomplete or incompatible metadata.
+1. [Future] Demonstrate federation with one stable external endpoint (e.g. DANDI or ABC Atlas metadata).
+2. [Future] Align canonical identifiers across two or three real resources.
+3. [Future] Add timeout, partial result, and stale cache behavior so external failures are visible.
+4. [Future] Generalize query planning across heterogeneous SPARQL, REST, and file sources.
 
 ## Traceability Matrix
 
+> **TODO:** Review "Primary architecture levels" for all epics once L3 (Service Dependencies), L4 (Deployment), and L5 (Knowledge/Data Model) diagrams are complete. L5 is currently missing from all rows and several assignments may need updating.
+
 | Epic | Primary architecture levels | Sequence flows | Required platform capabilities |
 | --- | --- | --- | --- |
-| 01 Knowledge Review | L1, L3, L4 | Search, drill-down, provenance | Entity hydration, named graph aggregation, BG taxonomy/asset/claim traversal, conflict display, evidence scoring. |
-| 02 Hypothesis Generation | L1, L2, L3, L4 | Search, LLM-assisted query, memory promotion | Graph patterns, similarity retrieval, task memory, grounded suggestions, reviewable drafts. |
-| 03 Methods and Models | L0, L1, L4 | Search, drill-down | Tool/model entities, applicability schema, benchmarks, failure-mode provenance. |
-| 04 Resource Landscape | L0, L1, L4 | Search, federation | Resource lifecycle model, version edges, as-of queries, timeline/supersession UI. |
-| 05 Entity Exploration | L1, L2, L3, L4 | Search, drill-down, federation | Canonical identifiers, synonym search, taxonomy/cell/gene/file/paper entity pages, evidence badges, source links. |
-| 06 Curated Claim Ingest | L1, L2, L3, L4 | Curator, ingest, auth | Document parsing, NER/extraction drafts, analysis-graph evidence, review queue, schema validation, named graph write. |
-| 07 Automated Partner Release Ingest | L2, L3, L4 | Auth, ingest | Service credentials, idempotent atlas/package jobs, file manifests, validation reports, graph diff, atomic activation. |
-| 08 Cross-KB Federated Query | L0, L2, L3, L4 | Federation, search, cache lookup | Query planning, atlas/archive/publication/gene connectors, connector/result cache, source attribution, partial results, URI reconciliation. |
+| 01 Entity Exploration and Knowledge Review | L1, L3, L4 | Search, drill-down, provenance | Entity hydration, named graph aggregation, BG taxonomy/asset/claim traversal, conflict display, evidence scoring. |
+| 02 Resources Catalog | L0, L1, L4 | Search, drill-down | Tool/model entities, applicability schema, benchmarks, failure-mode provenance. |
+| 03 Curation Workflow | L1, L2, L3, L4 | Curator, ingest, auth | Document parsing, NER/extraction drafts, analysis-graph evidence, review queue, schema validation, named graph write. |
+| 04 Hypothesis Testing and Generation | L1, L2, L3, L4 | Search, LLM-assisted query, memory promotion | Graph patterns, similarity retrieval, task memory, grounded suggestions, reviewable drafts. |
+| 05 Grounded Assistant / MCP Interface | L1, L2, L3, L4 | LLM-assisted query, search, memory retrieval | MCP interface, pgvector retrieval, cache-aware graph hydration, citations to claims/assets/papers, provider boundary. |
+| 06 Automated Ingestion Pipeline | L2, L3, L4 | Auth, ingest | Service credentials, idempotent atlas/package jobs, file manifests, validation reports, graph diff, atomic activation. |
+| 07 Cross-KB Federated Query | L0, L2, L3, L4 | Federation, search, cache lookup | Query planning, atlas/archive/publication/gene connectors, connector/result cache, source attribution, partial results, URI reconciliation. |
 | 09 Grounded Assistant | L1, L2, L3, L4 | LLM-assisted query, search, memory retrieval | pgvector retrieval, cache-aware graph hydration, scoped memory, citations to claims/assets/papers, provider boundary, fallback behavior. |
-| 10 Provenance Audit | L1, L3, L4 | Provenance, drill-down | Evidence nodes, PROV-O paths, schema/version metadata, supersession history. |
 
 ## Contract Traceability Matrix
 
 | Contract / Strategy | Primary epics | Architecture levels | Required review question |
 | --- | --- | --- | --- |
-| MVP Scope (contract) | 01, 05, 06, 07, 08, 09, 10 | L0, L1, L2, L3, L4 | Can a neuroscientist start from a BG taxonomy class, Patch-seq cell, gene/gene set, file asset, or preprint and explain taxonomy, files, evidence, claims, support/conflict/silence, and as-of state? |
-| Identifier Governance Contract | 01, 03, 04, 05, 08, 10 | L0, L3, L4 | Can every visible entity and mapping explain its canonical IRI, source xrefs, mapping type, confidence, and lifecycle state? |
-| Claim And Provenance Contract | 01, 06, 09, 10 | L1, L3, L4 | Can every user-visible assertion identify its evidence, source, activity, agent, graph, release, schema, and review state? |
-| Graph Release And Projection Contract | 04, 05, 07, 10 | L2, L3, L4 | Can a release activate atomically, expose projection freshness, and roll back without losing history? |
-| Operational Readiness Contract | 06, 07, 08, 09 | L1, L2, L3 | Can the stack be deployed locally and operated with observable ingest, projection, auth, backup, restore, and connector behavior? |
-| Ontology Alignment And FAIR Contract | 03, 04, 05, 08 | L0, L4 | Can the fixture state vocabulary versions, crosswalk provenance, validation profile, citation, license, and export metadata? |
-| Cache And Agent Memory Strategy | 02, 05, 08, 09, 10 | L1, L2, L3, L4 | Can agents reuse context and cached work while respecting release freshness, provenance, auth scope, retention, and promotion gates? |
+| MVP Scope (contract) | 01, 03, 05, 06, 07 | L0, L1, L2, L3, L4 | Can a neuroscientist start from a BG taxonomy class, Patch-seq cell, gene/gene set, file asset, or preprint and explain taxonomy, files, evidence, claims, support/conflict/silence, and as-of state? |
+| Identifier Governance Contract | 01, 02, 07 | L0, L3, L4 | Can every visible entity and mapping explain its canonical IRI, source xrefs, mapping type, confidence, and lifecycle state? |
+| Claim And Provenance Contract | 01, 03, 05 | L1, L3, L4 | Can every user-visible assertion identify its evidence, source, activity, agent, graph, release, schema, and review state? |
+| Graph Release And Projection Contract | 01, 02, 06 | L2, L3, L4 | Can a release activate atomically, expose projection freshness, and roll back without losing history? |
+| Operational Readiness Contract | 03, 05, 06, 07 | L1, L2, L3 | Can the stack be deployed locally and operated with observable ingest, projection, auth, backup, restore, and connector behavior? |
+| Ontology Alignment And FAIR Contract | 01, 02, 07 | L0, L4 | Can the fixture state vocabulary versions, crosswalk provenance, validation profile, citation, license, and export metadata? |
+| Cache And Agent Memory Strategy | 01, 04, 05, 07 | L1, L2, L3, L4 | Can agents reuse context and cached work while respecting release freshness, provenance, auth scope, retention, and promotion gates? |
 
