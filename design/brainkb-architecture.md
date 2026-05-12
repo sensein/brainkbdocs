@@ -16,7 +16,7 @@ This document has six parts. Contracts say what the system must satisfy; strateg
 | Part | Sections | What it answers |
 | --- | --- | --- |
 | **Context** | Users and Actors · Use Cases | Who uses BrainKB and what they need to accomplish |
-| **Architecture** | Five Architecture Zoom Levels · Key Sequence Flows | How the system is structured at every level of detail, and how data flows at runtime |
+| **Architecture** | Five Architecture Zoom Levels (L0–L5) · Key Sequence Flows | How the system is structured at every level of detail, and how data flows at runtime |
 | **MVP** | MVP Competency Fixture · MVP Scope | The grounding fixture and capability boundary for the first release |
 | **Contracts** | Identifier Governance · Claim and Provenance · Graph Release and Projection · Operational Readiness · Ontology Alignment and FAIR | Binding requirements the system must satisfy — each contract has a testable review question |
 | **Strategy** | Store and Query · API Boundary and Service Decomposition · Cache and Agent Memory | Design decisions with rationale — explains the trade-offs behind the architecture |
@@ -75,15 +75,16 @@ Full engineering requirements for each use case are in the Epic User Stories sec
 
 ## Five Architecture Zoom Levels
 
-The architecture is described at five levels of detail, each answering a different question. Each level builds on the previous — L0 sets the context, L4 defines the data model that makes everything else possible.
+The architecture is described at five levels of detail, each answering a different question. Each level zooms further in — L0 sets the external context, L2 defines the service tiers, L3 and L4 add dependency and deployment detail, and L5 defines the data model. Key Sequence Flows are a separate section: they trace runtime behaviour across services and serve as contractual use cases.
 
 | Level | Name | Question |
 |---|---|---|
 | L0 | Ecosystem | Who and what does BrainKB connect? |
 | L1 | System | What can users and products do with BrainKB? |
 | L2 | Containers | What are the tiers and how do dependencies flow? |
-| L3 | Key Flows | How do the key workflows move through the system? |
-| L4 | Knowledge/Data Model | What data model makes trust and evolution possible? |
+| L3 | Service Dependencies | What depends on what, and what breaks if a service goes down? |
+| L4 | Deployment | What does the system look like when running? |
+| L5 | Knowledge/Data Model | What data model makes trust and evolution possible? |
 
 ### L0 - Ecosystem
 
@@ -244,46 +245,33 @@ flowchart TB
   end
 ```
 
-### L3 - Key Flows
+### L3 - Service Dependencies
 
-Question answered: how do the key workflows move through the system?
+**TODO: Tek will create a content**
 
-Key flows:
+Question answered: what are the dependencies between services, and what breaks if a service goes down?
 
-- **Search / entity detail** — Search/detail → entity hydration → evidence badges + cache lookup/fill
-- **Ingest** — submit → validate profile → write named graph → build projection → activate release → invalidate caches + revalidate memory
-- **Provenance audit** — claim click → provenance audit (resolves through the provenance graph)
-- **Federated query** — federated query → connector calls → connector cache state
-- **Grounded assistant** — plain-language question → retrieve scoped memory → retrieve IRIs → entity hydration (shared with the search path); also: save/reject candidate → write task/project memory
-
-Detailed service-level sequence diagrams for each flow are in the [Key Sequence Flows](#key-sequence-flows) section below.
+> **Diagram pending.** This section will contain a richer version of the L2 diagram with explicit dependency edges between services — showing, for example, which services depend on auth-api, which depend on kg-api, and what is affected if any one service fails.
 
 Out of scope at L3:
 
-- Data model internals and deployment topology.
+- Deployment topology and data model internals.
 
-```mermaid
-flowchart TB
-  Search["Search/detail"] --> Hydrate["Entity hydration"]
-  Hydrate --> Evidence["Evidence badges"]
-  Hydrate --> CacheLookup["Cache lookup/fill"]
-  Ingest["Submit ingest"] --> Validate["Validate profile"]
-  Validate --> Graph["Write named graph"]
-  Graph --> Project["Build projection"]
-  Project --> Activate["Activate release"]
-  Activate --> Invalidate["Invalidate caches"]
-  Activate --> Recheck["Revalidate memory"]
-  Claim["Claim click"] --> Prov["Provenance audit"]
-  Federate["Federated query"] --> Connect["Connector calls"]
-  Connect --> ExtCache["Connector cache state"]
-  Assist["Plain-language question"] --> MemoryRead["Retrieve scoped memory"]
-  MemoryRead --> Retrieve["Retrieve IRIs"]
-  Retrieve --> Hydrate
-  Assist --> Draft["Save/reject candidate"]
-  Draft --> MemoryWrite["Write task/project memory"]
-```
+### L4 - Deployment
 
-### L4 - Knowledge/Data Model
+**TODO: Tek will create a content**
+
+Question answered: what does the system look like when running, and how does it differ across environments?
+
+> **Diagram pending.** This section will show the deployment view in two configurations: local development (Docker Compose, single host) and cloud (AWS). It will map services to hosts, volumes, and network boundaries.
+
+Out of scope at L4:
+
+- Data model internals and sequence flows.
+
+### L5 - Knowledge/Data Model
+
+**TODO: We will focus on this part later**
 
 Question answered: what data model makes trust and evolution possible?
 
@@ -296,7 +284,7 @@ Question answered: what data model makes trust and evolution possible?
 
 Contracts governing how read models and derived indexes must preserve these properties are in the Contracts section.
 
-Out of scope at L4:
+Out of scope at L5:
 
 - UI layouts, product grouping, and container deployment diagrams.
 
@@ -318,7 +306,9 @@ flowchart LR
 
 ## Key Sequence Flows
 
-These diagrams expand L3 to the service level — each flow from L3 shown step-by-step across the actual services from the L2 architecture.
+**TODO: should be updated after the L3 and L4 is updated**
+
+These diagrams show the service-level detail for the main workflows — each flow traced step-by-step across the actual services from the L2 architecture. They serve as contractual use cases: an implementation is correct when its runtime behaviour matches these sequences.
 
 ### Seq 1 — User Search Query
 
