@@ -1149,7 +1149,7 @@ The abstract atlas is a meta-scientific layer over publication corpora — paper
 - A corpus of papers, preprints, or conference abstracts is ingested with stable identifiers (DOI, OpenAlex ID, or local IRI) and normalized title/abstract/section text.
 - Author and institution metadata is reconciled against external IDs (ORCID, ROR) where available.
 - Embedding generation is available with a configurable backend; embeddings are persisted with the corpus release.
-- Dimensionality reduction (e.g., UMAP) and clustering (community detection and k-means) run as offline workflows producing reproducible artifacts with checkpointed, resumable execution.
+- Dimensionality reduction (e.g., UMAP) and clustering (community-detection and k-means) run as offline workflows producing reproducible artifacts with checkpointed, resumable execution.
 - Cluster outputs carry human-readable labels derived from member text and link back to canonical entity pages in the graph.
 - [Future] Claim-level embeddings exist alongside abstract-level embeddings so multiple semantic lenses can be overlaid on the same corpus.
 - [Future] Citation and cross-reference data (OpenAlex, PubMed) is available for inter-cluster relationship and influence analysis.
@@ -1159,24 +1159,24 @@ The abstract atlas is a meta-scientific layer over publication corpora — paper
 
 - Researchers can browse an interactive 2D landscape projection of a corpus, colored by cluster, with hover, zoom, and select.
 - Lexical and semantic search both work over the corpus and return results with their cluster assignments.
-- Each paper, preprint, or abstract page shows its cluster assignment(s), nearest neighbours, and links into the entity graph (claims, datasets, authors).
+- Each paper, preprint, or abstract page shows its cluster assignment(s), nearest neighbors, and links into the entity graph (claims, datasets, authors).
 - Cluster pages list member abstracts, top terms, and a human-readable cluster label.
 - The corpus, embedding model, reduction parameters, and cluster artifacts are recorded in a release manifest so a landscape can be re-derived identically.
 - [Future] Researchers can switch between semantic lenses (e.g., title+abstract embedding vs. claim-level embedding) over the same corpus.
 - [Future] Longitudinal views surface cluster size, growth rate, and citation interactions over time.
 - [Future] Gap analysis highlights underrepresented intersections (e.g., methodology × scale pairs that are absent or sparse).
-- [Future] An MCP endpoint returns cluster lookups, nearest neighbours, and corpus coordinates so external tools and the grounded assistant can use landscape context.
+- [Future] An MCP endpoint returns cluster lookups, nearest neighbors, and corpus coordinates so external tools and the grounded assistant can use landscape context.
 
 **Implementation sequencing:**
 
 1. Ingest a seed corpus — OHBM 2026 abstracts as the first fixture — with normalized title/abstract/section text, figures linked as evidence, and author/institution reconciliation against ORCID/ROR/OpenAlex.
 2. Generate abstract-level embeddings via a configurable backend (e.g., MiniLM, OpenAI, Voyage) and persist them with the corpus release manifest.
-3. Run UMAP plus community-detection (Leiden) and k-means clustering; produce labelled clusters and an interactive landscape view with lexical and semantic search, faceted browse, and cluster pages.
+3. Run UMAP plus community-detection (Leiden) and k-means clustering; produce labeled clusters and an interactive landscape view with lexical and semantic search, faceted browse, and cluster pages.
 4. Link landscape entries back to the entity graph so claims, datasets, and authors discovered in BrainKB align with their landscape position.
 5. [Future] Add claim-level extraction and a second semantic lens over the same corpus so atlases can be compared across lenses.
 6. [Future] Extend ingestion to a longitudinal corpus (e.g., PubMed-derived neuroscience subset following the Aperture Neuro methodology) for field-scale trend and gap analysis.
 7. [Future] Add citation network overlays, cluster-size time series, and gap analyses with as-of versioning tied to graph releases.
-8. [Future] Expose the atlas through an MCP endpoint and feed cluster context into grounded-assistant retrieval so answers can cite a paper's topical neighbourhood as well as its claims.
+8. [Future] Expose the atlas through an MCP endpoint and feed cluster context into grounded-assistant retrieval so answers can cite a paper's topical neighborhood as well as its claims.
 
 ## Traceability Matrix
 
@@ -1191,7 +1191,7 @@ The abstract atlas is a meta-scientific layer over publication corpora — paper
 | 05 Grounded Assistant / MCP Interface | L1, L2, L3, L4 | LLM-assisted query, search, memory retrieval | MCP interface, pgvector retrieval, cache-aware graph hydration, citations to claims/assets/papers, provider boundary. |
 | 06 Automated Ingestion Pipeline | L2, L3, L4 | Auth, ingest | Service credentials, idempotent atlas/package jobs, file manifests, validation reports, graph diff, atomic activation. |
 | 07 Cross-KB Federated Query | L0, L2, L3, L4 | Federation, search, cache lookup | Query planning, atlas/archive/publication/gene connectors, connector/result cache, source attribution, partial results, URI reconciliation. |
-| 08 Neuroscience Abstract Atlas | L0, L1, L2, L3, L4, L5 | Search, drill-down, LLM-assisted query | Corpus ingest with DOI/OpenAlex/ORCID linkage, configurable embedding backends, UMAP and community-detection clustering, cluster labelling, landscape UI with lens switching, atlas release manifests, [Future] citation/trend/gap overlays and MCP endpoint. |
+| 08 Neuroscience Abstract Atlas | L0, L1, L2, L3, L4, L5 | Search, drill-down, LLM-assisted query | Corpus ingest with DOI/OpenAlex/ORCID linkage, configurable embedding backends, UMAP and community-detection clustering, cluster labeling, landscape UI with lens switching, atlas release manifests, [Future] citation/trend/gap overlays and MCP endpoint. |
 | 09 Grounded Assistant | L1, L2, L3, L4 | LLM-assisted query, search, memory retrieval | pgvector retrieval, cache-aware graph hydration, scoped memory, citations to claims/assets/papers, provider boundary, fallback behavior. |
 
 ## Contract Traceability Matrix
