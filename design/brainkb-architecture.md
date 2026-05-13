@@ -1134,7 +1134,7 @@ Resources are tangible things with identifiers — datasets, tools, models, pipe
 
 ### Epic 08 - Neuroscience Abstract Atlas
 
-The abstract atlas is a meta-scientific layer over publication corpora — papers, preprints, and conference abstracts — that complements the entity graph with a topical map of how the field is organized. It is informed by the [sensein/ohbm2026](https://github.com/sensein/ohbm2026) pipeline (conference-scale corpus, embeddings, UMAP, community-detection clusters, faceted UI) and by [Costa et al., *The Evolving Landscape of Neuroscience*](https://apertureneuro.org/article/156380-the-evolving-landscape-of-neuroscience) (field-scale longitudinal map of ~460k PubMed abstracts, contrastive-learned embedding space, Leiden clusters, citation overlays).
+The abstract atlas is a meta-scientific layer over publication corpora — papers, preprints, and conference abstracts — that complements the entity graph with a topical map of how the field is organized. It is informed by the [sensein/ohbm2026](https://github.com/sensein/ohbm2026) pipeline (conference-scale corpus, embeddings, UMAP, community-detection clusters, faceted UI) and by [Senden, *The Evolving Landscape of Neuroscience*](https://apertureneuro.org/article/156380-the-evolving-landscape-of-neuroscience) (field-scale longitudinal map of ~460k PubMed abstracts, contrastive-learned embedding space, Leiden clusters, citation overlays).
 
 **Actor:** researcher
 
