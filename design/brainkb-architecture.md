@@ -1192,7 +1192,6 @@ The abstract atlas is a meta-scientific layer over publication corpora — paper
 | 06 Automated Ingestion Pipeline | L2, L3, L4 | Auth, ingest | Service credentials, idempotent atlas/package jobs, file manifests, validation reports, graph diff, atomic activation. |
 | 07 Cross-KB Federated Query | L0, L2, L3, L4 | Federation, search, cache lookup | Query planning, atlas/archive/publication/gene connectors, connector/result cache, source attribution, partial results, URI reconciliation. |
 | 08 Neuroscience Abstract Atlas | L0, L1, L2, L3, L4, L5 | Search, drill-down, LLM-assisted query | Corpus ingest with DOI/OpenAlex/ORCID linkage, configurable embedding backends, UMAP and community-detection clustering, cluster labeling, landscape UI with lens switching, atlas release manifests, [Future] citation/trend/gap overlays and MCP endpoint. |
-| 09 Grounded Assistant | L1, L2, L3, L4 | LLM-assisted query, search, memory retrieval | pgvector retrieval, cache-aware graph hydration, scoped memory, citations to claims/assets/papers, provider boundary, fallback behavior. |
 
 ## Contract Traceability Matrix
 
